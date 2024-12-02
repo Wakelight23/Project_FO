@@ -33,13 +33,20 @@ router.patch('/roster', async (req, res, next) => {
   const { playerId1, playerId2, playerId3 } = req.body;
   const { userEmail } = req.locals;
 
+  // 트랜젝션 내부에선 형변환이 제대로 되지 않는 경우가 있어서 미리 해준다.
+  const [playerId1Number, playerId2Number, playerId3Number] = [
+    +playerId1,
+    +playerId2,
+    +playerId3,
+  ];
+
   try {
     // 선택한 선수의 isSelected 밸류를 true로 변경(게임이 끝나면 false로 바꿔주기)
     await prisma.player.update({
       where: {
         userEmail: +userEmail,
         playerId: {
-          in: [+playerId1, +playerId2, +playerId3],
+          in: [playerId1Number, playerId2Number, playerId3Number],
         },
       },
       data: {
@@ -51,7 +58,7 @@ router.patch('/roster', async (req, res, next) => {
       where: {
         userEmail: +userEmail,
         playerId: {
-          in: [+playerId1, +playerId2, +playerId3],
+          in: [playerId3Number, playerId3Number, playerId3Number],
         },
       },
       select: {
@@ -60,10 +67,25 @@ router.patch('/roster', async (req, res, next) => {
       },
     });
 
-    return res.status(201).json(players);
+    // 예상 점수
+    const teamScore = teamScore(playerId1, playerId2, playerId3).reduce(
+      (acc, curr) => {
+        return acc + curr;
+      },
+      0
+    );
+
+    return res.status(201).json({ players, teamScore });
   } catch (err) {
     next(err); // 에러를 다음 미들웨어로 전달
   }
 });
+
+/** 선수들의 점수를 계산하는 함수 */
+export async function teamScore(playerId1, playerId2, playerId3) {
+  // 계산 계산 계산
+
+  return [player1Score, player2Score, player3Score];
+}
 
 export default router;
