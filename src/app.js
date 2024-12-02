@@ -1,5 +1,6 @@
 import express from 'express';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
+import CashRouter from './src/router/cash.router.js';
 
 const app = express();
 const PORT = 3001;
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // 5. 라우터
-app.use('/api', []);
+app.use('/api', [CashRouter]);
 
 // 6. 404 에러 핸들링 미들웨어 추가
 app.use((req, res, next) => {
