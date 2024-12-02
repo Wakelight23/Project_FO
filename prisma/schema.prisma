@@ -13,11 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Team {
-  playerId   Int      @id @default(autoincrement()) @map("playerId")
-  playerName String   @map("playerName")
-  createdAt  DateTime @default(now()) @map("createdAt")
-  updatedAt  DateTime @updatedAt @map("updatedAt")
+model TeamMebertest {
+  teamMemberId Int      @id @default(autoincrement()) @map("teamMemberId")
+  playerId     Int      @map("playerId")
+  upgrade      Int      @default(0) @map("upgrade")
+  isSelected   Boolean  @default(false) @map("isSelected")
+  createdAt    DateTime @default(now()) @map("createdAt")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updatedAt")
 
-  @@map("team")
+  @@map("teamtest")
 }

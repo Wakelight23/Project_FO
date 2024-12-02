@@ -25,3 +25,12 @@
 -- JOIN item_simulator.Items i 
 -- ON ci.itemId = i.itemId
 -- SET ci.itemCode = i.itemCode;
+
+INSERT INTO teamtest
+  (playerId)
+VALUES
+  (1),
+  (10),
+  (3),
+  (16),
+  (38)

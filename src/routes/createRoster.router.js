@@ -18,8 +18,8 @@ router.get('/roster', async (req, res, next) => {
         userEmail: +userEmail,
       },
       select: {
-        playerId: true,
         playerName: true,
+        playerStat: true,
       },
     });
     return res.status(200).json(myPlayerList);
@@ -58,31 +58,32 @@ router.patch('/roster', async (req, res, next) => {
       where: {
         userEmail: +userEmail,
         playerId: {
-          in: [playerId3Number, playerId3Number, playerId3Number],
+          in: [playerId1Number, playerId2Number, playerId3Number],
         },
       },
       select: {
-        playerId: true,
         playerName: true,
+        playerStat: true,
       },
     });
 
     // 예상 점수
-    const teamScore = teamScore(playerId1, playerId2, playerId3).reduce(
-      (acc, curr) => {
-        return acc + curr;
-      },
-      0
-    );
+    const teamPower = teamScore(
+      playerId1Number,
+      playerId2Number,
+      playerId3Number
+    ).reduce((acc, curr) => {
+      return acc + curr;
+    }, 0);
 
-    return res.status(201).json({ players, teamScore });
+    return res.status(201).json(players, teamPower);
   } catch (err) {
     next(err); // 에러를 다음 미들웨어로 전달
   }
 });
 
 /** 선수들의 점수를 계산하는 함수 */
-export async function teamScore(playerId1, playerId2, playerId3) {
+export async function teamPower(playerId1, playerId2, playerId3) {
   // 계산 계산 계산
 
   return [player1Score, player2Score, player3Score];
