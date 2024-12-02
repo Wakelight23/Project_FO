@@ -9,6 +9,19 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Accounts {
+  account_id Int           @id @default(autoincrement()) @map("account_id")  // 계정 고유 ID (Primary Key)
+  email      String        @unique @map("email") // 이메일 (고유)
+  password   String        @map("password") //비밀번호
+  name       String        @map("name") // 이름
+  age        Int           @map("age") // 나이
+  gender     String        @map("gender") // 성별
+  created_at DateTime      @default(now()) @map("created_at") // 생성일시
+
+
+  @@map("Accounts")
 }
