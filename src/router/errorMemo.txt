@@ -1,0 +1,144 @@
+코드를 보니 몇 가지 오류와 개선할 점이 있습니다. 특히 `gift`와 `payment` 라우트에서 문제가 될 수 있는 부분이 있습니다. 아래에서 수정 및 설명을 제공합니다.
+
+---
+
+### 주요 문제점:
+1. **`Prisma` 대신 `prisma` 오타**  
+   `await Prisma.manager.update`는 대문자 `P`로 작성되어 오류가 발생합니다. `prisma` 객체를 사용해야 합니다.
+
+2. **`update` 시 `originalCache`를 직접 더하려고 함**  
+   `originalCache`는 객체 형태로 반환되며, 이 값을 숫자와 더하려 하면 오류가 발생합니다. 값을 제대로 추출해야 합니다.
+
+3. **`isEmail[1]` 잘못된 참조**  
+   `isEmail`은 객체입니다. `[1]`로 접근하는 것은 잘못된 방식입니다. `isEmail.password`를 사용해야 합니다.
+
+4. **`res` 응답 중 한글 오타**  
+   예를 들어, "구매하련느 캐시는" 등 오타가 보입니다.
+
+5. **비밀번호 검증 방식**  
+   비밀번호 비교는 단순히 평문 비교를 사용하는 것 같으나, 실제 환경에서는 암호화(해싱)를 사용해야 합니다.
+
+---
+
+### 수정된 코드
+
+```javascript
+import express from 'express';
+import { prisma } from '../utils/prisma/index.js';
+
+const router = express.Router();
+
+// 선물캐시 email
+router.post('/cash/gift', async (req, res) => {
+    const { email } = req.body;
+    try {
+        // email이 있는지 확인
+        const isEmail = await prisma.manager.findFirst({
+            where: { email },
+            select: { email: true },
+        });
+
+        if (!isEmail) {
+            return res.status(404).json({ message: '존재하지 않는 Email 입니다.' });
+        }
+
+        const giftCash = Math.floor(Math.random() * 200) + 20;
+        // 원래 캐시 가져오기
+        const originalCache = await prisma.manager.findFirst({
+            where: { email },
+            select: { cash: true },
+        });
+
+        await prisma.manager.update({
+            data: { cash: (originalCache.cash || 0) + giftCash },
+            where: { email },
+        });
+
+        return res.status(200).json({ message: `${giftCash}캐시를 선물받았습니다.` });
+    } catch (error) {
+        console.error('Error gifting cash:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// 캐시 구매 email, 캐시, pw
+router.post('/cash/payment', async (req, res) => {
+    const { email, buyCash, password } = req.body;
+
+    if (!buyCash || buyCash <= 0) {
+        return res.status(400).json({
+            message: '구매하려는 캐시는 0 이상의 정수를 입력해주세요.',
+        });
+    }
+
+    try {
+        // email과 password 확인
+        const isEmail = await prisma.manager.findFirst({
+            where: { email },
+            select: { email: true, password: true, cash: true },
+        });
+
+        if (!isEmail) {
+            return res.status(404).json({ message: '존재하지 않는 Email 입니다.' });
+        }
+
+        // 비밀번호 검증 (여기선 단순 비교, 실제 환경에선 해싱 필요)
+        if (isEmail.password !== password) {
+            return res.status(403).json({ message: '틀린 비밀번호 입니다.' });
+        }
+
+        // 캐시 업데이트
+        await prisma.manager.update({
+            data: { cash: (isEmail.cash || 0) + buyCash },
+            where: { email },
+        });
+
+        return res.status(200).json({ message: `${buyCash}캐시를 결제하셨습니다.` });
+    } catch (error) {
+        console.error('Error processing payment:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// 캐시 조회 email
+router.get('/cash/:email', async (req, res) => {
+    const { email } = req.params;
+    try {
+        const myCash = await prisma.manager.findFirst({
+            where: { email },
+            select: { nickname: true, cash: true },
+        });
+
+        if (!myCash) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json({ data: myCash });
+    } catch (error) {
+        console.error('Error fetching cash data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+export default router;
+```
+
+---
+
+### 변경사항 요약
+1.O **`Prisma` → `prisma`**: 오타 수정.
+2.O **`originalCache` 값 추출**: `originalCache.cash`로 접근.
+3.O **비밀번호 비교**: 객체 속성 `isEmail.password` 사용.
+4.O **응답 메시지 오타 수정**: 한글 문구 오류 수정.
+5. **실제 환경 고려**: 비밀번호 해싱 검토 필요.
+
+---
+
+### 테스트 포인트
+1. `/cash/gift` 라우트에서 잘못된 이메일 입력 시 처리 확인.
+2. `/cash/payment` 라우트에서:
+   - 음수 또는 0 입력 시 에러 처리 확인.
+   - 잘못된 비밀번호 입력 시 에러 확인.
+3. `/cash/:email` 라우트에서 존재하지 않는 이메일 입력 시 적절한 에러 반환 확인.
+
+이후 서버에서 테스트를 진행하면서 Prisma의 데이터베이스 상태를 확인하세요!

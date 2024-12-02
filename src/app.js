@@ -1,6 +1,7 @@
 import express from 'express';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-import CashRouter from './src/router/cash.router.js';
+import CashRouter from './router/cash.router.js';
+import MemberRouter from './router/member.router.js';
 
 const app = express();
 const PORT = 3001;
@@ -16,29 +17,30 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // 5. 라우터
-app.use('/api', [CashRouter]);
+app.use('/api', CashRouter);
+app.use('/api', MemberRouter);
 
 // 6. 404 에러 핸들링 미들웨어 추가
 app.use((req, res, next) => {
-  res.status(404).json({
-    message: '요청하신 리소스를 찾을 수 없습니다.',
-  });
+    res.status(404).json({
+        message: '요청하신 리소스를 찾을 수 없습니다.',
+    });
 });
 
 // 7. 에러 핸들링 (항상 마지막에 위치)
 app.use(errorHandlingMiddleware);
 
 app.listen(PORT, () => {
-  console.log(PORT, '포트로 서버가 열렸어요!');
+    console.log(PORT, '포트로 서버가 열렸어요!');
 });
 
 // 8. 예기치 않은 에러 처리
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
+    console.error('Uncaught Exception:', error);
+    process.exit(1);
 });
 
 process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Rejection:', error);
-  process.exit(1);
+    console.error('Unhandled Rejection:', error);
+    process.exit(1);
 });

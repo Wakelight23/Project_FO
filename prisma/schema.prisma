@@ -32,9 +32,9 @@ model Manager {
   email     String @unique @map("email")
   accountId Int    @unique @map("accountId")
   nickname  String @map("nickname")
-  cash      Int    @map("cash")
-  recordId  Int    @map("recordId")
-  rating    Int    @map("rating")
+  cash      Int    @default(100) @map("cash")
+  recordId  Int?   @map("recordId")
+  rating    Int?   @map("rating")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
