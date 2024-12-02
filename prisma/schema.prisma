@@ -12,3 +12,12 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Team {
+  playerId   Int      @id @default(autoincrement()) @map("playerId")
+  playerName String   @map("playerName")
+  createdAt  DateTime @default(now()) @map("createdAt")
+  updatedAt  DateTime @updatedAt @map("updatedAt")
+
+  @@map("team")
+}

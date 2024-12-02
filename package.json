@@ -5,12 +5,19 @@
   "repository": "https://github.com/Wakelight23/Project_FO.git",
   "author": "wakelight23 <rlghks0223@gmail.com>",
   "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write *.js **/*.js",
+    "dev": "npx nodemon app.js"
+  },
   "dependencies": {
     "@prisma/client": "^6.0.0",
+    "bcrypt": "^5.1.1",
     "express": "^4.21.1",
     "prisma": "^6.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.1"
   }
 }
