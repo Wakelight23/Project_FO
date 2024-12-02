@@ -27,19 +27,19 @@
 -- SET ci.itemCode = i.itemCode;
 
 -- INSERT INTO teamtest
---   (playerId)
+--   (playerId, managerId)
 -- VALUES
---   (1),
---   (10),
---   (3),
---   (16),
---   (38)
+--   (1,1),
+--   (2,1),
+--   (3,1),
+--   (4,1),
+--   (5,1)
 
-INSERT INTO playertest
-  (playerName, playerStat)
-VALUES
-  ("가", 65),
-  ("나",43),
-  ("다",87),
-  ("라",34),
-  ("마",76)
+-- INSERT INTO playertest
+--   (playerName, playerStat)
+-- VALUES
+--   ("가", 65),
+--   ("나",43),
+--   ("다",87),
+--   ("라",34),
+--   ("마",76)
