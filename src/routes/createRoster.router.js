@@ -8,7 +8,11 @@ const router = express.Router();
 
 /** 선수들의 점수를 계산하는 함수 */
 export async function teamPowerCheck(players) {
-  return players.map((player) => player.playerStat);
+  return players
+    .map((player) => player.playerStat)
+    .reduce((acc, curr) => {
+      return acc + curr;
+    }, 0);
 }
 
 /** 계정이 보유하고 있는 전체 선수 목록을 조회하는 API */
@@ -98,11 +102,7 @@ router.patch('/rosterIn', async (req, res, next) => {
     );
 
     // 예상 점수
-    const powerArray = await teamPowerCheck(result);
-
-    const teamPower = powerArray.reduce((acc, curr) => {
-      return acc + curr;
-    }, 0);
+    const teamPower = await teamPowerCheck(result);
 
     return res.status(201).json({ players: result, teamPower });
   } catch (err) {
