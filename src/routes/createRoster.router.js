@@ -5,13 +5,12 @@ import { prisma } from '../utils/prisma/index.js';
 const router = express.Router();
 
 /** 선수들의 점수를 합산하는 함수(TO-DO: 로직 보강) */
-export async function teamPowerCheck(players) {
-  return players
-    .map((player) => player.playerStat)
+const teamPowerCheck = (players) =>
+  players
+    .map((player) => player.playerStat) // 배열의 각 요소(선수 데이터)가 객체 상태이기 때문에 playerStat의 밸류만 남겨서 새로운 배열로 반환
     .reduce((acc, curr) => {
-      return acc + curr;
+      return acc + curr; // playerStat의 총합 계산하기
     }, 0);
-}
 
 /** Number 형식 유효성 검사 함수(1이상의 정수를 받아야 할 때 사용) */
 const isValidInput = (input) => /^[0-9]+$/.test(+input) && Number(+input) >= 1;
@@ -113,6 +112,7 @@ router.patch('/rosterIn', async (req, res, next) => {
       return res.status(401).json({ error: '잘못된 요청입니다.' });
     }
 
+    // 선수들의 데이터를 배열로 가져오기
     const result = await prisma.$transaction(
       async (tx) => {
         // 선택한 선수의 isSelected 밸류를 true로 변경(게임이 끝나면 false로 바꿔주기)
@@ -140,7 +140,6 @@ router.patch('/rosterIn', async (req, res, next) => {
             playerStat: true,
           },
         });
-
         return players;
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted }
