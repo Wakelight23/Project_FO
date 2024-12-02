@@ -13,23 +13,102 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model TeamMebertest {
-  teamMemberId Int      @id @default(autoincrement()) @map("teamMemberId")
-  playerId     Int      @map("playerId")
-  upgrade      Int      @default(0) @map("upgrade")
-  isSelected   Boolean  @default(false) @map("isSelected")
-  createdAt    DateTime @default(now()) @map("createdAt")
-  updatedAt    DateTime @default(now()) @updatedAt @map("updatedAt")
+model Account {
+  accountId Int @id @default(autoincrement()) @map("accountId")
+  email String @unique @map("email")
+  password String @map("password")
+  isAdmin Boolean @default(false) @map("isAdmin")
 
-  @@map("teamtest")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  manager  Manager?
+
+  @@map("Account")
 }
 
-model Playertest {
-  playerId   Int      @id @default(autoincrement()) @map("playerId")
-  playerName String   @map("playerName")
-  playerStat Int      @map("playerStat")
-  createdAt  DateTime @default(now()) @map("createdAt")
-  updatedAt  DateTime @default(now()) @updatedAt @map("updatedAt")
+model Manager {
+  managerId Int @id @default(autoincrement()) @map("managerId")
+  email String @unique @map("email")
+  accountId Int @unique @map("accountId")
+  nickname String @map("nickname")
+  cash Int @map("cash")
+  recordId Int @map("recordId")
+  rating Int @map("rating")
 
-  @@map("playertest")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+  records      Record[]      
+  teamMembers  TeamMember[] 
+
+  @@map("Manager")
+}
+
+model Player {
+  playerId Int @id @default(autoincrement()) @map("playerId")
+  name String @map("name")
+  club String @map("club")
+  speed Int @map("speed")
+  goalFinishing Int @map("goalFinishing")
+  shootPower Int @map("shootPower")
+  defense Int @map("defense")
+  stamina Int @map("stamina")
+  rarity Int @map("rarity")
+  type Int? @map("type")
+  playerImage String? @map("playerImage")
+
+  teamMembers   TeamMember[]  
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Player")
+}
+
+model TeamMember {
+  teamMemberId Int @id @default(autoincrement()) @map("teamMemberId")
+  playerId Int @map("playerId")
+  managerId Int @map("managerId")
+  upgrade Int @default(0) @map("upgrade")
+  isSelected Boolean @default(false) @map("isSelected")
+
+  player  Player  @relation(fields: [playerId], references: [playerId], onDelete: Cascade)
+  manager Manager @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("TeamMember")
+}
+
+model Record {
+  recordId Int @id @default(autoincrement()) @map("recordId")
+  managerId Int @map("managerId")
+  gameResult Int @map("gameResult")
+
+  manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Record")
+}
+
+model playertest {
+  playerId   Int      @id @default(autoincrement())
+  playerName String
+  playerStat Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+}
+
+model teamtest {
+  teamMemberId Int      @id @default(autoincrement())
+  playerId     Int
+  upgrade      Int      @default(0)
+  isSelected   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 }
