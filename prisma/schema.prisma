@@ -9,19 +9,46 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model Accounts {
-  account_id Int           @id @default(autoincrement()) @map("account_id")  // 계정 고유 ID (Primary Key)
-  email      String        @unique @map("email") // 이메일 (고유)
-  password   String        @map("password") //비밀번호
-  name       String        @map("name") // 이름
-  age        Int           @map("age") // 나이
-  gender     String        @map("gender") // 성별
-  created_at DateTime      @default(now()) @map("created_at") // 생성일시
+  accountid  Int           @id @default(autoincrement()) @map("accountid")  // 계정 고유 ID (Primary Key)
+  email       String        @unique @map("email") // 이메일 (고유)
+  password    String        @map("password") //비밀번호
+  name        String        @map("name") // 이름
+  age         Int           @map("age") // 나이
+  gender      String        @map("gender") // 성별
+  created_at  DateTime      @default(now()) @map("created_at") // 생성일시
 
+  Manager        Manager?        @relation("AccToUser")
+
+  refreshTokens RefreshToken[] @relation("AccTORTokens")
 
   @@map("Accounts")
+}
+
+model Manager {
+  managerid    Int           @id @default(autoincrement()) @map("managerid")  // 캐릭터 고유 ID (Primary Key)
+  accountid  Int           @unique @map("accountid") // Accounts 참조 외래키
+  nickname    String        @unique @map("nickname") // 닉네임
+  rating      Int           @map("rating") // 레이팅
+  cash       Int           @map("cash") // 보유 재화
+  created_at  DateTime      @default(now()) @map("created_at") // 생성일자
+
+
+  // AccToCha 관계 설정
+  account     Accounts      @relation("AccToUser", fields: [accountid], references: [accountid], onDelete: Cascade)
+
+  @@map("Users")
+}
+
+model RefreshToken {
+  accountid Int      @map("accountid") // Accounts 참조 외래키
+  token      String   @unique @map("token") // 리프레시 토큰 (고유)
+  createdAt  DateTime @default(now()) @map("created_at") // 생성일자
+  account    Accounts @relation("AccTORTokens", fields: [accountid], references: [accountid], onDelete: Cascade)
+
+  @@map("RefreshToken")
 }
