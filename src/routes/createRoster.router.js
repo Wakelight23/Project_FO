@@ -4,9 +4,7 @@ import { prisma } from '../utils/prisma/index.js';
 
 const router = express.Router();
 
-// 각종 유효성 검사는 추후에 작성
-
-/** 선수들의 점수를 계산하는 함수 */
+/** 선수들의 점수를 합산하는 함수(TO-DO: 로직 보강) */
 export async function teamPowerCheck(players) {
   return players
     .map((player) => player.playerStat)
@@ -15,6 +13,9 @@ export async function teamPowerCheck(players) {
     }, 0);
 }
 
+/** Number 형식 유효성 검사 함수(1이상의 정수를 받아야 할 때 사용) */
+const isValidInput = (input) => /^[0-9]+$/.test(+input) && Number(+input) >= 1;
+
 /** 계정이 보유하고 있는 전체 선수 목록을 조회하는 API */
 router.get('/myPlayer', async (req, res, next) => {
   // TO-DO : 토큰 인증 미들웨어 추가
@@ -22,8 +23,7 @@ router.get('/myPlayer', async (req, res, next) => {
 
   try {
     // (1) 유효성 검사(1 이상의 정수인가?)
-    const isValidManagerId =
-      /^[0-9]+$/.test(+managerId) && Number(+managerId) >= 1;
+    const isValidManagerId = isValidInput(managerId);
     // (2) 예외 처리
     if (!managerId) {
       return res.status(400).json({
@@ -82,9 +82,8 @@ router.patch('/rosterIn', async (req, res, next) => {
 
   const playerIds = [playerId1, playerId2, playerId3];
 
-  // (1) 유효성 검사 함수
-  const isValidPlayerId = (playerId) =>
-    /^[0-9]+$/.test(+playerId) && Number(+playerId) >= 1;
+  // (1) 유효성 검사(1 이상의 정수인가?)
+  const isValidPlayerId = playerIds.every(isValidInput);
 
   // (2) 예외 처리
   if (!playerId1 || !playerId2 || !playerId3) {
@@ -92,8 +91,7 @@ router.patch('/rosterIn', async (req, res, next) => {
       error: '세 개의 playerId를 모두 입력해주세요.',
     });
   }
-  const isValid = playerIds.every(isValidPlayerId);
-  if (!isValid) {
+  if (!isValidPlayerId) {
     return res.status(400).json({
       error: 'playerId는 1이상의 정수여야 합니다.',
     });
@@ -103,6 +101,18 @@ router.patch('/rosterIn', async (req, res, next) => {
   const playerIdNumbers = playerIds.map(Number);
 
   try {
+    // id가 없는 선수를 선발했을 때(id에 1억을 입력한다거나...) 예외 처리
+    const isValidPlayer = await prisma.teamtest.findMany({
+      where: {
+        playerId: {
+          in: playerIdNumbers,
+        },
+      },
+    });
+    if (isValidPlayer.length !== 3) {
+      return res.status(401).json({ error: '잘못된 요청입니다.' });
+    }
+
     const result = await prisma.$transaction(
       async (tx) => {
         // 선택한 선수의 isSelected 밸류를 true로 변경(게임이 끝나면 false로 바꿔주기)
@@ -144,5 +154,7 @@ router.patch('/rosterIn', async (req, res, next) => {
     next(err); // 에러를 다음 미들웨어로 전달
   }
 });
+
+// TO-DO : rosterOut
 
 export default router;
