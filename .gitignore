@@ -1,5 +1,4 @@
-/node_module
+/node_modules
 .env
 .env.development
 .env.production
-.prettierrc

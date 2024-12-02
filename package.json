@@ -1,0 +1,16 @@
+{
+  "name": "fusal_online",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Wakelight23/Project_FO.git",
+  "author": "wakelight23 <rlghks0223@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.0.0",
+    "express": "^4.21.1",
+    "prisma": "^6.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
