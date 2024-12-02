@@ -26,11 +26,20 @@
 -- ON ci.itemId = i.itemId
 -- SET ci.itemCode = i.itemCode;
 
-INSERT INTO teamtest
-  (playerId)
+-- INSERT INTO teamtest
+--   (playerId)
+-- VALUES
+--   (1),
+--   (10),
+--   (3),
+--   (16),
+--   (38)
+
+INSERT INTO playertest
+  (playerName, playerStat)
 VALUES
-  (1),
-  (10),
-  (3),
-  (16),
-  (38)
+  ("가", 65),
+  ("나",43),
+  ("다",87),
+  ("라",34),
+  ("마",76)

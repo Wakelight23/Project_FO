@@ -23,3 +23,13 @@ model TeamMebertest {
 
   @@map("teamtest")
 }
+
+model Playertest {
+  playerId   Int      @id @default(autoincrement()) @map("playerId")
+  playerName String   @map("playerName")
+  playerStat Int      @map("playerStat")
+  createdAt  DateTime @default(now()) @map("createdAt")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updatedAt")
+
+  @@map("playertest")
+}
