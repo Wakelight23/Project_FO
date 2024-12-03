@@ -178,6 +178,8 @@ gachaRouter.get('/api/gacha/:id', async (req, res) => {
 gachaRouter.post('/api/gacha', async (req, res) => {
   try {
     const { managerId } = req.body;
+    Log(managerId);
+    //const managerId = 3;
     const drawnItem = await getRandomItem();
     if (!drawnItem) {
       return res.json({
