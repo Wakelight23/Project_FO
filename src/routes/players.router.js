@@ -145,7 +145,7 @@ router.post('/players', async (req, res, next) => {
       },
     });
 
-    return res.status(200).json({ message: `${name}선수가 생성되었습니다.` });
+    return res.status(201).json({ message: `${name}선수가 생성되었습니다.` });
   } catch (err) {
     next(err);
   }
@@ -155,6 +155,7 @@ const upload = multer({ storage: storage });
 /** 새로운 선수 생성 CSV API **/
 router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
   // 어드민 일때만 생성이 가능하다.
+  // 주의! 잘못된 데이터이어도 에러를 피하기 위해 기본값을 다 넣어 놨음.
   //const { accountID } = req.accountID;
   try {
     // const isAdmin = await prisma.account.findFirst({
@@ -172,36 +173,13 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
     const csvData = req.file.buffer.toString('utf-8');
     const csvStringArr = csvData.split('\n');
 
-    const csvCreateData = csvHeaderParsing(csvStringArr);
+    const csvCreateData = csvParsing(csvStringArr);
 
-    if (
-      !name ||
-      !club ||
-      !speed ||
-      !goalFinishing ||
-      !shootPower ||
-      !defense ||
-      !stamina ||
-      !rarity ||
-      !type
-    )
-      res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
-
-    const user = await prisma.player.create({
-      data: {
-        name,
-        club,
-        speed,
-        goalFinishing,
-        shootPower,
-        defense,
-        stamina,
-        rarity,
-        type,
-      },
+    const user = await prisma.player.createMany({
+      data: csvCreateData,
     });
 
-    return res.status(200).json({ message: `${name}선수가 생성되었습니다.` });
+    return res.status(201).json({ message: `${csvCreateData.length}명의 선수가 생성되었습니다.` });
   } catch (err) {
     next(err);
   }
@@ -332,7 +310,7 @@ router.delete('/players/:playerId', async (req, res, next) => {
 
 
   //csv 파일을 배열로 변환
-function csvHeaderParsing(csvString) {
+function csvParsing(csvString) {
   //player 테이블 데이터
   // playerId      Int          @id @default(autoincrement()) @map("playerId")
   // name          String       @map("name")
@@ -409,7 +387,7 @@ function csvHeaderParsing(csvString) {
       shootPower: csvString[indexShootPower] ?? 30 + Math.random() * tmpRarity,
       defense: csvString[indexDefense] ?? 30 + Math.random() * tmpRarity,
       stamina: csvString[indexStamina] ?? 30 + Math.random() * tmpRarity,
-      rarity: tmpRarity,
+      rarity: csvString[indexRarity] ?? tmpRarity,
       type: csvString[indexType] ?? 1,
       playerImage: csvString[indexplayerImage] ?? '',
     };
