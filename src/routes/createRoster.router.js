@@ -5,91 +5,16 @@ import { prisma } from '../utils/prisma/index.js';
 const router = express.Router();
 
 /** 선수들의 점수를 합산하는 함수(TO-DO: 로직 보강) */
-const teamPowerCheck = (players) =>
+export const teamPowerCheck = (players) =>
   players
-    .map((player) => player.playerStat) // 배열의 각 요소(선수 데이터)가 객체 상태이기 때문에 playerStat의 밸류만 남겨서 새로운 배열로 반환
+    .map((player) => player.goalFinishing) // 배열의 각 요소(선수 데이터)가 객체 상태이기 때문에 playerStat의 밸류만 남겨서 새로운 배열로 반환
     .reduce((acc, curr) => {
       return acc + curr; // playerStat의 총합 계산하기
     }, 0);
 
 /** Number 형식 유효성 검사 함수(1이상의 정수를 받아야 할 때 사용) */
-const isValidInput = (input) => /^[0-9]+$/.test(+input) && Number(+input) >= 1;
-
-/** 계정이 보유하고 있는 전체 선수 목록을 조회하는 API */
-router.get('/myPlayer', async (req, res, next) => {
-  // TO-DO : 토큰 인증 미들웨어 추가
-  const { managerId } = req.body; // 이 부분을 토큰으로 받을 수 있을 것 같다.
-
-  try {
-    // 유효성 검사(1 이상의 정수인가? 빈 값이 들어오진 않았는가? 데이터 형식이 다르지는 않은가?)
-    const isValidManagerId = isValidInput(managerId);
-    if (!managerId) {
-      return res.status(400).json({
-        error: 'managerId를 입력해 주세요.',
-      });
-    }
-    if (!isValidManagerId) {
-      return res.status(400).json({
-        error: 'managerId는 1이상의 정수여야 합니다.',
-      });
-    }
-
-    // 예외처리(존재하지 않는 managerId인 경우)
-    const isExitManagerId = await prisma.manager.findFirst({
-      where: {
-        managerId: +managerId,
-      },
-    });
-
-    if (!isExitManagerId) {
-      return res.status(400).json({
-        error: '존재하지 않는 managerId입니다.',
-      });
-    }
-    // 선수 목록 조회
-    await prisma.$transaction(
-      async (tx) => {
-        // 계정이 보유하고 있는 선수들의 id를 조회(이 배열의 요소는 객체 상태)
-        const membersInTeam = await tx.teamMember.findMany({
-          where: {
-            managerId: +managerId,
-          },
-          select: {
-            teamMemberId: true,
-            playerId: true,
-          },
-        });
-        // membersInTeam의 밸류에서 playerId값만 모아서 배열로 만든다.
-        const playerIds = membersInTeam.map((member) => member.playerId);
-
-        // playerIds 배열을 where의 조건으로 설정한 뒤 선수 테이블을 조회. 이름이랑 스탯을 가져온다.
-        const myPlayerList = await tx.player.findMany({
-          where: {
-            playerId: {
-              in: playerIds,
-            },
-          },
-          select: {
-            name: true,
-            club: true,
-            speed: true,
-            goalFinishing: true,
-            shootPower: true,
-            defense: true,
-            stamina: true,
-            rarity: true,
-            type: true,
-          },
-        });
-
-        return res.status(200).json(myPlayerList);
-      },
-      { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted }
-    );
-  } catch (err) {
-    next(err);
-  }
-});
+export const isValidInput = (input) =>
+  /^[0-9]+$/.test(+input) && Number(+input) >= 1;
 
 /** 출전 선수를 선발하는 API */
 router.patch('/rosterIn', async (req, res, next) => {
@@ -103,9 +28,20 @@ router.patch('/rosterIn', async (req, res, next) => {
   );
 
   // (1) 유효성 검사(1 이상의 정수인가?)
+  // const isValidManagerId = isValidInput(managerId);
   const isValidteamMemberId = teamMemberIds.every(isValidInput);
 
   // (2) 예외 처리
+  // if (!managerId) {
+  //   return res.status(400).json({
+  //     error: '로그인 계정을 찾을 수 없습니다.',
+  //   });
+  // }
+  // if (!isValidManagerId) {
+  //   return res.status(400).json({
+  //     error: '잘못된 계정을 통한 접근입니다.',
+  //   });
+  // }
   if (!teamMemberId1 || !teamMemberId2 || !teamMemberId3) {
     return res.status(400).json({
       error: '세 개의 teamMemberId를 모두 입력해주세요.',
@@ -207,11 +143,38 @@ router.patch('/rosterIn', async (req, res, next) => {
 /** 선발 선수를 다른 선수로 변경하는 API */
 router.patch('/rosterOut', async (req, res, next) => {
   // TO-DO: 토큰 인증
-  const { memberId } = req.body;
+  const { managerId } = req.body;
 
   // 교체할 선수 둘을 request body를 통해 요청받는다.
   const { outMemberId, inMemberId } = req.body;
   const memberIds = [outMemberId, inMemberId].map(Number);
+
+  // (1) 유효성 검사(1 이상의 정수인가?)
+  // const isValidManagerId = isValidInput(managerId);
+  const isValidMemberId = memberIds.every(isValidInput);
+
+  // (2) 예외 처리
+  // if (!managerId) {
+  //   return res.status(400).json({
+  //     error: '로그인 계정을 찾을 수 없습니다.',
+  //   });
+  // }
+  // if (!isValidManagerId) {
+  //   return res.status(400).json({
+  //     error: '잘못된 계정을 통한 접근입니다.',
+  //   });
+  // }
+  if (!outMemberId || !inMemberId) {
+    return res.status(400).json({
+      error: '서로 교체할 teamMemberId를 모두 입력해주세요.',
+    });
+  }
+  if (!isValidMemberId) {
+    return res.status(400).json({
+      error: 'teamMemberId는 1이상의 정수여야 합니다.',
+    });
+  }
+
   try {
     // 예외처리 (teamtest 테이블에서 조회했을 때 outMemberId를 조회했을 때 isSelected가 true인가?)
     const isValidOutMember = await prisma.teamMember.findUnique({
