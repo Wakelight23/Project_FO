@@ -4,3 +4,4 @@
 .env.production
 README.md
 README
+*.md
