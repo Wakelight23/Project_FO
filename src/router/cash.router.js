@@ -4,8 +4,8 @@ import { prisma } from '../utils/prisma/index.js';
 
 const router = express.Router();
 
-// 선물캐시 email
-router.post('/cash/gift', async (req, res, next) => {
+// Lucky캐시 email
+router.post('/cash/lucky', async (req, res, next) => {
     const { email } = req.body;
     try {
         // email이 있는지 확인
@@ -32,9 +32,9 @@ router.post('/cash/gift', async (req, res, next) => {
 
         return res
             .status(200)
-            .json({ message: `${giftCash}캐시를 선물받았습니다.` });
+            .json({ message: `LUCKY!!! ${giftCash}캐시를 받았습니다.` });
     } catch (error) {
-        console.error('Error gifting cash:', error);
+        console.error('Error lucky cash:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -101,6 +101,99 @@ router.get('/cash/:email', async (req, res, next) => {
         return res.status(200).json({ data: myCash });
     } catch (error) {
         console.error('Error fetching cash data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// 1. 다른 유저에게 캐시 선물
+router.post('/cash/gift', async (req, res, next) => {
+    const { senderNickname, receiverNickname, amount, password } = req.body;
+    let newAmount = +amount;
+    try {
+        // 입력정보 확인
+        if (!senderNickname || !receiverNickname || !newAmount || !password) {
+            return res.status(404).json({
+                message:
+                    '보내는 닉네임, 받는 닉네임, 금액, 비밀번호를 모두 입력해주세요.',
+            });
+        }
+
+        // 송신자 닉네임 확인
+        const sender = await prisma.manager.findFirst({
+            where: { nickname: senderNickname },
+            select: {
+                cash: true,
+                account: {
+                    select: {
+                        password: true, // Account.password
+                    },
+                },
+            },
+        });
+        if (!sender) {
+            return res.status(404).json({
+                message: '송신자 닉네임이 존재하지 않습니다.',
+            });
+        }
+
+        // 송신자 비번확인
+        if (sender.account.password !== password) {
+            return res.status(404).json({
+                message: '송신자의 비밀번호가 일치하지 않습니다.',
+            });
+        }
+
+        // 수신자 닉네임 확인
+        const receiver = await prisma.manager.findFirst({
+            where: { nickname: receiverNickname },
+            select: {
+                cash: true,
+            },
+        });
+
+        if (!receiver) {
+            return res.status(404).json({
+                message: '수신자 닉네임이 존재하지 않습니다.',
+            });
+        }
+
+        // 캐시 1이상의 정수 확인
+        if (!Number.isInteger(newAmount) || newAmount < 1) {
+            return res.status(404).json({
+                message: '선물하는 금액은 1 이상의 정수여야 합니다.',
+            });
+        }
+        // 송신자 잔액 확인
+        if (sender.cash < newAmount) {
+            return res.status(400).json({
+                message: '송신자의 잔액이 부족합니다.',
+            });
+        }
+
+        // 캐시 수정하기  내꺼 줄어들고 받은사람 늘어나고
+        await prisma.manager.update({
+            where: { nickname: senderNickname },
+            data: { cash: sender.cash - newAmount },
+        });
+        await prisma.manager.update({
+            where: { nickname: receiverNickname },
+            data: { cash: receiver.cash + newAmount },
+        });
+
+        // 수신 알림 저장 <- 알림용 테이블을 만들어야함
+        // await prisma.notification.create({
+        //     data: {
+        //         receiverNickname,
+        //         message: `${senderNickname}님이 ${newAmount}캐시를 선물하였습니다.`,
+        //         createdAt: new Date(),
+        //     },
+        // });
+
+        return res.status(200).json({
+            message: `${receiverNickname}님에게 ${newAmount}캐시를 선물했습니다.`,
+        });
+    } catch (error) {
+        console.error('Error gifting cash:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });

@@ -4,6 +4,9 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// #적용
+// npx prisma migrate dev
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -31,7 +34,7 @@ model Manager {
   managerId Int    @id @default(autoincrement()) @map("managerId")
   email     String @unique @map("email")
   accountId Int    @unique @map("accountId")
-  nickname  String @map("nickname")
+  nickname  String @unique @map("nickname")
   cash      Int    @default(100) @map("cash")
   recordId  Int?   @map("recordId")
   rating    Int?   @map("rating")
