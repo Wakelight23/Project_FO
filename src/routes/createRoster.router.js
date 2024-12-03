@@ -15,17 +15,14 @@ const teamPowerCheck = (players) =>
 /** Number 형식 유효성 검사 함수(1이상의 정수를 받아야 할 때 사용) */
 const isValidInput = (input) => /^[0-9]+$/.test(+input) && Number(+input) >= 1;
 
-/** playerId 추출 함수 */
-
 /** 계정이 보유하고 있는 전체 선수 목록을 조회하는 API */
 router.get('/myPlayer', async (req, res, next) => {
   // TO-DO : 토큰 인증 미들웨어 추가
   const { managerId } = req.body; // 이 부분을 토큰으로 받을 수 있을 것 같다.
 
   try {
-    // (1) 유효성 검사(1 이상의 정수인가?)
+    // 유효성 검사(1 이상의 정수인가? 빈 값이 들어오진 않았는가? 데이터 형식이 다르지는 않은가?)
     const isValidManagerId = isValidInput(managerId);
-    // (2) 예외 처리
     if (!managerId) {
       return res.status(400).json({
         error: 'managerId를 입력해 주세요.',
@@ -37,6 +34,18 @@ router.get('/myPlayer', async (req, res, next) => {
       });
     }
 
+    // 예외처리(존재하지 않는 managerId인 경우)
+    const isExitManagerId = await prisma.manager.findFirst({
+      where: {
+        managerId: +managerId,
+      },
+    });
+
+    if (!isExitManagerId) {
+      return res.status(400).json({
+        error: '존재하지 않는 managerId입니다.',
+      });
+    }
     // 선수 목록 조회
     await prisma.$transaction(
       async (tx) => {
@@ -188,7 +197,39 @@ router.patch('/rosterOut', async (req, res, next) => {
   const { outMemberId, inMemberId } = req.body;
   const memberIds = [outMemberId, inMemberId].map(Number);
   try {
-    // 유효성 검사 (teamtest 테이블에서 조회했을 때 outPlayerId를 조회했을 때 isSelected가 true인가?)
+    // 예외처리 (teamtest 테이블에서 조회했을 때 outMemberId를 조회했을 때 isSelected가 true인가?)
+    const isValidOutMember = await prisma.teamtest.findUnique({
+      where: {
+        teamMemberId: memberIds[0],
+      },
+      select: {
+        isSelected: true,
+      },
+    });
+    if (!isValidOutMember.isSelected) {
+      return res.status(400).json({
+        error:
+          '잘못된 요청입니다. outMemberId에는 현재 선발 중인 선수의 id를 입력해주세요.',
+      });
+    }
+
+    // 예외처리 (teamtest 테이블에서 조회했을 때 inMemberId를 조회했을 때 isSelected가 false인가?)
+    const isValidInMember = await prisma.teamtest.findUnique({
+      where: {
+        teamMemberId: memberIds[1],
+      },
+      select: {
+        isSelected: true,
+      },
+    });
+
+    if (isValidInMember.isSelected) {
+      return res.status(400).json({
+        error:
+          '잘못된 요청입니다. inMemberId에는 현재 선발 중인 선수의 id를 입력할 수 없습니다.',
+      });
+    }
+
     await prisma.$transaction(
       async (tx) => {
         await tx.teamtest.updateMany({
@@ -238,7 +279,7 @@ router.patch('/rosterOut', async (req, res, next) => {
     // 예상 점수
     const teamPower = await teamPowerCheck(players);
 
-    return res.status(201).json({ players, teamPower });
+    return res.status(200).json({ players, teamPower });
   } catch (err) {
     next(err);
   }
