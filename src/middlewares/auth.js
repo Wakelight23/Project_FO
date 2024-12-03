@@ -34,59 +34,68 @@ export default async function authM(req, res, next) {
 
     // req.accounts 사용자 정보를 저장합니다.
     req.account = accounts;
-    console.log('인증된 정보 :', req.account); // 확인용
+    res.setHeader('Authorization', `Bearer ${decodedToken}`);
+    // console.log('인증된 정보 :', req.account); // 확인용
     next();
   } catch (error) {
-    // 토큰이 만료되었거나, 조작되었을 때, 에러 메시지를 다르게 출력합니다.
-    // switch (error.name) {
-    //   case "TokenExpiredError":
-    //     return res.status(401).json({ message: "토큰이 만료되었습니다." });
-    //   case "JsonWebTokenError":
-    //     return res.status(401).json({ message: "토큰이 조작되었습니다." });
-    //   default:
-    //     return res
-    //       .status(401)
-    //       .json({ message: error.message ?? "비정상적인 요청입니다." });
-    // }
     if (error.name === 'TokenExpiredError') {
-      const { authorization } = req.headers;
-      const [tokenType, token] = authorization.split(' ');
-
-      // 리프레시 토큰을 데이터베이스에서 조회
-      const accountId = jwt.decode(token)?.accountid;
-      const storedToken = await prisma.refreshToken.findFirst({
-        where: { accountid: accountId },
+      // 클라이언트가 전달한 엑세스 토큰이 만료된 경우
+      const { 'x-info': email } = req.headers;
+      const getaccountid = await prisma.accounts.findFirst({
+        where: { email },
       });
 
-      // 리프레시 토큰이 존재하지 않을 경우
-      if (!storedToken) {
-        return res.status(401).json({ message: '로그인이 필요합니다.' });
-      }
-
       try {
+        // 리프레시 토큰을 데이터베이스에서 조회
+        const storedToken = await prisma.refreshToken.findFirst({
+          where: { accountid: getaccountid.accountid },
+        });
+
+        // 리프레시 토큰이 존재하지 않을 경우
+        if (!storedToken) {
+          return res.status(401).json({ message: '로그인이 필요합니다.' });
+        }
+
         // 리프레시 토큰 검증
         const decodedRefreshToken = jwt.verify(
           storedToken.token,
           process.env.SERVER_REFRESH_KEY
         );
 
-        // 새로운 엑세스 토큰 생성
+        // 검증된 리프레시토큰과 연결된 accountid를 바탕으로 새로운 엑세스 토큰 생성
         const newAccessToken = jwt.sign(
           { accountid: decodedRefreshToken.account_id },
           process.env.SERVER_ACCESS_KEY,
-          { expiresIn: '5m' }
+          { expiresIn: '1m' }
         );
 
-        return res.status(200).json({ accessToken: newAccessToken });
+        // 데이터베이스에서 계정 정보 조회
+        const newAccounts = await prisma.accounts.findFirst({
+          // 검증된 리프레시 토큰과 연계된 accounid로 계정정보 조회
+          where: { accountid: decodedRefreshToken.account_id },
+        });
+
+        //조회한 계졍정보 할당
+        req.account = newAccounts;
+        // console.log('인증된 정보 :', req.account); // 확인용
+        res.setHeader('Authorization', `Bearer ${newAccessToken}`);
+        next();
       } catch (refreshError) {
+        // 리프레시 토큰이 만료된 경우
+        if (refreshError.name === 'TokenExpiredError') {
+          return res.status(401).json({
+            message: '리프레시 토큰이 만료되었습니다. 다시 로그인하세요.',
+          });
+        }
         return res
           .status(401)
-          .json({ message: '리프레시 토큰이 만료되었거나 조작되었습니다.' });
+          .json({ message: '리프레시 토큰 검증 중 오류가 발생했습니다.' });
       }
+    } else if (error.name === 'JsonWebTokenError') {
+      // 예외
+      return res.status(401).json({ message: '토큰이 조작되었습니다.' });
     } else {
-      return res
-        .status(401)
-        .json({ message: error.message ?? '비정상적인 요청입니다.' });
+      return res.status(401).json({ message: '비정상적인 요청입니다.' });
     }
   }
 }

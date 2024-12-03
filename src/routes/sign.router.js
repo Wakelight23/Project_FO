@@ -76,8 +76,13 @@ router.post('/sign-in', async (req, res) => {
     // JWT를 서명하는 데 사용되는 비밀 키
     // 서버가 비밀 키를 사용하여 토큰 변조 여부를 알 수 있다
     process.env.SERVER_ACCESS_KEY,
-    { expiresIn: '1m' }
+    { expiresIn: '5m' }
   );
+
+  // 기존 리프레시 토큰 삭제
+  await prisma.refreshToken.deleteMany({
+    where: { accountid: accountData.accountid },
+  });
 
   // 리프레시 토큰 생성
   const refreshtoken = jwt.sign(
@@ -95,6 +100,10 @@ router.post('/sign-in', async (req, res) => {
       accountid: accountData.accountid,
     },
   });
+
+  res.setHeader('Authorization', `Bearer ${accesstoken}`);
+
+  res.setHeader('x-info', accountData.email);
 
   return res.status(200).json({ message: '로그인 성공', accesstoken });
 });

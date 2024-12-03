@@ -13,14 +13,28 @@ router.post('/create-manager', authM, async (req, res) => {
   // authM 미들웨어에서 인증을 거친 accounts 정보를 가져오고
   // accounts에서 account_id를 추출한다
   const { accountid } = req.account;
+  // const { name } = req.account;
+  // const { age } = req.account;
+  // const { email } = req.account;
+  // const { password } = req.account;
+  // console.log(accountid, name, age, email, password);
 
   // 닉네임 중복 검증
-  const isExistManager = await prisma.manager.findFirst({
+  const isExistnickname = await prisma.manager.findFirst({
     where: { nickname },
   });
 
-  if (isExistManager) {
+  if (isExistnickname) {
     return res.status(409).json({ message: '이미 존재하는 닉네임입니다.' });
+  }
+
+  // 매니저 존재 검증
+  const isExistManager = await prisma.manager.findUnique({
+    where: { accountid: accountid },
+  });
+
+  if (isExistManager) {
+    return res.status(409).json({ message: '이미 매니저가 존재합니다.' });
   }
 
   // 캐릭터 생성 로직
