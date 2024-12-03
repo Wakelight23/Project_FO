@@ -1,17 +1,18 @@
 import express from 'express';
-import Prisma from '@prisma/client';
+import { prisma } from '../utils/prisma/index.js';
 const gachaRouter = express();
 
-//#region 제거 필요
-//
-const PORT = process.env.PORT || 3000;
-//const prisma = Prisma();
-//
-//#endregion
+const isLog = true;
+
+const Log = (str) => {
+  if (isLog) console.log(str);
+};
 
 // json 요청 파싱
 gachaRouter.use(express.json()); // 메인으로 이동해야함
 
+//#region regacy
+/*
 //#region Test용 데이터
 const items = [
   {
@@ -76,7 +77,9 @@ const items = [
   },
 ];
 //#endregion
+*/
 
+/*
 //#region 뽑기
 // 랜덤 아이템을 뽑는 함수
 const getRandomItem = () => {
@@ -92,11 +95,44 @@ const getRandomItem = () => {
   }
 };
 //#endregion
+*/
+
+//#endregion
+
+//#region 뽑기
+
+// 랜덤 아이템을 뽑는 함수
+const getRandomItem = async () => {
+  try {
+    Log('뽑기 시작');
+    const items = await prisma.player.findMany();
+    Log('뽑기 플레이어 가져옴');
+    console.log(items);
+    const totalProbability = items.reduce((sum, item) => sum + item.rarity, 0);
+    Log('뽑기의 가중치 모두 계산');
+    const randomValue = Math.random() * totalProbability;
+    Log('뽑을 랜덤값 지정 완료');
+    let cumulativeProbability = 0;
+    Log('랜덤값 판정 유닛 검색중');
+    for (const item of items) {
+      cumulativeProbability += item.rarity;
+      if (randomValue < cumulativeProbability) {
+        Log(`뽑은 유닛`);
+        Log(item);
+        return item;
+      }
+    }
+  } catch (error) {
+    throw new Error('뽑기 함수 에러 팀원 김정태를 찌르세요!!' + error);
+  }
+};
+
+//#endregion
 
 //라우터
 //#region 모든뽑기정보
 //모든 뽑기 정보 조회
-gachaRouter.get('/api/gachas', (req, res) => {
+gachaRouter.get('/api/gachas', async (req, res) => {
   res.json({
     success: true,
     items: items,
@@ -106,20 +142,24 @@ gachaRouter.get('/api/gachas', (req, res) => {
 
 //#region 단일 뽑기 정보
 //단일 뽑기 정보 조회
-gachaRouter.get('/api/gacha/:id', (req, res) => {
-  const itemId = parseInt(req.params.id);
-  const item = items.find((i) => i.id === itemId);
+gachaRouter.get('/api/gacha/:id', async (req, res) => {
+  try {
+    const itemId = parseInt(req.params.id);
+    const item = items.find((i) => i.id === itemId);
 
-  if (item) {
-    res.json({
-      success: true,
-      item: item,
-    });
-  } else {
-    res.status(404).json({
-      success: false,
-      message: '아이템을 찾을 수 없습니다.',
-    });
+    if (item) {
+      res.json({
+        success: true,
+        item: item,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: '아이템을 찾을 수 없습니다.',
+      });
+    }
+  } catch (error) {
+    throw new Error('아이템 뽑기 단일 정보 조회 에러 팀원 김정태를 찌르세요.');
   }
 });
 //#endregion
@@ -128,19 +168,14 @@ gachaRouter.get('/api/gacha/:id', (req, res) => {
 
 //#region 뽑기 라우터
 //뽑기
-gachaRouter.post('/api/gacha', (req, res) => {
-  const drawnItem = getRandomItem();
+gachaRouter.post('/api/gacha', async (req, res) => {
+  const drawnItem = await getRandomItem();
+  Log(`결과 : ${drawnItem}`);
+  console.log(drawnItem);
   res.json({
     success: true,
-    item: drawnItem,
+    item: { drawnItem },
   });
-});
-//#endregion
-
-//#region 제거 필요
-// 서버 실행 테스트
-gachaRouter.listen(PORT, () => {
-  console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`);
 });
 //#endregion
 
