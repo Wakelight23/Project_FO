@@ -50,7 +50,7 @@ router.get('/myPlayer', async (req, res, next) => {
     await prisma.$transaction(
       async (tx) => {
         // 계정이 보유하고 있는 선수들의 id를 조회(이 배열의 요소는 객체 상태)
-        const membersInTeam = await tx.teamtest.findMany({
+        const membersInTeam = await tx.teamMember.findMany({
           where: {
             managerId: +managerId,
           },
@@ -63,15 +63,22 @@ router.get('/myPlayer', async (req, res, next) => {
         const playerIds = membersInTeam.map((member) => member.playerId);
 
         // playerIds 배열을 where의 조건으로 설정한 뒤 선수 테이블을 조회. 이름이랑 스탯을 가져온다.
-        const myPlayerList = await tx.playertest.findMany({
+        const myPlayerList = await tx.player.findMany({
           where: {
             playerId: {
               in: playerIds,
             },
           },
           select: {
-            playerName: true,
-            playerStat: true,
+            name: true,
+            club: true,
+            speed: true,
+            goalFinishing: true,
+            shootPower: true,
+            defense: true,
+            stamina: true,
+            rarity: true,
+            type: true,
           },
         });
 
@@ -87,7 +94,7 @@ router.get('/myPlayer', async (req, res, next) => {
 /** 출전 선수를 선발하는 API */
 router.patch('/rosterIn', async (req, res, next) => {
   const { teamMemberId1, teamMemberId2, teamMemberId3 } = req.body;
-  // const { userEmail } = req.locals;
+  const { managerId } = req.body;
   // TO-DO : 토큰 인증 미들웨어 추가
 
   // 트랜젝션 내부에선 형변환이 제대로 되지 않는 경우가 있어서 미리 해준다.
@@ -112,7 +119,7 @@ router.patch('/rosterIn', async (req, res, next) => {
 
   try {
     // id가 없는 선수를 선발했을 때(id에 1억을 입력한다거나...) 예외 처리
-    const isValidPlayer = await prisma.teamtest.findMany({
+    const isValidPlayer = await prisma.teamMember.findMany({
       where: {
         teamMemberId: {
           in: teamMemberIds,
@@ -127,7 +134,7 @@ router.patch('/rosterIn', async (req, res, next) => {
     const result = await prisma.$transaction(
       async (tx) => {
         // 혹시! isSelected가 true인 선수가 이미 있다면 모두 false로 바꿔주기
-        await tx.teamtest.updateMany({
+        await tx.teamMember.updateMany({
           where: {
             isSelected: true,
           },
@@ -137,9 +144,9 @@ router.patch('/rosterIn', async (req, res, next) => {
         });
 
         // 선택한 선수의 isSelected 밸류를 true로 변경(게임이 끝나면 false로 바꿔주기)
-        await tx.teamtest.updateMany({
+        await tx.teamMember.updateMany({
           where: {
-            // userEmail: +userEmail,
+            // managerId: +managerId,
             teamMemberId: {
               in: teamMemberIds,
             },
@@ -150,7 +157,7 @@ router.patch('/rosterIn', async (req, res, next) => {
         });
 
         // 선발된 선수의 playerId 조회하기
-        const membersInRoster = await tx.teamtest.findMany({
+        const membersInRoster = await tx.teamMember.findMany({
           where: {
             teamMemberId: {
               in: teamMemberIds,
@@ -164,7 +171,7 @@ router.patch('/rosterIn', async (req, res, next) => {
         // membersInRoster의 밸류에서 playerId값만 모아서 배열로 만든다.
         const playerIds = membersInRoster.map((member) => member.playerId);
 
-        const players = await tx.playertest.findMany({
+        const players = await tx.player.findMany({
           where: {
             // userEmail: +userEmail,
             playerId: {
@@ -172,8 +179,15 @@ router.patch('/rosterIn', async (req, res, next) => {
             },
           },
           select: {
-            playerName: true,
-            playerStat: true,
+            name: true,
+            club: true,
+            speed: true,
+            goalFinishing: true,
+            shootPower: true,
+            defense: true,
+            stamina: true,
+            rarity: true,
+            type: true,
           },
         });
         return players;
@@ -193,12 +207,14 @@ router.patch('/rosterIn', async (req, res, next) => {
 /** 선발 선수를 다른 선수로 변경하는 API */
 router.patch('/rosterOut', async (req, res, next) => {
   // TO-DO: 토큰 인증
+  const { memberId } = req.body;
+
   // 교체할 선수 둘을 request body를 통해 요청받는다.
   const { outMemberId, inMemberId } = req.body;
   const memberIds = [outMemberId, inMemberId].map(Number);
   try {
     // 예외처리 (teamtest 테이블에서 조회했을 때 outMemberId를 조회했을 때 isSelected가 true인가?)
-    const isValidOutMember = await prisma.teamtest.findUnique({
+    const isValidOutMember = await prisma.teamMember.findUnique({
       where: {
         teamMemberId: memberIds[0],
       },
@@ -214,8 +230,9 @@ router.patch('/rosterOut', async (req, res, next) => {
     }
 
     // 예외처리 (teamtest 테이블에서 조회했을 때 inMemberId를 조회했을 때 isSelected가 false인가?)
-    const isValidInMember = await prisma.teamtest.findUnique({
+    const isValidInMember = await prisma.teamMember.findUnique({
       where: {
+        // managerId: +managerId,
         teamMemberId: memberIds[1],
       },
       select: {
@@ -232,7 +249,7 @@ router.patch('/rosterOut', async (req, res, next) => {
 
     await prisma.$transaction(
       async (tx) => {
-        await tx.teamtest.updateMany({
+        await tx.teamMember.updateMany({
           where: {
             teamMemberId: memberIds[0],
           },
@@ -240,7 +257,7 @@ router.patch('/rosterOut', async (req, res, next) => {
             isSelected: false,
           },
         });
-        await tx.teamtest.updateMany({
+        await tx.teamMember.updateMany({
           where: {
             teamMemberId: memberIds[1],
           },
@@ -253,7 +270,7 @@ router.patch('/rosterOut', async (req, res, next) => {
     );
 
     // 바뀐 선발 선수 명단을 반환
-    const membersInRoster = await prisma.teamtest.findMany({
+    const membersInRoster = await prisma.teamMember.findMany({
       where: {
         isSelected: true,
       },
@@ -265,15 +282,22 @@ router.patch('/rosterOut', async (req, res, next) => {
     // membersInRoster의 밸류에서 playerId값만 모아서 배열로 만든다.
     const playerIds = membersInRoster.map((member) => member.playerId);
 
-    const players = await prisma.playertest.findMany({
+    const players = await prisma.player.findMany({
       where: {
         playerId: {
           in: playerIds,
         },
       },
       select: {
-        playerName: true,
-        playerStat: true,
+        name: true,
+        club: true,
+        speed: true,
+        goalFinishing: true,
+        shootPower: true,
+        defense: true,
+        stamina: true,
+        rarity: true,
+        type: true,
       },
     });
     // 예상 점수
