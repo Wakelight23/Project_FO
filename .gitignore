@@ -1,7 +1,5 @@
+README.md
 /node_modules
 .env
 .env.development
 .env.production
-README.md
-README
-*.md
