@@ -1,6 +1,6 @@
 import express from 'express';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-import player from './routers/players.router.js'
+import player from './routes/players.router.js'
 
 const app = express();
 const PORT = 3001;
