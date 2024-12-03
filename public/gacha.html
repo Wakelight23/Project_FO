@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>가챠 시스템</title>
     <style>
+      /* 카드 비율 고정 넣어야함 */
       body {
         display: flex;
         justify-content: center;
@@ -27,6 +28,7 @@
       }
 
       .card {
+        /*해당 테두리 컬러는 등급에 따라 변경해 보자*/
         position: absolute;
         width: 15%; /* 카드 너비 */
         height: 55%; /* 카드 높이 */
@@ -53,6 +55,7 @@
     <video id="gachaVideo" src="gacha.mp4" preload="auto" loop muted></video>
     <!-- 비디오 URL을 여기에 입력 -->
     <div class="card" id="card">
+      <!-- id cardImage 의 src 값을 변경하면 된다.-->
       <img
         id="cardImage"
         src="https://i.namu.wiki/i/xMML4hmUnMn2gmNrK2Y4vuqwL9USPsUp4Q_ccjhcZGUjA8u6yZ8kusDqqydbSbEE21sIAmtIX4oujCGTf47Yb7uvYoG7E5E63JVeYxXL9hipKzQnugLDHogs5-t43Us5v2i_KiCqLhiI_EAE1aXrvw.webp"
@@ -65,6 +68,12 @@
       const card = document.getElementById('card');
       const cardImage = document.getElementById('cardImage');
 
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const aspectRatio = width / height;
+
+      console.log('현재 화면 비율: ' + aspectRatio);
+
       let rotationX = 0;
       let rotationY = 0;
 
@@ -74,12 +83,12 @@
 
       document.body.addEventListener('mousemove', (event) => {
         const rect = card.getBoundingClientRect();
-        const mouseX = event.clientX - (rect.left + rect.width / 2);
-        const mouseY = event.clientY - (rect.top + rect.height / 2);
+        const mouseX = event.clientX - width / 2;
+        const mouseY = event.clientY - height / 2;
 
         // 마우스 위치에 따라 카드의 회전 각도 계산 (최대 각도 제한)
-        rotationY = Math.max(-35, Math.min(35, (mouseX / rect.width) * 15)); // -20도에서 20도까지 회전 제한
-        rotationX = Math.max(-35, Math.min(35, (mouseY / rect.height) * 15)); // -20도에서 20도까지 회전 제한
+        rotationY = Math.max(-75, Math.min(75, (mouseX / width) * 75)); // -20도에서 20도까지 회전 제한
+        rotationX = Math.max(-75, Math.min(75, (mouseY / height) * 75)); // -20도에서 20도까지 회전 제한
 
         // 카드 회전 적용
         card.style.transform = `translate(-50%, -50%) rotateY(${rotationY}deg) rotateX(${rotationX}deg)`;
@@ -89,6 +98,8 @@
       video.onloadeddata = () => {
         video.play();
       };
+
+      //현재 매우 흡족 하지만 피곤.....
     </script>
   </body>
 </html>
