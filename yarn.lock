@@ -18,9 +18,9 @@
     tar "^6.1.11"
 
 "@prisma/client@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-6.0.0.tgz#87dfdd40e3475efa634dac30e891a4d05aeeed0b"
-  integrity sha512-tOBhG35ozqZ/5Y6B0TNOa6cwULUW8ijXqBXcgb12bfozqf6eGMyGs+jphywCsj6uojv5lAZZnxVSoLMVebIP+g==
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-6.0.1.tgz#e24c5a44fb46d04a92426879bd9f8a2c28338420"
+  integrity sha512-60w7kL6bUxz7M6Gs/V+OWMhwy94FshpngVmOY05TmGD0Lhk+Ac0ZgtjlL6Wll9TD4G03t4Sq1wZekNVy+Xdlbg==
 
 "@prisma/debug@6.0.1":
   version "6.0.1"
@@ -541,9 +541,9 @@ has-proto@^1.0.1:
     call-bind "^1.0.7"
 
 has-symbols@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/has-symbols/-/has-symbols-1.0.3.tgz#bb7b2c4349251dce87b125f7bdf874aa7c8b39f8"
-  integrity sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/has-symbols/-/has-symbols-1.1.0.tgz#fc9c6a783a084951d0b971fe1018de813707a338"
+  integrity sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==
 
 has-unicode@^2.0.1:
   version "2.0.1"
@@ -918,21 +918,10 @@ prettier@^3.4.1:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.4.2.tgz#a5ce1fb522a588bf2b78ca44c6e6fe5aa5a2b13f"
   integrity sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==
 
-<<<<<<< HEAD
 prisma@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/prisma/-/prisma-6.0.0.tgz#6e230be8908387047c7213a142e822996c919c2f"
-  integrity sha512-RX7KtbW7IoEByf7MR32JK1PkVYLVYFqeODTtiIX3cqekq1aKdsF3Eud4zp2sUShMLjvdb5Jow0LbUjRq5LVxPw==
-=======
-prisma@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/prisma/-/prisma-6.0.1.tgz#63bf769c798b98986aeaf9cddbf12193f9e2c356"
   integrity sha512-CaMNFHkf+DDq8zq3X/JJsQ4Koy7dyWwwtOKibkT/Am9j/tDxcfbg7+lB1Dzhx18G/+RQCMgjPYB61bhRqteNBQ==
-<<<<<<< HEAD
->>>>>>> b71a29a09b26697dd94880b29a11a28b3f3cd75a
-=======
-
->>>>>>> e5a0d05beba66f52992693164f8a3c03e26c5d35
   dependencies:
     "@prisma/engines" "6.0.1"
   optionalDependencies:
