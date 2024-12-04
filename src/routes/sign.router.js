@@ -11,7 +11,7 @@ const router = express.Router();
 /** 사용자 회원가입 API **/
 // localhost:c/api/sign-up POST
 router.post('/sign-up', async (req, res) => {
-  const { email, password, name, age, gender } = req.body;
+  const { email, password, password2, name, age, gender } = req.body;
 
   // 이메일 중복 체크
   const isExistEmail = await prisma.accounts.findUnique({
@@ -37,6 +37,11 @@ router.post('/sign-up', async (req, res) => {
     return res
       .status(409)
       .json({ message: 'password는 6자리 이하로만 설정할 수 있습니다' });
+  }
+
+  // 비밀번호 확인
+  if (password !== password2) {
+    return res.status(409).json({ message: 'password를 다시 확인하세요.' });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);

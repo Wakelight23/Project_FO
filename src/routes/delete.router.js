@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.delete('/delete/:managerid', authM, async (req, res) => {
   const { accountid } = req.account;
-
+ 
   // 삭제할 캐릭터의 ID 값을 가져옵니다.
   const managerid = parseInt(req.params.managerid, 10);
 
