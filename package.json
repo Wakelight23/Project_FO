@@ -1,7 +1,7 @@
 {
   "name": "futsalonline",
   "version": "1.0.0",
-  "main": "app.js",  
+  "main": "app.js",
   "repository": "https://github.com/Wakelight23/Project_FO.git",
   "author": "wakelight23 <rlghks0223@gmail.com>",
   "license": "MIT",
@@ -12,9 +12,9 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "multer": "^1.4.5-lts.1",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.0.0"
+    "multer": "^1.4.5-lts.1",
+    "prisma": "^6.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7",
