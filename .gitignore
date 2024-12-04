@@ -4,4 +4,4 @@ README.md
 .env.development
 .env.production
 README.txt
-app.js
+/src/app.js
