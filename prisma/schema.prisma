@@ -40,8 +40,6 @@ model Manager {
   accountId Int @unique @map("accountId")
   nickname String @map("nickname")
   cash Int @map("cash")
-  recordId Int @map("recordId")
-  rankingId Int @map("rankingId")
   rating Int @map("rating")
 
   createdAt DateTime @default(now()) @map("createdAt")
