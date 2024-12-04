@@ -3,3 +3,7 @@
 .env.development
 .env.production
 .md
+app.js
+README.txt
+/attachment
+/.vscode
