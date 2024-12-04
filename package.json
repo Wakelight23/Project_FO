@@ -1,8 +1,7 @@
 {
   "name": "futsalonline",
   "version": "1.0.0",
-  "main": "app.js",
-  "type": "module",
+  "main": "app.js",  
   "repository": "https://github.com/Wakelight23/Project_FO.git",
   "author": "wakelight23 <rlghks0223@gmail.com>",
   "license": "MIT",

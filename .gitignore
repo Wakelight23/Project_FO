@@ -5,3 +5,5 @@
 .env.production
 .prettierrc
 README.txt
+
+/prisma/seed.js
