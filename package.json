@@ -6,7 +6,6 @@
   "repository": "https://github.com/Wakelight23/Project_FO.git",
   "author": "wakelight23 <rlghks0223@gmail.com>",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "bcrypt": "^5.1.1",
