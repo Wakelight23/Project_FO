@@ -6,3 +6,116 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Account {
+  accountId Int @id @default(autoincrement()) @map("accountId") // 계정 고유 ID (Primary Key)
+  email String @unique @map("email") // 이메일 (고유)
+  password String @map("password") //비밀번호
+  name String @map("name")  // 실명
+  age Int @map("age") // 나이
+  gender String @map("gender") // 성별
+  isAdmin Boolean @default(false) @map("isAdmin")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  manager  Manager?
+  refreshToken RefreshToken[]
+
+  @@map("Account")
+}
+
+model RefreshToken {
+  accountId Int @map("accountId") // Accounts 참조 외래키
+  token String @unique @map("token") // 리프레시 토큰 (고유)
+  createdAt DateTime @default(now()) @map("created_at") // 생성일자
+
+  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+
+  @@map("RefreshToken")
+}
+
+model Manager {
+  managerId Int @id @default(autoincrement()) @map("managerId")
+  accountId Int @unique @map("accountId")
+  nickname String @map("nickname")
+  cash Int @map("cash")
+  recordId Int @map("recordId")
+  rankingId Int @map("rankingId")
+  rating Int @map("rating")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+  records      Record[] 
+  teamMembers  TeamMember[] 
+  rankings Ranking[] 
+
+  @@map("Manager")
+}
+
+model Player {
+  playerId Int @id @default(autoincrement()) @map("playerId")
+  name String @map("name")
+  club String @map("club")
+  speed Int @map("speed")
+  goalFinishing Int @map("goalFinishing")
+  shootPower Int @map("shootPower")
+  defense Int @map("defense")
+  stamina Int @map("stamina")
+  rarity Int @map("rarity")
+  type Int? @map("type")
+  playerImage String? @map("playerImage")
+
+  teamMembers   TeamMember[]  
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Player")
+}
+
+model TeamMember {
+  teamMemberId Int @id @default(autoincrement()) @map("teamMemberId")
+  playerId Int @map("playerId")
+  managerId Int @map("managerId")
+  upgrade Int @default(0) @map("upgrade")
+  isSelected Boolean @default(false) @map("isSelected")
+
+  player  Player  @relation(fields: [playerId], references: [playerId], onDelete: Cascade)
+  manager Manager @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("TeamMember")
+}
+
+model Ranking {
+  rankingId Int @id @default(autoincrement()) @map("rankingId")
+  managerId Int @map("managerId")
+  win Int @default(0) @map("win")
+  lose Int @default(0) @map("lose")
+  draw Int @default(0) @map("draw")
+
+  manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Ranking")
+}
+
+model Record {
+  recordId Int @id @default(autoincrement()) @map("recordId")
+  managerId Int @map("managerId")
+  gameResult Int @map("gameResult")
+
+  manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Record")
+}
