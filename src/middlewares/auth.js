@@ -48,7 +48,7 @@ export default async function authM(req, res, next) {
             try {
                 // 리프레시 토큰을 데이터베이스에서 조회
                 const storedToken = await prisma.refreshToken.findFirst({
-                    where: { accountId: getaccountId.accountid },
+                    where: { accountId: getaccountId.accountId },
                 });
 
                 // 리프레시 토큰이 존재하지 않을 경우
@@ -66,7 +66,10 @@ export default async function authM(req, res, next) {
 
                 // 검증된 리프레시토큰과 연결된 accountid를 바탕으로 새로운 엑세스 토큰 생성
                 const newAccessToken = jwt.sign(
-                    { accountId: decodedRefreshToken.accountid },
+                    {
+                        accountId: decodedRefreshToken.accountId,
+                        isAdmin: decodedRefreshToken.isAdmin,
+                    },
                     process.env.SERVER_ACCESS_KEY,
                     { expiresIn: '1m' }
                 );
@@ -74,7 +77,7 @@ export default async function authM(req, res, next) {
                 // 데이터베이스에서 계정 정보 조회
                 const newAccounts = await prisma.account.findFirst({
                     // 검증된 리프레시 토큰과 연계된 accounid로 계정정보 조회
-                    where: { accountId: decodedRefreshToken.accountid },
+                    where: { accountId: decodedRefreshToken.accountId },
                 });
 
                 //조회한 계졍정보 할당

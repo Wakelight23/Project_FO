@@ -52,7 +52,7 @@ router.post('/sign-up', async (req, res) => {
     if (!validGenders.includes(gender)) {
         return res
             .status(409)
-            .json({ message: 'gender는 male 또는 female이어야 합니다.' });
+            .json({ message: 'male 또는 female이어야 합니다.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -90,6 +90,7 @@ router.post('/sign-in', async (req, res) => {
     const accesstoken = jwt.sign(
         {
             accountId: accountData.accountId,
+            isAdmin: accountData.isAdmin,
         },
         // JWT를 서명하는 데 사용되는 비밀 키
         // 서버가 비밀 키를 사용하여 토큰 변조 여부를 알 수 있다

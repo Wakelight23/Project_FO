@@ -29,7 +29,7 @@ app.use(express.json());
 
 // 2. CORS 설정 (Frontend 사용 시)
 
-// 3. 로깅 미들웨어
+// 3. 로깅 미들웨어s
 
 // 4. 정적 파일 제공
 app.use(express.static('public'));
