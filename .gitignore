@@ -1,11 +1,9 @@
 /.vscode
 /node_modules
-/attachment
-
-src/app.js
-
+/src/app.js
+# Keep environment variables out of version control
 .env
 .env.development
 .env.production
-
 README.txt
+
