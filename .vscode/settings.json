@@ -1,0 +1,107 @@
+{
+  "material-icon-theme.activeIconPack": "nest",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+  "editor.fontSize": 17,
+  "editor.mouseWheelZoom": true,
+  "editor.minimap.enabled": false,
+
+  // "terminal.integrated.fontFamily": "'IBM Plex Mono', 'monospace'",
+  // "terminal.integrated.fontFamily": "Menlo, Monaco, 'Courier New', monospace",
+  "terminal.integrated.fontFamily": "Hack Nerd Font",
+  "terminal.integrated.lineHeight": 1.2,
+  "terminal.integrated.letterSpacing": 0.5,
+  "terminal.integrated.fontSize": 14,
+  "explorer.autoReveal": false,
+  "explorer.compactFolders": false,
+  "[nunjucks]": {
+    "editor.defaultFormatter": "eseom.nunjucks-template"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
+  },
+  "editor.tokenColorCustomizations": {
+    "comments": "#ffffff7b",
+    // "comments": "#efdb0594"
+    "textMateRules": [
+      {
+        "scope": ["comment"],
+        "settings": {
+          "fontStyle": ""
+        }
+      }
+    ]
+  },
+  "markdown.preview.fontSize": 16,
+  "workbench.colorCustomizations": {
+    // "editor.selectionHighlightBackground": "#f045026c",
+    // "editor.wordHighlightBackground": "#c9e60b6c",
+    // "editor.wordHighlightStrongBackground": "#0b34ea6d",
+    // "editorInlayHint.background": "#3f3f3f",
+    // "editorInlayHint.foreground": "#c0c0c0"
+    // "editor.findRangeHighlightBackground": "#f045026c"
+    // "editor.findRangeHighlightBackground": "#f045026c"
+    // "editor.findMatchHighlightBackground": "#f045026c"
+    // "editor.findMatchBackground": "#f045026c"
+    // "editor.lineHighlightBackground": "#f045026c"
+    // "editor.selectionBackground": "#fff"
+  },
+  "cSpell.ignorePaths": [
+    "config.json",
+    "package.json",
+    "tsconfig.json",
+    "package-lock.json",
+    "node_modules",
+    "vscode-extension",
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders",
+    "README.md",
+    "yarn.lock"
+  ],
+  "cSpell.words": [
+    "jsonify",
+    "middlewares",
+    "mogoose",
+    "nestjs",
+    "resave",
+    "sequelize",
+    "typeorm",
+    "signin",
+    "nico",
+    "tiktok",
+    "ruffus",
+    "bibi",
+    "arrowParens"
+  ],
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "[njk]": {
+    "editor.defaultFormatter": "eseom.nunjucks-template"
+  },
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  }
+  // "typescript.inlayHints.enumMemberValues.enabled": true,
+  // "javascript.inlayHints.enumMemberValues.enabled": true,
+  // "javascript.inlayHints.functionLikeReturnTypes.enabled": true,
+  // "javascript.inlayHints.parameterTypes.enabled": true,
+  // "javascript.inlayHints.propertyDeclarationTypes.enabled": true,
+  // "javascript.inlayHints.variableTypes.enabled": true,
+  // "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  // "typescript.inlayHints.parameterNames.enabled": "all",
+  // "typescript.inlayHints.parameterTypes.enabled": true,
+  // "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  // "typescript.inlayHints.variableTypes.enabled": true,
+  // "editor.inlayHints.enabled": "onUnlessPressed",
+  // "editor.inlayHints.padding": true,
+  // "javascript.inlayHints.parameterNames.enabled": "all"
+}
