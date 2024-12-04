@@ -9,7 +9,7 @@ import CashRouter from './routes/cash/cash.router.js';
 // gacha
 import GachaRouter from './routes/gacha/gacha.router.js';
 // player
-import PlayerRouter from './routes/player/players.router.js'
+import PlayerRouter from './routes/player/players.router.js';
 // teammebmer
 import CreateRosterRouter from './routes/teammember/createRoster.router.js';
 import UpgradeMemberRouter from './routes/teammember/upgradeMember.router.js';
@@ -43,25 +43,25 @@ app.use('/api', [PlayGame, CaptainGame, GameRecord]); // gameplay
 
 // 6. 404 에러 핸들링 미들웨어 추가
 app.use((req, res, next) => {
-  res.status(404).json({
-    message: '요청하신 리소스를 찾을 수 없습니다.',
-  });
+    res.status(404).json({
+        message: '요청하신 리소스를 찾을 수 없습니다.',
+    });
 });
 
 // 7. 에러 핸들링 (항상 마지막에 위치)
 app.use(errorHandlingMiddleware);
 
 app.listen(PORT, () => {
-  console.log(PORT, '포트로 서버가 열렸어요!');
+    console.log(PORT, '포트로 서버가 열렸어요!');
 });
 
 // 8. 예기치 않은 에러 처리
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
+    console.error('Uncaught Exception:', error);
+    process.exit(1);
 });
 
 process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Rejection:', error);
-  process.exit(1);
+    console.error('Unhandled Rejection:', error);
+    process.exit(1);
 });

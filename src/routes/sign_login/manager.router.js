@@ -12,7 +12,7 @@ router.post('/create-manager', authM, async (req, res) => {
   const { nickname } = req.body;
   // authM 미들웨어에서 인증을 거친 accounts 정보를 가져오고
   // accounts에서 account_id를 추출한다
-  const { accountid } = req.account;
+  const { accountId } = req.account;
   // const { name } = req.account;
   // const { age } = req.account;
   // const { email } = req.account;
@@ -30,7 +30,7 @@ router.post('/create-manager', authM, async (req, res) => {
 
   // 매니저 존재 검증
   const isExistManager = await prisma.manager.findUnique({
-    where: { accountid: accountid },
+    where: { accountId: +accountId },
   });
 
   if (isExistManager) {
@@ -41,7 +41,7 @@ router.post('/create-manager', authM, async (req, res) => {
   const newManager = await prisma.manager.create({
     data: {
       // 뽑아온 nickname, account_id를 각 컬럼에 적용한다.
-      accountid: accountid,
+      accountId: +accountId,
       nickname: nickname,
       rating: 1000,
       cash: 10000,
