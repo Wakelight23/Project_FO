@@ -913,10 +913,16 @@ picomatch@^2.0.4, picomatch@^2.2.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
-prisma@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/prisma/-/prisma-6.0.0.tgz#6e230be8908387047c7213a142e822996c919c2f"
-  integrity sha512-RX7KtbW7IoEByf7MR32JK1PkVYLVYFqeODTtiIX3cqekq1aKdsF3Eud4zp2sUShMLjvdb5Jow0LbUjRq5LVxPw==
+prettier@^3.4.1:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.4.2.tgz#a5ce1fb522a588bf2b78ca44c6e6fe5aa5a2b13f"
+  integrity sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==
+
+prisma@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/prisma/-/prisma-6.0.1.tgz#63bf769c798b98986aeaf9cddbf12193f9e2c356"
+  integrity sha512-CaMNFHkf+DDq8zq3X/JJsQ4Koy7dyWwwtOKibkT/Am9j/tDxcfbg7+lB1Dzhx18G/+RQCMgjPYB61bhRqteNBQ==
+
   dependencies:
     "@prisma/engines" "6.0.1"
   optionalDependencies:
