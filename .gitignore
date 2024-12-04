@@ -1,7 +1,7 @@
 /.vscode
 /node_modules
 .env
-.env.development
-.env.production
 .prettierrc
 README.txt
+/prisma/seed.js
+yarn.lock

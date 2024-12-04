@@ -1,7 +1,7 @@
 import express from 'express';
-import { prisma } from '../utils/prisma/index.js';
+import { prisma } from '../../utils/prisma/index.js';
 import dotenv from 'dotenv';
-import authM from '../middlewares/auth.js';
+import authM from '../../middlewares/auth.js';
 
 dotenv.config();
 // character.js
