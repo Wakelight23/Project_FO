@@ -273,9 +273,143 @@ router.post('/cash/roulette', async (req, res, next) => {
 // 3. 게임 승패로 캐시 증감   <- 구현방법 찾아보자
 
 //     게임 결과로 캐시 주고 뺐기
+// 3-1. 게임 승패로 캐시 증감 .
+router.post('/cash/game-result', async (req, res, next) => {
+    const { winnerEmail, loserEmail, result, amount } = req.body;
 
-//     게임 이기면 캐시 랜덤 쿠폰 주기
+    try {
+        if (!winnerEmail || !loserEmail || !amount || amount <= 0) {
+            return res.status(400).json({
+                message:
+                    '승자, 패자 이메일, 경기결과, 0 이상의 보상캐시을 입력해주세요.',
+            });
+        }
+
+        if (!result === 0 && !result === 1) {
+            return res.status(400).json({
+                message:
+                    '승패는 무승부면 0을, 아니면 1을 정수 형태로 넣어주세요.',
+            });
+        }
+
+        // 승자 데이터 확인
+        const winner = await prisma.manager.findFirst({
+            where: { email: winnerEmail },
+            select: { cash: true },
+        });
+        if (!winner) {
+            return res
+                .status(404)
+                .json({ message: '승자 이메일이 존재하지 않습니다.' });
+        }
+
+        // 패자 데이터 확인
+        const loser = await prisma.manager.findFirst({
+            where: { email: loserEmail },
+            select: { cash: true },
+        });
+        if (!loser) {
+            return res
+                .status(404)
+                .json({ message: '패자 이메일이 존재하지 않습니다.' });
+        }
+
+        // result 승패 있으면 1, 무승부면 0 을 넣기
+        let winnerReward = 0;
+        let loserPenalty = 0;
+        if (result) {
+            winnerReward = amount;
+            loserPenalty = Math.max(-loser.cash, -amount); // 최대 패널티는 가진 돈까지만
+            /*
+            if (loser.cash < amount) {
+                loserPenalty = -loser.cash; // 돈 없으면 있는것만 뺏기
+            } else {
+                loserPenalty = -amount;
+            }*/
+        } else {
+            // 무승부: 승자에게 배팅 금액의 절반만 지급, 패자는 그대로
+            winnerReward = Math.floor(amount / 2);
+            loserPenalty = Math.floor(amount / 2);
+        }
+
+        // 데이터 업데이트
+        await prisma.manager.update({
+            where: { email: winnerEmail },
+            data: { cash: winner.cash + winnerReward },
+        });
+        // 데이터 업데이트
+        await prisma.manager.update({
+            where: { email: loserEmail },
+            data: { cash: loser.cash + loserPenalty },
+        });
+
+        if (result) {
+            return res.status(200).json({
+                gameResult: `${winnerEmail} 승리`,
+                details: [
+                    { email: winnerEmail, change: `+${winnerReward} 캐시` },
+                    { email: loserEmail, change: `${loserPenalty} 캐시` },
+                ],
+            });
+        } else {
+            return res.status(200).json({
+                gameResult: '무승부',
+                details: [
+                    { email: winnerEmail, change: `+${winnerReward} 캐시` },
+                    { email: loserEmail, change: `+${loserPenalty} 캐시` },
+                ],
+            });
+        }
+    } catch (error) {
+        console.error('Error processing game result:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// 4.    게임 이기면 캐시 랜덤 쿠폰 주기
 
 //    쿠폰 테이블 만들어야함(위에 끝나고 하기)
+// 4. 게임 승리 시 랜덤 쿠폰 제공
+
+// router.post('/cash/game-win-coupon', async (req, res, next) => {
+//     const { winnerNickname } = req.body;
+
+//     try {
+//         if (!winnerNickname) {
+//             return res.status(400).json({ message: '승자 닉네임을 입력해주세요.' });
+//         }
+
+//         // 승자 데이터 확인
+//         const winner = await prisma.manager.findFirst({
+//             where: { nickname: winnerNickname },
+//             select: { id: true },
+//         });
+
+//         if (!winner) {
+//             return res.status(404).json({ message: '승자 닉네임이 존재하지 않습니다.' });
+//         }
+
+//         // 랜덤 쿠폰 생성
+//         const randomCash = Math.floor(Math.random() * 100) + 10; // 10 ~ 109
+//         const couponCode = `COUPON-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+
+//         // 쿠폰 저장
+//         const newCoupon = await prisma.coupon.create({
+//             data: {
+//                 code: couponCode,
+//                 amount: randomCash,
+//                 ownerId: winner.id,
+//             },
+//         });
+
+//         return res.status(200).json({
+//             message: `${randomCash}캐시 쿠폰이 생성되었습니다.`,
+//             coupon: newCoupon,
+//         });
+//     } catch (error) {
+//         console.error('Error generating coupon:', error);
+//         return res.status(500).json({ message: 'Internal server error' });
+//     }
+// });
 
 export default router;

@@ -115,3 +115,15 @@ model teamtest {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 }
+
+// model Coupon {
+//   id        Int      @id @default(autoincrement())
+//   code      String   @unique
+//   amount    Int
+//   createdAt DateTime @default(now())
+//   ownerId   Int?
+//   manager   Manager? @relation(fields: [ownerId], references: [id])
+//   isUsed Boolean @default(false)@map("isUsed")
+
+//   @@map("Coupon")
+// }
