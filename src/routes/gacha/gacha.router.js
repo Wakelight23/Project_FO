@@ -102,11 +102,7 @@ const getRandomItem = () => {
 //라우터
 //#region 모든뽑기정보
 //모든 뽑기 정보 조회
-<<<<<<< HEAD
 gachaRouter.get('/gachas', async (req, res) => {
-=======
-gachaRouter.get('/api/gachas', async (req, res) => {
->>>>>>> ad2d62fe2acbae7cfa27041f401b57df0d17b28c
     const items = await prisma.player.findMany({
         select: { name: true, type: true, rarity: true, playerImage: true },
     });
@@ -197,11 +193,7 @@ const getRandomItems = async (drawCount) => {
 
 //#region 뽑기 라우터
 // 뽑기
-<<<<<<< HEAD
 gachaRouter.post('/gacha', async (req, res) => {
-=======
-gachaRouter.post('/api/gacha', async (req, res) => {
->>>>>>> ad2d62fe2acbae7cfa27041f401b57df0d17b28c
     try {
         const { managerId, drawCount } = req.body; // drawCount 추가
         Log(managerId);
