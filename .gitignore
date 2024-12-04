@@ -3,4 +3,5 @@
 .env.development
 .env.production
 README.md
+README.txt
 app.js
