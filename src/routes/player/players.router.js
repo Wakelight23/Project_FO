@@ -2,7 +2,7 @@
 
 import express from 'express';
 import multer from 'multer';
-import { prisma } from '../utils/prisma/index.js';
+import { prisma } from '../../utils/prisma/index.js';
 
 const router = express.Router();
 
@@ -313,6 +313,7 @@ router.delete('/players/:playerId', async (req, res, next) => {
 //csv 파일을 배열로 변환
 function csvParsing(csvString) {
   //player 테이블 데이터
+  
   // playerId      Int          @id @default(autoincrement()) @map("playerId")
   // name          String       @map("name")
   // club          String       @map("club")
