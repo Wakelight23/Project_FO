@@ -3,4 +3,5 @@
 .env
 .env.development
 .env.production
+.prettierrc
 README.txt
