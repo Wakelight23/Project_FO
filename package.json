@@ -2,12 +2,10 @@
   "name": "futsalonline",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
   "type": "module",
-  "scripts": {
-    "format": "prettier --write *.js **/*.js",
-    "dev": "npx nodemon ./src/app.js"
-  },
+  "repository": "https://github.com/Wakelight23/Project_FO.git",
+  "author": "wakelight23 <rlghks0223@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "bcrypt": "^5.1.1",
@@ -22,7 +20,4 @@
     "nodemon": "^3.1.7",
     "prettier": "^3.4.1"
   },
-  "scripts": {
-    "dev": "nodemon src/app.js"
-  }
 }
