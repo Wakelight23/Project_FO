@@ -19,7 +19,8 @@ import PlayGame from './routes/gameplay/playgame.router.js';
 import CaptainGame from './routes/gameplay/captaingame.router.js';
 import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const app = express();
 const PORT = 3001;
 
@@ -50,6 +51,8 @@ app.use((req, res, next) => {
 
 // 7. 에러 핸들링 (항상 마지막에 위치)
 app.use(errorHandlingMiddleware);
+
+console.log(process.env.DATABASE_URL);
 
 app.listen(PORT, () => {
     console.log(PORT, '포트로 서버가 열렸어요!');
