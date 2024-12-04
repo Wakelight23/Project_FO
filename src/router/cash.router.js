@@ -158,7 +158,7 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 캐시 1이상의 정수 확인
-        if (!Number.isInteger(newAmount) || newAmount < 1) {
+        if (!Number.isInteger(Number(betAmount)) || newAmount < 1) {
             return res.status(404).json({
                 message: '선물하는 금액은 1 이상의 정수여야 합니다.',
             });
@@ -231,7 +231,7 @@ router.post('/cash/roulette', async (req, res, next) => {
                 .status(404)
                 .json({ message: '캐시는 정수로 적어주세요.' });
         }
-        if (bet.cash < betAmount && betAmount > 0) {
+        if (bet.cash < betAmount && betAmount < 1) {
             return res.status(404).json({
                 message: '0보다 크고 보유캐시보다 적은 캐시를 걸어주세요.',
             });
@@ -240,7 +240,33 @@ router.post('/cash/roulette', async (req, res, next) => {
         // 유저가 캐시를 걸면 n배로 돌려받기. 확률 설정하기
         // 0.5배: 20% |1배: 50%  |2배: 20%  |5배: 8% |10배: 1.8%  |50배: 0.2%
         const roulette = Math.random() * 100; // 0 ~ 99.9999
+        let multiplyC = 0.0;
+
+        if (roulette <= 20) {
+            multiplyC = 0.5;
+        } else if (roulette <= 70) {
+            multiplyC = 1;
+        } else if (roulette <= 90) {
+            multiplyC = 2;
+        } else if (roulette <= 98) {
+            multiplyC = 5;
+        } else if (roulette <= 99.8) {
+            multiplyC = 10;
+        } else {
+            multiplyC = 50;
+        }
+
+        await prisma.manager.update({
+            data: {
+                cash: bet.cash - betAmount + Math.floor(betAmount * multiplyC),
+            },
+            where: { email },
+        });
+
+        /* 스위치문에서 계산
+        
         let multiplyCash = 0;
+        
 
         if (roulette <= 20) {
             multiplyCash = Math.floor(betAmount * 0.5);
@@ -260,20 +286,21 @@ router.post('/cash/roulette', async (req, res, next) => {
             data: { cash: bet.cash - betAmount + multiplyCash },
             where: { email },
         });
+    */
 
-        return res
-            .status(200)
-            .json({ message: `${multiplyCash} 캐시를 획득하셨습니다.` });
+        return res.status(200).json({
+            message: `${multiplyC}배에 당첨되셨습니다! ${Math.floor(
+                multiplyC * betAmount
+            )} 캐시를 획득하셨습니다.`,
+        });
     } catch (error) {
         console.error('Error fetching cash data:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-// 3. 게임 승패로 캐시 증감   <- 구현방법 찾아보자
-
+// 3. 게임 승패로 캐시 증감
 //     게임 결과로 캐시 주고 뺐기
-// 3-1. 게임 승패로 캐시 증감 .
 router.post('/cash/game-result', async (req, res, next) => {
     const { winnerEmail, loserEmail, result, amount } = req.body;
 
@@ -345,6 +372,7 @@ router.post('/cash/game-result', async (req, res, next) => {
 
         if (result) {
             return res.status(200).json({
+                message: '경기보상을 받으세요!',
                 gameResult: `${winnerEmail} 승리`,
                 details: [
                     { email: winnerEmail, change: `+${winnerReward} 캐시` },
@@ -353,6 +381,7 @@ router.post('/cash/game-result', async (req, res, next) => {
             });
         } else {
             return res.status(200).json({
+                message: '경기보상을 받으세요!',
                 gameResult: '무승부',
                 details: [
                     { email: winnerEmail, change: `+${winnerReward} 캐시` },
