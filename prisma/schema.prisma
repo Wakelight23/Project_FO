@@ -8,26 +8,40 @@ datasource db {
 }
 
 model Account {
-  accountId Int @id @default(autoincrement()) @map("accountId")
-  email String @unique @map("email")
-  password String @map("password")
+  accountId Int @id @default(autoincrement()) @map("accountId") // 계정 고유 ID (Primary Key)
+  email String @unique @map("email") // 이메일 (고유)
+  password String @map("password") //비밀번호
+  name String @map("name")  // 실명
+  age Int @map("age") // 나이
+  gender String @map("gender") // 성별
   isAdmin Boolean @default(false) @map("isAdmin")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   manager  Manager?
+  refreshToken RefreshToken[]
 
   @@map("Account")
 }
 
+model RefreshToken {
+  accountId Int @map("accountId") // Accounts 참조 외래키
+  token String @unique @map("token") // 리프레시 토큰 (고유)
+  createdAt DateTime @default(now()) @map("created_at") // 생성일자
+
+  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+
+  @@map("RefreshToken")
+}
+
 model Manager {
   managerId Int @id @default(autoincrement()) @map("managerId")
-  email String @unique @map("email")
   accountId Int @unique @map("accountId")
   nickname String @map("nickname")
   cash Int @map("cash")
   recordId Int @map("recordId")
+  rankingId Int @map("rankingId")
   rating Int @map("rating")
 
   createdAt DateTime @default(now()) @map("createdAt")
@@ -81,9 +95,9 @@ model TeamMember {
 model Ranking {
   rankingId Int @id @default(autoincrement()) @map("rankingId")
   managerId Int @map("managerId")
-  win Int @map("win")
-  lose Int @map("lose")
-  draw Int @map("draw")
+  win Int @default(0) @map("win")
+  lose Int @default(0) @map("lose")
+  draw Int @default(0) @map("draw")
 
   manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
 

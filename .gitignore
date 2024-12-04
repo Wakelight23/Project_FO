@@ -1,18 +1,7 @@
 /.vscode
 /node_modules
-<<<<<<< HEAD
-/src/app.js
-.env
-.env.development
-.env.production
-/prisma
-.prettierrc
-README.txt
-yarn.lock
-=======
 .env
 .prettierrc
 README.txt
 /prisma/seed.js
-.prettierrc
->>>>>>> feature-playingfutsal
+yarn.lock

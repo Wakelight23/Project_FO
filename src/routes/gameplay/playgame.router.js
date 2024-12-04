@@ -1,11 +1,11 @@
 import express from 'express';
-import { prisma } from '../utils/prisma/index.js';
+import { prisma } from '../../utils/prisma/index.js';
 import {
   calculateTeamPower,
   generateOpponentPower,
   determineWinner,
   updateGameResult,
-} from '../logic/gameplay.js';
+} from '../../logic/gameplay.js';
 
 const router = express.Router();
 
@@ -100,6 +100,7 @@ router.get('/choicematch/:accountId/result', async (req, res) => {
     const totalPower = calculateTeamPower(selectedPlayers);
     const opponentPower = generateOpponentPower(totalPower);
     const gameResult = determineWinner(totalPower, opponentPower);
+    await updateGameResult(manager.managerId, gameResult.result);
 
     await prisma.record.create({
       data: {

@@ -1,10 +1,10 @@
 import express from 'express';
-import { prisma } from '../utils/prisma/index.js';
+import { prisma } from '../../utils/prisma/index.js';
 import {
   calculatePlayerPower,
   determineWinner,
   updateGameResult,
-} from '../logic/gameplay.js';
+} from '../../logic/gameplay.js';
 
 const router = express.Router();
 

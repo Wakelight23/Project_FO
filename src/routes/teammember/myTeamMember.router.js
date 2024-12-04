@@ -1,6 +1,6 @@
 import express from 'express';
 import { Prisma } from '@prisma/client';
-import { prisma } from '../utils/prisma/index.js';
+import { prisma } from '../../utils/prisma/index.js';
 import { isValidInput } from './createRoster.router.js';
 
 const router = express.Router();
