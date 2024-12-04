@@ -1,6 +1,11 @@
 /node_modules
+/prisma
+/src/middlewares
+/src/utils
+src/router/member.router.js
+/src/app.js
 .env
 .env.development
 .env.production
+.prettierrc
 README.txt
-/src/app.js
