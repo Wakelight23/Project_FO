@@ -3,3 +3,4 @@
 .env.development
 .env.production
 README.txt
+/src/app.js
