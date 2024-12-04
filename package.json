@@ -6,12 +6,16 @@
   "author": "wakelight23 <rlghks0223@gmail.com>",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "express": "^4.21.1",
     "prisma": "^6.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2"
   }
 }

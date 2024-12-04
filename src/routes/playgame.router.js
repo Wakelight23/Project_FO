@@ -4,6 +4,7 @@ import {
   calculateTeamPower,
   generateOpponentPower,
   determineWinner,
+  updateGameResult,
 } from '../logic/gameplay.js';
 
 const router = express.Router();
@@ -11,160 +12,7 @@ const router = express.Router();
 // 게임 진행 상태를 저장할 Map = 게임 세션(게임 룸? 게임 방?)
 const gameSessionMap = new Map();
 
-// async function main() {
-//   // Account 데이터 생성
-//   const accounts = await Promise.all([
-//     prisma.account.create({
-//       data: {
-//         email: 'user1@example.com',
-//         password: 'password1',
-//         isAdmin: false,
-//       },
-//     }),
-//     prisma.account.create({
-//       data: {
-//         email: 'user2@example.com',
-//         password: 'password2',
-//         isAdmin: false,
-//       },
-//     }),
-//   ]);
-
-//   // Manager 데이터 생성
-//   const managers = await Promise.all([
-//     prisma.manager.create({
-//       data: {
-//         email: 'manager1@example.com',
-//         accountId: accounts[0].accountId,
-//         nickname: 'Manager_1',
-//         cash: 3000,
-//         recordId: 1,
-//         rating: 5,
-//       },
-//     }),
-//     prisma.manager.create({
-//       data: {
-//         email: 'manager2@example.com',
-//         accountId: accounts[1].accountId,
-//         nickname: 'Manager_2',
-//         cash: 3500,
-//         recordId: 2,
-//         rating: 4,
-//       },
-//     }),
-//   ]);
-
-//   // Player 데이터 생성
-//   const players = await Promise.all([
-//     prisma.player.create({
-//       data: {
-//         name: 'Player_1',
-//         club: 'Club_1',
-//         speed: 90,
-//         goalFinishing: 85,
-//         shootPower: 88,
-//         defense: 75,
-//         stamina: 80,
-//         rarity: 5,
-//         type: null,
-//         playerImage: '',
-//       },
-//     }),
-//     prisma.player.create({
-//       data: {
-//         name: 'Player_2',
-//         club: 'Club_2',
-//         speed: 85,
-//         goalFinishing: 92,
-//         shootPower: 90,
-//         defense: 70,
-//         stamina: 85,
-//         rarity: 4,
-//         type: null,
-//         playerImage: '',
-//       },
-//     }),
-//     prisma.player.create({
-//       data: {
-//         name: 'Player_3',
-//         club: 'Club_1',
-//         speed: 88,
-//         goalFinishing: 78,
-//         shootPower: 85,
-//         defense: 89,
-//         stamina: 92,
-//         rarity: 4,
-//         type: null,
-//         playerImage: '',
-//       },
-//     }),
-//   ]);
-
-//   // TeamMember 데이터 생성
-//   const teamMembers = await Promise.all([
-//     prisma.teamMember.create({
-//       data: {
-//         playerId: players[0].playerId,
-//         managerId: managers[0].managerId,
-//         upgrade: 2,
-//         isSelected: true,
-//       },
-//     }),
-//     prisma.teamMember.create({
-//       data: {
-//         playerId: players[1].playerId,
-//         managerId: managers[0].managerId,
-//         upgrade: 1,
-//         isSelected: true,
-//       },
-//     }),
-//     prisma.teamMember.create({
-//       data: {
-//         playerId: players[2].playerId,
-//         managerId: managers[0].managerId,
-//         upgrade: 0,
-//         isSelected: false,
-//       },
-//     }),
-//     prisma.teamMember.create({
-//       data: {
-//         playerId: players[0].playerId,
-//         managerId: managers[1].managerId,
-//         upgrade: 3,
-//         isSelected: true,
-//       },
-//     }),
-//   ]);
-
-//   // Record 데이터 생성
-//   const records = await Promise.all([
-//     prisma.record.create({
-//       data: {
-//         managerId: managers[0].managerId,
-//         gameResult: 1, // 승리
-//       },
-//     }),
-//     prisma.record.create({
-//       data: {
-//         managerId: managers[1].managerId,
-//         gameResult: 0, // 패배
-//       },
-//     }),
-//   ]);
-
-//   console.log('테스트 데이터를 생성했습니다');
-// }
-
-// main()
-//   .catch((e) => {
-//     console.error(e);
-//     process.exit(1);
-//   })
-//   .finally(async () => {
-//     await prisma.$disconnect();
-//   });
-
-/** 게임 시작 API **/
+/** 일반 게임 시작 API **/
 router.get('/choicematch/:accountId/start', async (req, res) => {
   try {
     const { accountId } = req.params;
@@ -221,7 +69,7 @@ router.get('/choicematch/:accountId/start', async (req, res) => {
   }
 });
 
-/**  게임 결과 API **/
+/** 일반 게임 결과 API **/
 router.get('/choicematch/:accountId/result', async (req, res) => {
   try {
     const { accountId } = req.params;
@@ -262,10 +110,16 @@ router.get('/choicematch/:accountId/result', async (req, res) => {
 
     res.status(202).json({
       data: {
-        totalPower: `나의 팀 전투력 : ${totalPower}`,
-        opponentPower: `상대 팀 전투력 : ${opponentPower}`,
+        totalPower: `나의 팀 전투력 : ${Math.floor(totalPower)}`,
+        opponentPower: `상대 팀 전투력 : ${Math.floor(opponentPower)}`,
         randomResult: `${gameResult.details.randomFactor}(=랜덤 수치) : ${gameResult.details.winProbability}(=내 전투력에 기반한 승률)`,
-        gameResult: `${gameResult.result === 1 ? '승리' : '패배'} 입니다`,
+        gameResult: `${
+          gameResult.result === 1
+            ? '승리'
+            : gameResult.result === 2
+            ? '무승부'
+            : '패배'
+        } 입니다`,
       },
     });
 

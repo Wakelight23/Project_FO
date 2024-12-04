@@ -29,6 +29,19 @@ export function generateOpponentPower(playerPower) {
 // 승패 결정 함수
 // myPower = 나의 전투력, opponentPower = 상대 전투력
 export function determineWinner(myPower, opponentPower) {
+  // 무승부일 경우
+  if (myPower === opponentPower) {
+    return {
+      result: 2, // 0: 패배, 1: 승리, 2: 무승부
+      details: {
+        myPower,
+        opponentPower,
+        winProbability: 50,
+        randomFactor: 0,
+        isDraw: true,
+      },
+    };
+  }
   // 기본 승률 계산 (전투력 차이에 따른)
   const powerDiff = myPower - opponentPower;
   // 승리 확률 :
@@ -47,6 +60,59 @@ export function determineWinner(myPower, opponentPower) {
       opponentPower,
       winProbability: Math.round(winProbability * 100),
       randomFactor: Math.round(randomFactor * 100),
+      isDraw: false,
     },
   };
+}
+
+// 선수 능력치 계산 -> 대장전에서 사용
+export function calculatePlayerPower(player) {
+  return Math.floor(
+    player.speed * 1.2 +
+      player.goalFinishing * 1.5 +
+      player.shootPower * 1.3 +
+      player.defense * 1.1 +
+      player.stamina * 1.0
+  );
+}
+
+// 게임 결과 저장
+export async function updateGameResult(managerId, gameResult) {
+  // Ranking 테이블 업데이트
+  const ranking = await prisma.ranking.findFisrt({
+    where: { managerId },
+  });
+
+  if (ranking) {
+    // 기존 랭킹 정보 업데이트
+    await prisma.ranking.update({
+      where: { managerId },
+      data: {
+        win: gameResult === 1 ? ranking.win + 1 : ranking.win,
+        lose: gameResult === 0 ? ranking.lose + 1 : ranking.lose,
+        draw: gameResult === 2 ? ranking.draw + 1 : ranking.draw,
+      },
+    });
+  } else {
+    // 새로운 랭킹 정보 생성
+    await prisma.ranking.create({
+      data: {
+        managerId,
+        win: gameResult === 1 ? 1 : 0,
+        lose: gameResult === 0 ? 1 : 0,
+        draw: gameResult === 2 ? 1 : 0,
+      },
+    });
+  }
+
+  // Record 테이블에 게임 결과 저장
+  await Promise.all([
+    prisma.record.create({
+      data: {
+        managerId: manager.managerId,
+        gameResult: gameResult.result,
+      },
+    }),
+    updateGameResult(manager.managerId, gameResult.result),
+  ]);
 }
