@@ -13,42 +13,103 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Accounts {
-  accountid  Int           @id @default(autoincrement()) @map("accountid")  // 계정 고유 ID (Primary Key)
-  email       String        @unique @map("email") // 이메일 (고유)
-  password    String        @map("password") //비밀번호
-  name        String        @map("name") // 이름
-  age         Int           @map("age") // 나이
-  gender      String        @map("gender") // 성별
-  created_at  DateTime      @default(now()) @map("created_at") // 생성일시
+model Account {
+  accountId Int @id @default(autoincrement()) @map("accountId")
+  email String @unique @map("email")
+  password String @map("password")
+  isAdmin Boolean @default(false) @map("isAdmin")
 
-  Manager        Manager?        @relation("AccToUser")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
-  refreshTokens RefreshToken[] @relation("AccTORTokens")
+  manager  Manager?
 
-  @@map("Accounts")
+  @@map("Account")
 }
 
 model Manager {
-  managerid    Int           @id @default(autoincrement()) @map("managerid")  // 캐릭터 고유 ID (Primary Key)
-  accountid  Int           @unique @map("accountid") // Accounts 참조 외래키
-  nickname    String        @unique @map("nickname") // 닉네임
-  rating      Int           @map("rating") // 레이팅
-  cash       Int           @map("cash") // 보유 재화
-  created_at  DateTime      @default(now()) @map("created_at") // 생성일자
+  managerId Int @id @default(autoincrement()) @map("managerId")
+  email String @unique @map("email")
+  accountId Int @unique @map("accountId")
+  nickname String @map("nickname")
+  cash Int @map("cash")
+  recordId Int @map("recordId")
+  rating Int @map("rating")
 
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
-  // AccToCha 관계 설정
-  account     Accounts      @relation("AccToUser", fields: [accountid], references: [accountid], onDelete: Cascade)
+  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+  records      Record[]      
+  teamMembers  TeamMember[] 
 
-  @@map("Users")
+  @@map("Manager")
 }
 
-model RefreshToken {
-  accountid Int      @map("accountid") // Accounts 참조 외래키
-  token      String   @unique @map("token") // 리프레시 토큰 (고유)
-  createdAt  DateTime @default(now()) @map("created_at") // 생성일자
-  account    Accounts @relation("AccTORTokens", fields: [accountid], references: [accountid], onDelete: Cascade)
+model Player {
+  playerId Int @id @default(autoincrement()) @map("playerId")
+  name String @map("name")
+  club String @map("club")
+  speed Int @map("speed")
+  goalFinishing Int @map("goalFinishing")
+  shootPower Int @map("shootPower")
+  defense Int @map("defense")
+  stamina Int @map("stamina")
+  rarity Int @map("rarity")
+  type Int? @map("type")
+  playerImage String? @map("playerImage")
 
-  @@map("RefreshToken")
+  teamMembers   TeamMember[]  
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Player")
+}
+
+model TeamMember {
+  teamMemberId Int @id @default(autoincrement()) @map("teamMemberId")
+  playerId Int @map("playerId")
+  managerId Int @map("managerId")
+  upgrade Int @default(0) @map("upgrade")
+  isSelected Boolean @default(false) @map("isSelected")
+
+  player  Player  @relation(fields: [playerId], references: [playerId], onDelete: Cascade)
+  manager Manager @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("TeamMember")
+}
+
+model Record {
+  recordId Int @id @default(autoincrement()) @map("recordId")
+  managerId Int @map("managerId")
+  gameResult Int @map("gameResult")
+
+  manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("Record")
+}
+
+model playertest {
+  playerId   Int      @id @default(autoincrement())
+  playerName String
+  playerStat Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+}
+
+model teamtest {
+  teamMemberId Int      @id @default(autoincrement())
+  playerId     Int
+  upgrade      Int      @default(0)
+  isSelected   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+>>>>>>> dev
 }
