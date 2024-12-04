@@ -1,9 +1,11 @@
+/.vscode
 /node_modules
+/attachment
+
+src/app.js
+
 .env
 .env.development
 .env.production
-.md
-app.js
+
 README.txt
-/attachment
-/.vscode
