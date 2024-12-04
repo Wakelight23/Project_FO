@@ -26,6 +26,7 @@ model Account {
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   manager Manager?
+  coupon  Coupon?
 
   @@map("Account")
 }
@@ -116,14 +117,19 @@ model teamtest {
   updatedAt    DateTime @default(now())
 }
 
-// model Coupon {
-//   id        Int      @id @default(autoincrement())
-//   code      String   @unique
-//   amount    Int
-//   createdAt DateTime @default(now())
-//   ownerId   Int?
-//   manager   Manager? @relation(fields: [ownerId], references: [id])
-//   isUsed Boolean @default(false)@map("isUsed")
+model Coupon {
+  id          Int     @id @default(autoincrement()) @map("couponId") // 필드를 "coupon_id"로 매핑
+  accountId   Int     @unique @map("accountId")
+  code        String  @unique @map("couponCode") // 필드를 "coupon_code"로 매핑
+  couponType  String  @map("couponType")
+  couponValue Int     @map("couponValue") // 랜덤쿠폰은 값이 최댓값
+  isUsed      Boolean @default(false) @map("isUsed") // 필드를 "is_used"로 매핑
 
-//   @@map("Coupon")
-// }
+  createdAt DateTime @default(now()) @map("created_at") // 필드를 "created_at"로 매핑
+  updatedAt DateTime @updatedAt @map("updated_at") // 필드를 "updated_at"로 매핑
+
+  // account 이메일이랑 비번 사용
+  account Account? @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+
+  @@map("Coupons") // 테이블 이름을 "coupons"로 매핑
+}
