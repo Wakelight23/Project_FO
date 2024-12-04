@@ -22,17 +22,14 @@ router.post('/sign-up', async (req, res) => {
     }
 
     // 이메일 형식 체크
-    const emailForm = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    if (!emailForm.test(email)) {
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
         return res
             .status(409)
             .json({ message: '이메일 형식이 적절하지 않습니다.' });
     }
 
     // 비밀번호 형식 체크
-    const passwordForm = /^.{1,6}$/;
-    if (!passwordForm.test(password)) {
+    if (!/^.{1,6}$/.test(password)) {
         return res
             .status(409)
             .json({ message: 'password는 6자리 이하로만 설정할 수 있습니다' });
@@ -41,6 +38,21 @@ router.post('/sign-up', async (req, res) => {
     // 비밀번호 확인
     if (password !== password2) {
         return res.status(409).json({ message: 'password를 다시 확인하세요.' });
+    }
+
+    // 나이 유효성 체크
+    if (!/^[1-9][0-9]*$/.test(age)) {
+        return res
+            .status(409)
+            .json({ message: '나이는 1 이상의 정수여야 합니다.' });
+    }
+
+    // 성별 유효성 체크
+    const validGenders = ['male', 'female'];
+    if (!validGenders.includes(gender)) {
+        return res
+            .status(409)
+            .json({ message: 'gender는 male 또는 female이어야 합니다.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
