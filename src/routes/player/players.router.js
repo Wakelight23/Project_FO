@@ -1,8 +1,8 @@
 // src/routes/players.router.js
-
 import express from 'express';
 import multer from 'multer';
-import { prisma } from '../../../utils/prisma/index.js';
+import { prisma } from '../../utils/prisma/index.js';
+import { isValidInput } from '../teammember/createRoster.router.js';
 
 const router = express.Router();
 
@@ -27,26 +27,22 @@ router.get('/players', async (req, res, next) => {
 router.get('/players/:playerId', async (req, res, next) => {
     // playerId를 파라미터로 받아 상세한 정보를 조회한다.
     // 어드민 여부에 따라 다른 정보가 조회된다.
-    const { accountID } = req.accountID;
 
+
+    try {
     const { playerId } = req.params;
     if (!playerId)
         return res
             .status(400)
             .json({ message: 'playerId가 입력되지 않았습니다.' });
+      //어드민 체크
+        const { accountId } = req.account;
+        if (!accountId) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
 
-    try {
-        const isAdmin = await prisma.account.findFirst({
-            select: {
-                accountId: true,
-                isAdmin: true,
-            },
-            where: {
-                accountId: +accountID,
-            },
-        });
         let isExistPlayer;
-        if (isAdmin) {
+        if (checkAdmin(accountId)) {
             isExistPlayer = await prisma.player.findFirst({
                 select: {
                     playerId: true,
@@ -96,20 +92,15 @@ router.get('/players/:playerId', async (req, res, next) => {
 /** 새로운 선수 생성 API **/
 router.post('/players', async (req, res, next) => {
     // 어드민 일때만 생성이 가능하다.
-    //const { accountID } = req.accountID;
     try {
-        // const isAdmin = await prisma.account.findFirst({
-        //   select: {
-        //     accountId: true,
-        //     isAdmin: true,
-        //   },
-        //   where: {
-        //     accountId: +accountID,
-        //   },
-        // });
-        // if (!isAdmin) {
-        //   res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-        // }
+      //어드민 체크
+        const { accountId } = req.account;
+        if (!accountId) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
+        if (!checkAdmin(accountId)) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
 
         const {
             name,
@@ -164,22 +155,18 @@ const upload = multer({ storage: storage });
 router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
     // 어드민 일때만 생성이 가능하다.
     // 주의! 잘못된 데이터이어도 에러를 피하기 위해 기본값을 다 넣어 놨음.
-    //const { accountID } = req.accountID;
     try {
-        // const isAdmin = await prisma.account.findFirst({
-        //   select: {
-        //     accountId: true,
-        //     isAdmin: true,
-        //   },
-        //   where: {
-        //     accountId: +accountID,
-        //   },
-        // });
-        // if (!isAdmin) {
-        //   return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-        // }
+      //어드민 체크
+        const { accountId } = req.account;
+        if (!accountId) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
+        if (!checkAdmin(accountId)) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
+
         const csvData = req.file.buffer.toString('utf-8');
-        const csvStringArr = csvData.split('\n');
+        const csvStringArr = csvData.split(/\r\n|\r|\n/);
 
         const csvCreateData = csvParsing(csvStringArr);
 
@@ -187,11 +174,9 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
             data: csvCreateData,
         });
 
-        return res
-            .status(201)
-            .json({
-                message: `${csvCreateData.length}명의 선수가 생성되었습니다.`,
-            });
+        return res.status(201).json({
+            message: `${csvCreateData.length}명의 선수가 생성되었습니다.`,
+        });
     } catch (err) {
         next(err);
     }
@@ -201,21 +186,16 @@ router.post('/players/:playerId', async (req, res, next) => {
     // playerId를 파라미터로 받아 선수 정보를 수정한다.
     // 어드민 일때만 수정이 가능하다.
     try {
-        //const { accountID } = req.accountID;
         const { playerId } = req.params;
 
-        // const isAdmin = await prisma.account.findFirst({
-        //   select: {
-        //     accountId: true,
-        //     isAdmin: true,
-        //   },
-        //   where: {
-        //     accountId: +accountID,
-        //   },
-        // });
-        // if (!isAdmin) {
-        //   return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-        // }
+      //어드민 체크
+        const { accountId } = req.account;
+        if (!accountId) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
+        if (!checkAdmin(accountId)) {
+            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        }
         const {
             name,
             club,
@@ -283,21 +263,17 @@ router.post('/players/:playerId', async (req, res, next) => {
 router.delete('/players/:playerId', async (req, res, next) => {
     // 어드민 일때만 삭제가 가능하다.
     try {
-        //const { accountID } = req.accountID;
         const { playerId } = req.params;
 
-        // const isAdmin = await prisma.account.findFirst({
-        //   select: {
-        //     accountId: true,
-        //     isAdmin: true,
-        //   },
-        //   where: {
-        //     accountId: +accountID,
-        //   },
-        // });
-        // if (!isAdmin) {
-        //   return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-        // }
+      //어드민 체크
+      const { accountId } = req.account;
+      if (!accountId) {
+          res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+      }
+      if (!checkAdmin(accountId)) {
+          res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+      }
+
         if (!playerId)
             return res
                 .status(400)
@@ -332,19 +308,19 @@ router.delete('/players/:playerId', async (req, res, next) => {
 
 //csv 파일을 배열로 변환
 function csvParsing(csvString) {
-  //player 테이블 데이터
-  
-  // playerId      Int          @id @default(autoincrement()) @map("playerId")
-  // name          String       @map("name")
-  // club          String       @map("club")
-  // speed         Int          @map("speed")
-  // goalFinishing Int          @map("goalFinishing")
-  // shootPower    Int          @map("shootPower")
-  // defense       Int          @map("defense")
-  // stamina       Int          @map("stamina")
-  // rarity        Int          @map("rarity")
-  // type          Int?         @map("type")
-  // playerImage   String?      @map("playerImage")
+    //player 테이블 데이터
+
+    // playerId      Int          @id @default(autoincrement()) @map("playerId")
+    // name          String       @map("name")
+    // club          String       @map("club")
+    // speed         Int          @map("speed")
+    // goalFinishing Int          @map("goalFinishing")
+    // shootPower    Int          @map("shootPower")
+    // defense       Int          @map("defense")
+    // stamina       Int          @map("stamina")
+    // rarity        Int          @map("rarity")
+    // type          Int?         @map("type")
+    // playerImage   String?      @map("playerImage")
 
     //리턴할 변수
     let playerCreateData = [];
@@ -403,6 +379,7 @@ function csvParsing(csvString) {
     // 내용 리턴 변수에 대입
     for (let i = 1; i < csvString.length; i++) {
         const csvSingleLine = csvString[i].split(',');
+        if (!csvSingleLine.length <= 0) continue;
         const tmpRarity = csvSingleLine[indexRarity] ?? getRandomInt(1, 11);
         const singlePlayerData = {
             name: csvSingleLine[indexName] ?? '무명',
@@ -435,6 +412,24 @@ function getRandomInt(min, max) {
     const minCeiled = Math.ceil(min);
     const maxFloored = Math.floor(max);
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // 최댓값은 제외, 최솟값은 포함
+}
+//어드민 체크
+// 어드민이면 true
+async function checkAdmin(accountId) {
+    const isAdmin = await prisma.account.findFirst({
+        select: {
+            accountId: true,
+            isAdmin: true,
+        },
+        where: {
+            accountId: +accountId,
+        },
+    });
+    if (!isAdmin || isAdmin.isAdmin!=1) {
+      return false;
+        res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+    }
+    return true;
 }
 
 export default router;

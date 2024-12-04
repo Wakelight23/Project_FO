@@ -19,7 +19,7 @@ import PlayGame from './routes/gameplay/playgame.router.js';
 import CaptainGame from './routes/gameplay/captaingame.router.js';
 import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-
+import authM from './middlewares/auth.js';
 const app = express();
 const PORT = 3001;
 
@@ -37,7 +37,7 @@ app.use(express.static('public'));
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
-app.use('/api', [PlayerRouter]); // player
+app.use('/api', authM, [PlayerRouter]); // player
 app.use('/api', [CreateRosterRouter, UpgradeMemberRouter, MyTeamMemberRouter]); // teammember
 app.use('/api', [PlayGame, CaptainGame, GameRecord]); // gameplay
 
