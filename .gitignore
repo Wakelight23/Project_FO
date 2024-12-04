@@ -1,9 +1,7 @@
+/.vscode
 /node_modules
 .env
 .env.development
 .env.production
-/prisma
 .prettierrc
 README.txt
-/src/app.js
-yarn.lock
