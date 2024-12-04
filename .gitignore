@@ -1,7 +1,0 @@
-README.md
-/node_modules
-.env
-.env.development
-.env.production
-README.txt
-/src/app.js
