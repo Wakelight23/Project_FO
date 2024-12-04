@@ -99,41 +99,13 @@ const getRandomItem = () => {
 
 //#endregion
 
-//#region 뽑기
-
-// 랜덤 아이템을 뽑는 함수
-const getRandomItem = async () => {
-  try {
-    Log('뽑기 시작');
-    const items = await prisma.player.findMany();
-    Log('뽑기 플레이어 가져옴');
-    Log(items);
-
-    const totalProbability = items.reduce((sum, item) => sum + item.rarity, 0);
-    Log('뽑기의 가중치 모두 계산');
-    const randomValue = Math.random() * totalProbability;
-    Log('뽑을 랜덤값 지정 완료');
-    let cumulativeProbability = 0;
-    Log('랜덤값 판정 유닛 검색중');
-    for (const item of items) {
-      cumulativeProbability += item.rarity;
-      if (randomValue < cumulativeProbability) {
-        Log(`뽑은 유닛`);
-        Log(item);
-        return item;
-      }
-    }
-  } catch (error) {
-    throw new Error('뽑기 함수 에러 팀원 김정태를 찌르세요!!');
-  }
-};
-
-//#endregion
-
 //라우터
 //#region 모든뽑기정보
 //모든 뽑기 정보 조회
 gachaRouter.get('/api/gachas', async (req, res) => {
+  const items = await prisma.player.findMany({
+    select: { name: true, type: true, rarity: true, playerImage: true },
+  });
   res.json({
     success: true,
     items: items,
@@ -143,7 +115,7 @@ gachaRouter.get('/api/gachas', async (req, res) => {
 
 //#region 단일 뽑기 정보
 //단일 뽑기 정보 조회
-gachaRouter.get('/api/gacha/:id', async (req, res) => {
+gachaRouter.get('/api/gacha', async (req, res) => {
   const isAccess = true;
 
   if (!isAccess) {
@@ -151,8 +123,11 @@ gachaRouter.get('/api/gacha/:id', async (req, res) => {
   }
 
   try {
-    const itemId = parseInt(req.params.id);
-    const item = await prisma.player.findFirst({ where: { playerId: itemId } });
+    const { playerId } = req.body;
+    const item = await prisma.player.findFirst({
+      where: { playerId: playerId },
+      select: { name: true, type: true, rarity: true, playerImage: true },
+    });
     if (item) {
       res.json({
         success: true,
@@ -173,29 +148,75 @@ gachaRouter.get('/api/gacha/:id', async (req, res) => {
 
 //auth 적용해야함 -->authM
 
+//#region 뽑기
+
+// 랜덤 아이템을 뽑는 함수
+const getRandomItems = async (drawCount) => {
+  try {
+    Log('뽑기 시작');
+    const items = await prisma.player.findMany();
+    Log('뽑기 플레이어 가져옴');
+    Log(items);
+
+    const totalProbability = items.reduce((sum, item) => sum + item.rarity, 0);
+    Log('뽑기의 가중치 모두 계산');
+
+    const drawnItems = [];
+
+    for (let i = 0; i < drawCount; i++) {
+      const randomValue = Math.random() * totalProbability;
+      Log('뽑을 랜덤값 지정 완료 : ' + i);
+      let cumulativeProbability = 0;
+      Log('랜덤값 판정 유닛 검색중 : ' + i);
+
+      for (const item of items) {
+        cumulativeProbability += item.rarity;
+        if (randomValue < cumulativeProbability) {
+          drawnItems.push(item); // 뽑은 아이템을 배열에 추가
+          break; // 아이템을 뽑으면 루프를 탈출
+        }
+      }
+    }
+
+    return drawnItems; // 뽑은 아이템 배열 반환
+  } catch (error) {
+    throw new Error('뽑기 함수 에러 팀원 김정태를 찌르세요!!');
+  }
+};
+
+//#endregion
+
 //#region 뽑기 라우터
-//뽑기
+// 뽑기
 gachaRouter.post('/api/gacha', async (req, res) => {
   try {
-    const { managerId } = req.body;
+    const { managerId, drawCount } = req.body; // drawCount 추가
     Log(managerId);
-    //const managerId = 3;
-    const drawnItem = await getRandomItem();
-    if (!drawnItem) {
+    Log(drawCount);
+
+    const drawnItems = await getRandomItems(drawCount); // 여러 아이템을 뽑기 위한 호출
+    if (!drawnItems.length) {
       return res.json({
         success: false,
-        message: '500 고객센터에 문의하세요',
+        message: '500 고객센터에 항의하세요!',
       });
     }
-    const teamMember = await prisma.teamMember.create({
-      data: {
-        playerId: drawnItem.playerId,
-        managerId: managerId,
-      },
-    });
+
+    // 팀원 생성 로직
+    const teamMembers = await Promise.all(
+      drawnItems.map((item) =>
+        prisma.teamMember.create({
+          data: {
+            playerId: item.playerId,
+            managerId: managerId,
+          },
+        })
+      )
+    );
+
     return res.json({
       success: true,
-      item: { drawnItem },
+      items: drawnItems, // 모든 뽑은 아이템 반환
     });
   } catch (error) {
     throw new Error('아이템 뽑기 라우터 에러 팀원 김정태를 찌르세요.' + error);
