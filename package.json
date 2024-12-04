@@ -4,10 +4,6 @@
   "main": "index.js",
   "license": "MIT",
   "type": "module",
-  "scripts": {
-    "format": "prettier --write *.js **/*.js",
-    "dev": "npx nodemon ./src/app.js"
-  },
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "bcrypt": "^5.1.1",
@@ -19,10 +15,6 @@
     "prisma": "^6.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7",
-    "prettier": "^3.4.1"
-  },
-  "scripts": {
-    "dev": "nodemon src/app.js"
+    "nodemon": "^3.1.7"
   }
 }

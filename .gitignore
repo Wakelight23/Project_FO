@@ -1,9 +1,10 @@
 /.vscode
 /node_modules
 /src/app.js
-# Keep environment variables out of version control
 .env
 .env.development
 .env.production
+/prisma
+.prettierrc
 README.txt
-
+yarn.lock
