@@ -8,7 +8,7 @@ dotenv.config();
 export default async function authM(req, res, next) {
     try {
         const { authorization } = req.headers;
-        console.log(authorization); // 추출 확인용
+        console.log('추출 확인: ' + authorization); // 추출 확인용
 
         // Authorization 헤더가 없을 경우
         if (!authorization) throw new Error('토큰이 존재하지 않습니다.');
@@ -90,11 +90,9 @@ export default async function authM(req, res, next) {
                             '리프레시 토큰이 만료되었습니다. 다시 로그인하세요.',
                     });
                 }
-                return res
-                    .status(401)
-                    .json({
-                        message: '리프레시 토큰 검증 중 오류가 발생했습니다.',
-                    });
+                return res.status(401).json({
+                    message: '리프레시 토큰 검증 중 오류가 발생했습니다.',
+                });
             }
         } else if (error.name === 'JsonWebTokenError') {
             // 예외

@@ -1,5 +1,6 @@
 import express from 'express';
 import { prisma } from '../../utils/prisma/index.js';
+import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
 const isLog = true;
@@ -69,14 +70,14 @@ const getRandomItems = async (drawCount) => {
     try {
         Log('뽑기 시작');
         const items = await prisma.player.findMany();
-        Log('뽑기 플레이어 가져옴');
-        Log(items);
+        Log('뽑기 플레이어 가져옴' + drawCount);
+        //Log(items);
 
         const totalProbability = items.reduce(
             (sum, item) => sum + item.rarity,
             0
         );
-        Log('뽑기의 가중치 모두 계산');
+        Log('뽑기의 가중치 모두 계산' + totalProbability);
 
         const drawnItems = [];
 
@@ -105,10 +106,12 @@ const getRandomItems = async (drawCount) => {
 
 //#region 뽑기 라우터
 // 뽑기
-gachaRouter.post('/api/gacha', async (req, res) => {
+gachaRouter.post('/gacha', authM, async (req, res) => {
     try {
-        const { managerId, drawCount } = req.body; // drawCount 추가
-        Log(managerId);
+        Log('Test');
+        const { accountId } = req.account;
+        Log(accountId);
+        const { drawCount } = req.body;
         Log(drawCount);
 
         const drawnItems = await getRandomItems(drawCount); // 여러 아이템을 뽑기 위한 호출
@@ -125,7 +128,7 @@ gachaRouter.post('/api/gacha', async (req, res) => {
                 prisma.teamMember.create({
                     data: {
                         playerId: item.playerId,
-                        managerId: managerId,
+                        managerId: accountId,
                     },
                 })
             )
