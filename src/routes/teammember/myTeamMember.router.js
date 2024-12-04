@@ -40,10 +40,19 @@ router.get('/myTeamMember', authM, async (req, res, next) => {
         // 선수 목록 조회
         await prisma.$transaction(
             async (tx) => {
+                // accoutId를 통해 managerId 가져오기
+                const managerId = await prisma.manager.findFirst({
+                    where: {
+                        accountId: +accountId,
+                    },
+                    select: {
+                        managerId: true,
+                    },
+                }).managerId;
                 // 계정이 보유하고 있는 선수들의 id를 조회(이 배열의 요소는 객체 상태)
                 const membersInTeam = await tx.teamMember.findMany({
                     where: {
-                        accountId: +accountId,
+                        managerId,
                     },
                     select: {
                         teamMemberId: true,
