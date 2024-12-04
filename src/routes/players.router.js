@@ -31,7 +31,7 @@ router.get('/players/:playerId', async (req, res, next) => {
 
   const { playerId } = req.params;
   if (!playerId)
-    res.status(400).json({ message: 'playerId가 입력되지 않았습니다.' });
+    return res.status(400).json({ message: 'playerId가 입력되지 않았습니다.' });
 
   try {
     const isAdmin = await prisma.account.findFirst({
@@ -82,7 +82,7 @@ router.get('/players/:playerId', async (req, res, next) => {
     }
 
     if (!isExistPlayer) {
-      res.status(404).json({ message: '존재하지 않는 선수입니다.' });
+      return res.status(404).json({ message: '존재하지 않는 선수입니다.' });
     }
     return res.status(200).json(playerList);
   } catch (err) {
@@ -129,7 +129,7 @@ router.post('/players', async (req, res, next) => {
       !rarity ||
       !type
     )
-      res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
+      return res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
 
     const user = await prisma.player.create({
       data: {
@@ -168,7 +168,7 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
     //   },
     // });
     // if (!isAdmin) {
-    //   res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+    //   return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
     // }
     const csvData = req.file.buffer.toString('utf-8');
     const csvStringArr = csvData.split('\n');
@@ -179,7 +179,9 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
       data: csvCreateData,
     });
 
-    return res.status(201).json({ message: `${csvCreateData.length}명의 선수가 생성되었습니다.` });
+    return res
+      .status(201)
+      .json({ message: `${csvCreateData.length}명의 선수가 생성되었습니다.` });
   } catch (err) {
     next(err);
   }
@@ -202,7 +204,7 @@ router.post('/players/:playerId', async (req, res, next) => {
     //   },
     // });
     // if (!isAdmin) {
-    //   res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+    //   return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
     // }
     const {
       name,
@@ -227,7 +229,7 @@ router.post('/players/:playerId', async (req, res, next) => {
       !rarity ||
       !type
     )
-      res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
+      return res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
 
     const isExistPlayer = await prisma.player.findFirst({
       select: {
@@ -238,7 +240,7 @@ router.post('/players/:playerId', async (req, res, next) => {
       },
     });
     if (!isExistPlayer) {
-      res.status(404).json({ message: '존재하지 않는 선수입니다.' });
+      return res.status(404).json({ message: '존재하지 않는 선수입니다.' });
     }
 
     const user = await prisma.player.update({
@@ -278,10 +280,10 @@ router.delete('/players/:playerId', async (req, res, next) => {
     //   },
     // });
     // if (!isAdmin) {
-    //   res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+    //   return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
     // }
     if (!playerId)
-      res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
+      return res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
 
     const isExistPlayer = await prisma.player.findFirst({
       select: {
@@ -293,7 +295,7 @@ router.delete('/players/:playerId', async (req, res, next) => {
       },
     });
     if (!isExistPlayer) {
-      res.status(404).json({ message: '존재하지 않는 선수입니다.' });
+      return res.status(404).json({ message: '존재하지 않는 선수입니다.' });
     }
 
     const user = await prisma.player.delete({
@@ -308,8 +310,7 @@ router.delete('/players/:playerId', async (req, res, next) => {
   }
 });
 
-
-  //csv 파일을 배열로 변환
+//csv 파일을 배열로 변환
 function csvParsing(csvString) {
   //player 테이블 데이터
   // playerId      Int          @id @default(autoincrement()) @map("playerId")
@@ -337,14 +338,17 @@ function csvParsing(csvString) {
     indexRarity = -1,
     indexType = -1,
     indexplayerImage = -1;
-//헤더 확인
+
+  //헤더 확인
   const scvHeaderSplit = csvString[0].split(',');
   for (let i in scvHeaderSplit) {
     switch (scvHeaderSplit[i]) {
-      case 'name' || `full_name`:
+      case 'name':
+      case `full_name`:
         indexName = i;
         break;
-      case 'club' || `Current Club`:
+      case 'club':
+      case `Current Club`:
         indexClub = i;
         break;
       case 'speed':
@@ -377,19 +381,21 @@ function csvParsing(csvString) {
   }
   // 내용 리턴 변수에 대입
   for (let i = 1; i < csvString.length; i++) {
-    const tmpRarity = csvString[indexRarity] ?? getRandomInt(1, 11);
+    const csvSingleLine = csvString[i].split(',');
+    const tmpRarity = csvSingleLine[indexRarity] ?? getRandomInt(1, 11);
     const singlePlayerData = {
-      name: csvString[indexName] ?? '무명',
-      club: csvString[indexClub] ?? '조기축구회',
-      speed: csvString[indexSpeed] ?? 30 + Math.random() * tmpRarity,
+      name: csvSingleLine[indexName] ?? '무명',
+      club: csvSingleLine[indexClub] ?? '조기축구회',
+      speed: csvSingleLine[indexSpeed] ?? 30 + Math.random() * tmpRarity * 10,
       goalFinishing:
-        csvString[indexGoalFinishing] ?? 30 + Math.random() * tmpRarity,
-      shootPower: csvString[indexShootPower] ?? 30 + Math.random() * tmpRarity,
-      defense: csvString[indexDefense] ?? 30 + Math.random() * tmpRarity,
-      stamina: csvString[indexStamina] ?? 30 + Math.random() * tmpRarity,
-      rarity: csvString[indexRarity] ?? tmpRarity,
-      type: csvString[indexType] ?? 1,
-      playerImage: csvString[indexplayerImage] ?? '',
+        csvSingleLine[indexGoalFinishing] ?? 30 + Math.random() * tmpRarity * 10,
+      shootPower:
+        csvSingleLine[indexShootPower] ?? 30 + Math.random() * tmpRarity * 10,
+      defense: csvSingleLine[indexDefense] ?? 30 + Math.random() * tmpRarity * 10,
+      stamina: csvSingleLine[indexStamina] ?? 30 + Math.random() * tmpRarity * 10,
+      rarity: csvSingleLine[indexRarity] ?? tmpRarity,
+      type: csvSingleLine[indexType] ?? 1,
+      playerImage: csvSingleLine[indexplayerImage] ?? '',
     };
     playerCreateData.push(singlePlayerData);
   }
