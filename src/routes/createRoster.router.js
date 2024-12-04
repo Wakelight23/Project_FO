@@ -19,7 +19,7 @@ export const isValidInput = (input) =>
 /** 출전 선수를 선발하는 API */
 router.patch('/rosterIn', async (req, res, next) => {
   const { teamMemberId1, teamMemberId2, teamMemberId3 } = req.body;
-  const { managerId } = req.body;
+  const { managerId } = req.header;
   // TO-DO : 토큰 인증 미들웨어 추가
 
   // 트랜젝션 내부에선 형변환이 제대로 되지 않는 경우가 있어서 미리 해준다.
@@ -143,7 +143,7 @@ router.patch('/rosterIn', async (req, res, next) => {
 /** 선발 선수를 다른 선수로 변경하는 API */
 router.patch('/rosterOut', async (req, res, next) => {
   // TO-DO: 토큰 인증
-  const { managerId } = req.body;
+  const { managerId } = req.header;
 
   // 교체할 선수 둘을 request body를 통해 요청받는다.
   const { outMemberId, inMemberId } = req.body;

@@ -8,7 +8,7 @@ const router = express.Router();
 /** 계정이 보유하고 있는 선수 목록을 조회하는 API */
 router.get('/myTeamMember', async (req, res, next) => {
   // TO-DO : 토큰 인증 미들웨어 추가
-  const { managerId } = req.body; // 이 부분을 토큰으로 받을 수 있을 것 같다.
+  const { managerId } = req.header; // 이 부분을 토큰으로 받을 수 있을 것 같다.
 
   try {
     // 유효성 검사(1 이상의 정수인가? 빈 값이 들어오진 않았는가? 데이터 형식이 다르지는 않은가?)
