@@ -36,7 +36,7 @@ router.patch('/upgrade', async (req, res, next) => {
     });
   }
 
-  // 확률 계산. 등급이 높으면 숫자가 클 테니, 그걸 1/n으로 곱해서 확률을 정하면 될 것 같음.(등급이 5라면 강화 확률이 20%)
+  // 확률 계산. 등급이 높으면 숫자가 클 테니, 그걸 1/n+1으로 곱해서 확률을 정하면 될 것 같음.(등급이 4라면 강화 확률이 1/5 => 20%)
 
   try {
     // 예외 처리(둘이 같은 playerId를 가지고 있는지, 등급이 같은지, 둘 다 계정의 소유가 맞는지)
@@ -96,9 +96,28 @@ router.patch('/upgrade', async (req, res, next) => {
               teamMemberId: memberIds[1],
             },
           });
+          const degradedMember = await tx.player.findFirst({
+            where: {
+              playerId: playerIds[0],
+            },
+            select: {
+              name: true,
+              club: true,
+            },
+          });
+          const degradedNumber = await tx.teamMember.findFirst({
+            where: {
+              teamMemberId: memberIds[0],
+            },
+            select: {
+              upgrade: true,
+            },
+          });
 
           return res.status(200).json({
             message: '강화에 실패하였습니다. 재료 카드가 파괴되었습니다.',
+            degradedMember,
+            degradedNumber,
           });
         }
 
@@ -118,9 +137,28 @@ router.patch('/upgrade', async (req, res, next) => {
             teamMemberId: memberIds[1],
           },
         });
+        const upgradedMember = await tx.player.findFirst({
+          where: {
+            playerId: playerIds[0],
+          },
+          select: {
+            name: true,
+            club: true,
+          },
+        });
+        const upgradedNumber = await tx.teamMember.findFirst({
+          where: {
+            teamMemberId: memberIds[0],
+          },
+          select: {
+            upgrade: true,
+          },
+        });
 
         return res.status(200).json({
           message: '강화에 성공하였습니다. 재료 카드가 소모되었습니다.',
+          upgradedMember,
+          upgradedNumber,
         });
       },
       {
