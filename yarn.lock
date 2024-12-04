@@ -928,7 +928,11 @@ prisma@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/prisma/-/prisma-6.0.1.tgz#63bf769c798b98986aeaf9cddbf12193f9e2c356"
   integrity sha512-CaMNFHkf+DDq8zq3X/JJsQ4Koy7dyWwwtOKibkT/Am9j/tDxcfbg7+lB1Dzhx18G/+RQCMgjPYB61bhRqteNBQ==
+<<<<<<< HEAD
 >>>>>>> b71a29a09b26697dd94880b29a11a28b3f3cd75a
+=======
+
+>>>>>>> e5a0d05beba66f52992693164f8a3c03e26c5d35
   dependencies:
     "@prisma/engines" "6.0.1"
   optionalDependencies:
