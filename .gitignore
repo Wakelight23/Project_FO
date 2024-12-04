@@ -1,5 +1,6 @@
 /node_modules
 /README.md
+/src/app.js
 # Keep environment variables out of version control
 .env
  
