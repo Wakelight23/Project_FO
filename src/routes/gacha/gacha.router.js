@@ -114,6 +114,16 @@ gachaRouter.post('/gacha', authM, async (req, res) => {
         const { drawCount } = req.body;
         Log(drawCount);
 
+        const manager = await prisma.manager.findFirst({
+            where: { accountId },
+        });
+
+        if (!manager) {
+            throw new Error(
+                '매니저가 없습니다! 이것은 저를 찔러도 뭐 안나옵니다!!!'
+            );
+        }
+
         const drawnItems = await getRandomItems(drawCount); // 여러 아이템을 뽑기 위한 호출
         if (!drawnItems.length) {
             return res.json({
@@ -128,7 +138,7 @@ gachaRouter.post('/gacha', authM, async (req, res) => {
                 prisma.teamMember.create({
                     data: {
                         playerId: item.playerId,
-                        managerId: accountId,
+                        managerId: manager.managerId,
                     },
                 })
             )
