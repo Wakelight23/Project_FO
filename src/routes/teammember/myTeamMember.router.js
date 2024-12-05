@@ -28,22 +28,18 @@ router.get('/myTeamMember', authM, async (req, res, next) => {
                 error: '조회하려는 선수 목록 페이지를 입력해주세요.',
             });
         }
-        if (!orderByThis) {
-            return res.status(400).json({
-                error: '선수 목록 정렬방식을 선택해 주세요.',
-            });
-        }
         if (!isValidInputs) {
             return res.status(400).json({
                 error: '잘못된 입력입니다.',
             });
         }
-        // const orderByOptions = {};
-        if (!['name', 'club', 'rarity', 'type'].includes(orderByThis)) {
-            return res.status(400).json({
-                error: '해당 정렬 기능은 지원하지 않습니다. 이름별, 구단별, 희귀도별, 포지션별 정렬 기능 중에 선택해 주세요.',
-            });
-        }
+
+        // 유효한 정렬 방식이 아니면 희귀도별 정렬이 default
+        const validOrderByFields = ['name', 'club', 'rarity', 'type'];
+        const orderField = validOrderByFields.includes(orderByThis)
+            ? orderByThis
+            : 'rarity';
+
         // accoutId를 통해 managerId 가져오기
         const managerId = await prisma.manager.findFirst({
             where: {
@@ -81,44 +77,36 @@ router.get('/myTeamMember', authM, async (req, res, next) => {
             });
         }
 
-        // 선수 목록 조회
-        await prisma.$transaction(
-            async (tx) => {
-                const membersInTeam = await tx.teamMember.findMany({
-                    where: {
-                        managerId: managerId.managerId,
-                    },
-                    select: {
-                        teamMemberId: true,
-                        player: {
-                            select: {
-                                name: true,
-                                club: true,
-                                speed: true,
-                                goalFinishing: true,
-                                shootPower: true,
-                                defense: true,
-                                stamina: true,
-                                rarity: true,
-                                type: true,
-                            },
-                        },
-                    },
-                    orderBy: {
-                        player: {
-                            [orderByThis]: 'desc',
-                        },
-                    },
-                    take: 10,
-                    skip: 10 * (page - 1),
-                });
-
-                return res.status(200).json(membersInTeam);
+        const membersInTeam = await prisma.teamMember.findMany({
+            where: {
+                managerId: managerId.managerId,
             },
-            {
-                isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-            }
-        );
+            select: {
+                teamMemberId: true,
+                player: {
+                    select: {
+                        name: true,
+                        club: true,
+                        speed: true,
+                        goalFinishing: true,
+                        shootPower: true,
+                        defense: true,
+                        stamina: true,
+                        rarity: true,
+                        type: true,
+                    },
+                },
+            },
+            orderBy: {
+                player: {
+                    [orderField]: 'asc',
+                },
+            },
+            take: 10,
+            skip: 10 * (page - 1),
+        });
+
+        return res.status(200).json(membersInTeam);
     } catch (err) {
         next(err);
     }
