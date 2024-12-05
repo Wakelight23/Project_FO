@@ -45,12 +45,12 @@ router.patch('/upgrade', authM, async (req, res, next) => {
             select: {
                 managerId: true,
             },
-        }).managerId;
+        });
 
         // 예외 처리(둘이 같은 playerId를 가지고 있는지, 등급이 같은지, 둘 다 계정의 소유가 맞는지)
         const members = await prisma.teamMember.findMany({
             where: {
-                managerId,
+                managerId: managerId.managerId,
                 teamMemberId: {
                     in: memberIds,
                 },
