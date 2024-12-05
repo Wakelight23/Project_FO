@@ -91,8 +91,9 @@ router.post('/captain/start', authM, async (req, res) => {
             opponentAccountId: Number(opponentAccountId),
             selectedPlayers: mySelectedPlayers.map((player) => ({
                 playerId: player.playerId,
-                power: calculatePlayerPower(player.player),
+                power: calculatePlayerPower(player.player, player.upgrade), // upgrade 추가
                 name: player.player.name,
+                upgrade: player.upgrade, // upgrade 정보 저장
             })),
         });
 

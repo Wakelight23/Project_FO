@@ -66,14 +66,18 @@ export function determineWinner(myPower, opponentPower) {
 }
 
 // 선수 능력치 계산 -> 대장전에서 사용
-export function calculatePlayerPower(player) {
-    return Math.floor(
+export function calculatePlayerPower(player, upgrade = 0) {
+    const powerScore =
         player.speed * 1.2 +
-            player.goalFinishing * 1.5 +
-            player.shootPower * 1.3 +
-            player.defense * 1.1 +
-            player.stamina * 1.0
-    );
+        player.goalFinishing * 1.5 +
+        player.shootPower * 1.3 +
+        player.defense * 1.1 +
+        player.stamina * 1.0;
+
+    // 강화 레벨에 따른 추가 보너스 (5% 씩 증가)
+    const upgradeBonus = 1 + upgrade * 0.05;
+
+    return Math.floor(powerScore * upgradeBonus);
 }
 
 // 게임 결과 저장
