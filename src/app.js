@@ -20,6 +20,8 @@ import CaptainGame from './routes/gameplay/captaingame.router.js';
 import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
 import dotenv from 'dotenv';
+import cors from 'cors'; // CORS 미들웨어 import
+
 dotenv.config();
 const app = express();
 const PORT = 3002;
@@ -28,7 +30,7 @@ const PORT = 3002;
 app.use(express.json());
 
 // 2. CORS 설정 (Frontend 사용 시)
-
+app.use(cors());
 // 3. 로깅 미들웨어s
 
 // 4. 정적 파일 제공

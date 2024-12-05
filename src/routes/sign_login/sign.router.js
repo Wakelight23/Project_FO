@@ -10,7 +10,17 @@ const router = express.Router();
 /** 사용자 회원가입 API **/
 // localhost:c/api/sign-up POST
 router.post('/sign-up', async (req, res) => {
-    const { email, password, password2, name, age, gender } = req.body;
+    console.log('회원가입 요청:', req.body);
+    const { email, password, confirmPassword, name, age, gender } = req.body;
+    console.log({
+        email,
+        password,
+        confirmPassword,
+        name,
+        age,
+        gender,
+    });
+    const parsedAge = parseInt(age, 10);
 
     // 이메일 중복 체크
     const isExistEmail = await prisma.account.findUnique({
@@ -36,12 +46,12 @@ router.post('/sign-up', async (req, res) => {
     }
 
     // 비밀번호 확인
-    if (password !== password2) {
+    if (password !== confirmPassword) {
         return res.status(409).json({ message: 'password를 다시 확인하세요.' });
     }
 
     // 나이 유효성 체크
-    if (!/^[1-9][0-9]*$/.test(age)) {
+    if (!/^[1-9][0-9]*$/.test(parsedAge)) {
         return res
             .status(409)
             .json({ message: '나이는 1 이상의 정수여야 합니다.' });
@@ -63,7 +73,7 @@ router.post('/sign-up', async (req, res) => {
             email,
             password: hashedPassword,
             name,
-            age,
+            age: parsedAge,
             gender,
         },
     });
