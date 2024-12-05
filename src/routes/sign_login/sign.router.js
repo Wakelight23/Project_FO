@@ -78,7 +78,7 @@ router.post('/sign-in', async (req, res) => {
     // 로그인에 성공하면, 사용자의 userId를 바탕으로 토큰을 생성합니다.
     const accesstoken = jwt.sign(
         {
-            accountId: accountData.accountId,
+          accountId: accountData.accountId,
         },
         // JWT를 서명하는 데 사용되는 비밀 키
         // 서버가 비밀 키를 사용하여 토큰 변조 여부를 알 수 있다
@@ -94,7 +94,7 @@ router.post('/sign-in', async (req, res) => {
     // 리프레시 토큰 생성
     const refreshtoken = jwt.sign(
         {
-            accountId: accountData.accountId,
+          accountId: accountData.accountId,
         },
         process.env.SERVER_REFRESH_KEY, // 리프레시 토큰을 위한 비밀 키
         { expiresIn: '7d' } // 예: 7일 동안 유효

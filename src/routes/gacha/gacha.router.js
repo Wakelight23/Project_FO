@@ -3,7 +3,7 @@ import { prisma } from '../../utils/prisma/index.js';
 import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
-const isLog = true;
+const isLog = false;
 
 const Log = (str) => {
     if (isLog) console.log(str);
@@ -29,12 +29,6 @@ gachaRouter.get('/gachas', async (req, res) => {
 //#region 단일 뽑기 정보
 //단일 뽑기 정보 조회
 gachaRouter.get('/gacha', async (req, res) => {
-    const isAccess = true;
-
-    if (!isAccess) {
-        Log('잘못된 접근');
-    }
-
     try {
         const { playerId } = req.body;
         const item = await prisma.player.findFirst({
@@ -114,6 +108,16 @@ gachaRouter.post('/gacha', authM, async (req, res) => {
         const { drawCount } = req.body;
         Log(drawCount);
 
+        const manager = await prisma.manager.findFirst({
+            where: { accountId },
+        });
+
+        if (!manager) {
+            throw new Error(
+                '매니저가 없습니다! 이것은 저를 찔러도 뭐 안나옵니다!!!'
+            );
+        }
+
         const drawnItems = await getRandomItems(drawCount); // 여러 아이템을 뽑기 위한 호출
         if (!drawnItems.length) {
             return res.json({
@@ -128,7 +132,7 @@ gachaRouter.post('/gacha', authM, async (req, res) => {
                 prisma.teamMember.create({
                     data: {
                         playerId: item.playerId,
-                        managerId: accountId,
+                        managerId: manager.managerId,
                     },
                 })
             )
