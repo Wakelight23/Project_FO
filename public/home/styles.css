@@ -1,53 +1,58 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    background-color: #f4f4f4;
 }
 
-.container {
-    max-width: 400px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
+header {
+    background: #35424a;
+    color: #ffffff;
+    padding: 10px 0;
     text-align: center;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
+nav ul {
+    list-style: none;
+    padding: 0;
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+    text-align: center;
 }
 
 button {
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745;
-    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #35424a;
+    color: #ffffff;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #45a049;
 }
 
-#message {
-    margin-top: 20px;
+footer {
     text-align: center;
+    padding: 10px 0;
+    background: #35424a;
+    color: #ffffff;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
 }
 
 .header {
@@ -91,7 +96,7 @@ button:hover {
     display: flex; /* Flexbox 사용 */
 }
 
-.auth-links {
+.auth-links a {
     color: white; /* 링크 색상 */
     text-decoration: none; /* 밑줄 제거 */
     margin-left: 10px; /* 링크 간의 간격 */

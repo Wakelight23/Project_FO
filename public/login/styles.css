@@ -1,11 +1,54 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+    margin: 0; /* 기본 마진 제거 */
+}
+
+.header {
+    background-color: #333; /* 헤더 배경색 */
+    color: white; /* 텍스트 색상 */
+    padding: 10px 20px; /* 패딩 */
+}
+
+.header-container {
+    display: flex; /* Flexbox 사용 */
+    justify-content: space-between; /* 요소 간의 간격을 균등하게 배분 */
+    align-items: center; /* 수직 중앙 정렬 */
+}
+
+.title {
+    margin: 0; /* 기본 마진 제거 */
+    font-size: 24px; /* 제목 크기 */
+}
+
+.nav ul {
+    list-style: none; /* 기본 리스트 스타일 제거 */
+    padding: 0; /* 패딩 제거 */
+    margin: 0; /* 마진 제거 */
+    display: flex; /* Flexbox 사용 */
+}
+
+.nav li {
+    margin: 0 15px; /* 리스트 아이템 간의 간격 */
+}
+
+.nav a {
+    color: white; /* 링크 색상 */
+    text-decoration: none; /* 밑줄 제거 */
+}
+
+.nav a:hover {
+    text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
+}
+
+.auth-links {
+    display: flex; /* Flexbox 사용 */
+}
+
+.auth-links a {
+    color: white; /* 링크 색상 */
+    text-decoration: none; /* 밑줄 제거 */
+    margin-left: 10px; /* 링크 간의 간격 */
 }
 
 .container {
@@ -13,6 +56,8 @@ body {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto; /* 수평 중앙 정렬 및 위아래 여백 추가 */
+    max-width: 400px; /* 최대 너비 설정 */
 }
 
 h1 {

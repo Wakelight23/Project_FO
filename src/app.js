@@ -4,6 +4,7 @@ import SignRouter from './routes/sign_login/sign.router.js';
 import ManagerRouter from './routes/sign_login/manager.router.js';
 import DeleteRouter from './routes/sign_login/delete.router.js';
 import SearchRouter from './routes/sign_login/search.router.js';
+import checkRouter from './routes/sign_login/checkManager.router.js';
 // cash
 import CashRouter from './routes/cash/cash.router.js';
 // gacha
@@ -37,6 +38,7 @@ app.use(cors());
 app.use(express.static('public'));
 
 // 5. 라우터
+app.use('/api', [checkRouter]);
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
