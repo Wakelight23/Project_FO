@@ -427,7 +427,7 @@ async function checkAdmin(accountId) {
     });
     if (!isAdmin || isAdmin.isAdmin!=1) {
       return false;
-        res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        //res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
     }
     return true;
 }
