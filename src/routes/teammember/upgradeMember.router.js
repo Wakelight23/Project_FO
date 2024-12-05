@@ -18,7 +18,6 @@ router.patch('/upgrade', authM, async (req, res, next) => {
     const memberIds = [memberIdToUpg, memberIdToSac].map(Number);
 
     // 유효성 검사(1 이상의 정수인가? 빈 값이 들어오진 않았는가? 데이터 형식이 다르지는 않은가?)
-
     const isValidMemberIds = memberIds.every(isValidInput);
     if (!accountId) {
         return res.status(400).json({
@@ -37,7 +36,6 @@ router.patch('/upgrade', authM, async (req, res, next) => {
     }
 
     // 확률 계산. 등급이 높으면 숫자가 클 테니, 그걸 1/n+1으로 곱해서 확률을 정하면 될 것 같음.(등급이 4라면 강화 확률이 1/5 => 20%)
-
     try {
         // accoutId를 통해 managerId 가져오기
         const managerId = await prisma.manager.findFirst({
@@ -76,7 +74,7 @@ router.patch('/upgrade', authM, async (req, res, next) => {
                 error: '서로 다른 등급끼리 강화할 수 없습니다.',
             });
         }
-        if (playerUpgrades[0] === 5) {
+        if (playerUpgrades[0] === 10) {
             return res.status(400).json({
                 error: '이미 최고 등급에 도달한 카드이므로 강화할 수 없습니다.',
             });
