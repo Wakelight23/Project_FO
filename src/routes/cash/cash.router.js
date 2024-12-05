@@ -11,12 +11,12 @@ const router = express.Router();
 // const isPasswordMatch = await bcrypt.compare(password, account.password); // 비교
 
 /** Lucky캐시API email **/
-router.post('/cash/lucky', async (req, res, next) => {
-    const { email } = req.body;
+router.get('/cash/lucky', authM, async (req, res, next) => {
+    const { accountId } = req.account;
     try {
         // email이 있는지 확인
         const account = await prisma.account.findFirst({
-            where: { email },
+            where: { accountId },
             select: {
                 email: true,
                 manager: {

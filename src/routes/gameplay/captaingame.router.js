@@ -113,39 +113,24 @@ router.post('/captain/start', authM, async (req, res) => {
 router.get('/captain/result', authM, async (req, res) => {
     try {
         const myAccountId = req.account.accountId;
-
-        // 세션 확인
         const gameSession = captainGameSession.get(String(myAccountId));
+
         if (!gameSession || !gameSession.isGameStarted) {
             return res.status(400).json({
                 error: '진행 중인 게임(대장전)이 없습니다.',
             });
         }
 
-        // 내 매니저 정보 조회
-        const myManager = await prisma.manager.findUnique({
-            where: { accountId: Number(myAccountId) },
-        });
+        // 매니저 정보 조회
+        const [myManager, opponentManager] = await Promise.all([
+            prisma.manager.findUnique({
+                where: { accountId: Number(myAccountId) },
+            }),
+            prisma.manager.findUnique({
+                where: { accountId: Number(gameSession.opponentAccountId) },
+            }),
+        ]);
 
-        if (!myManager) {
-            return res.status(404).json({
-                error: '내 매니저 정보를 찾을 수 없습니다.',
-            });
-        }
-
-        // 상대방 매니저 확인
-        const opponentManager = await prisma.manager.findUnique({
-            where: { accountId: Number(gameSession.opponentAccountId) },
-        });
-
-        if (!opponentManager) {
-            return res.status(404).json({
-                error: '상대방 매니저 정보를 찾을 수 없습니다.',
-            });
-        }
-
-        // 상대방 선수 조회
-        // 상대방의 선택된 선수들 조회
         const opponentPlayers = await prisma.teamMember.findMany({
             where: {
                 managerId: opponentManager.managerId,
@@ -154,51 +139,81 @@ router.get('/captain/result', authM, async (req, res) => {
             include: {
                 player: true,
             },
-            take: 3, // 3명만 선택
+            take: 3,
         });
 
-        if (!opponentPlayers || opponentPlayers.length === 0) {
-            return res.status(400).json({
-                error: '상대방의 선택된 선수가 없습니다.',
-            });
-        }
+        const matches = gameSession.selectedPlayers.map((myPlayer, index) => {
+            const opponentPlayer = opponentPlayers[index];
+            const power = calculatePlayerPower(opponentPlayer.player);
+            return {
+                round: index + 1,
+                myPlayer: {
+                    playerId: myPlayer.playerId,
+                    power: myPlayer.power,
+                    name: myPlayer.name,
+                },
+                opponentPlayer: {
+                    playerId: opponentPlayer.player.playerId,
+                    power: power,
+                    name: opponentPlayer.player.name,
+                },
+                result:
+                    myPlayer.power > power
+                        ? '승리'
+                        : myPlayer.power === power
+                          ? '무승부'
+                          : '패배',
+            };
+        });
 
-        // const randomOpponentPlayer =
-        //     opponentPlayers[Math.floor(Math.random() * opponentPlayers.length)];
-        // const opponentPlayerPower = calculatePlayerPower(
-        //     randomOpponentPlayer.player
-        // );
-
-        // 승패 결정 로직 추가
-        const gameResult = determineCaptainWinner(
-            gameSession.selectedPlayers,
-            opponentPlayers.map((player) => ({
-                power: calculatePlayerPower(player.player),
-                name: player.player.name,
-            }))
-        );
+        const finalResult =
+            matches.filter((m) => m.result === '승리').length >= 2
+                ? 1
+                : matches.filter((m) => m.result === '패배').length >= 2
+                  ? 0
+                  : 2;
 
         // 양쪽 플레이어의 결과 업데이트
         await Promise.all([
+            // 내 결과 업데이트
+            updateGameResult(myManager.managerId, finalResult),
+            // 상대방 결과 업데이트 (승패 반대로 적용)
             updateGameResult(
-                myManager.managerId,
-                gameResult.result === 1 ? 0 : gameResult.result === 0 ? 1 : 2
+                opponentManager.managerId,
+                finalResult === 1 ? 0 : finalResult === 0 ? 1 : 2
             ),
-            updateGameResult(opponentManager.managerId, gameResult.result),
+            // Rating 업데이트
+            prisma.manager.update({
+                where: { managerId: myManager.managerId },
+                data: {
+                    rating: {
+                        increment:
+                            finalResult === 1 ? 1 : finalResult === 0 ? -1 : 0,
+                    },
+                },
+            }),
+            prisma.manager.update({
+                where: { managerId: opponentManager.managerId },
+                data: {
+                    rating: {
+                        increment:
+                            finalResult === 1 ? -1 : finalResult === 0 ? 1 : 0,
+                    },
+                },
+            }),
         ]);
 
-        // 세션 삭제
         captainGameSession.delete(String(myAccountId));
 
         res.status(200).json({
             data: {
-                matches: gameResult.details.map((result, index) => ({
-                    round: index + 1,
-                    myPlayer: gameSession.selectedPlayers[index],
-                    opponentPlayer: opponentPlayers[index],
-                    result,
-                })),
-                finalResult: gameResult.result === 1 ? '승리' : '패배',
+                matches,
+                finalResult:
+                    finalResult === 1
+                        ? '승리'
+                        : finalResult === 0
+                          ? '패배'
+                          : '무승부',
             },
         });
     } catch (error) {
