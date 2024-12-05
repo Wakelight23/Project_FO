@@ -1,4 +1,4 @@
-// src/routes/players.router.js
+// src/routes/items.router.js
 import express from 'express';
 import multer from 'multer';
 import simpleLogic from '../../logic/simpleLogic.js'
@@ -7,91 +7,103 @@ import { isValidInput } from '../teammember/createRoster.router.js';
 
 const router = express.Router();
 
-/** 선수 목록 조회 API **/
-router.get('/players', async (req, res, next) => {
+// model Item {
+//     itemId        Int         @id @default(autoincrement())
+//     name          String
+//     speed         Int
+//     goalFinishing Int
+//     shootPower    Int
+//     defense       Int
+//     stamina       Int
+//     rarity        Int
+//     itemImage     String?
+//     createdAt     DateTime    @default(now())
+//     updatedAt     DateTime
+//     Equipment     Equipment[]
+//   }
+
+/** 아이템 목록 조회 API **/
+router.get('/items', async (req, res, next) => {
     // id, 이름, 레어도를 조회한다.
     try {
-        const playerList = await prisma.player.findMany({
+        const itemList = await prisma.item.findMany({
             select: {
-                playerId: true,
+                itemId: true,
                 name: true,
                 rarity: true,
             },
         });
         // 정상적으로 조회시 res
-        return res.status(200).json({ ...playerList });
+        return res.status(200).json({ ...itemList });
     } catch (err) {
         next(err);
     }
 });
-/** 선수 상세 조회 API **/
-router.get('/players/:playerId', async (req, res, next) => {
-    // playerId를 파라미터로 받아 상세한 정보를 조회한다.
+// /** 아이템 상세 조회 API **/
+router.get('/items/:itemId', async (req, res, next) => {
+    // itemId를 파라미터로 받아 상세한 정보를 조회한다.
     // 어드민 여부에 따라 다른 정보가 조회된다.
 
-
     try {
-    const { playerId } = req.params;
-    if (!playerId)
-        return res
-            .status(400)
-            .json({ message: 'playerId가 입력되지 않았습니다.' });
-      //어드민 체크
+        const { itemId } = req.params;
+        if (!itemId)
+            return res
+                .status(400)
+                .json({ message: 'itemId가 입력되지 않았습니다.' });
+        //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
-        let isExistPlayer;
+        let isExistItem;
         if (simpleLogic.checkAdmin(accountId)) {
-            isExistPlayer = await prisma.player.findFirst({
+            isExistItem = await prisma.item.findFirst({
                 select: {
-                    playerId: true,
+                    itemId: true,
                     name: true,
-                    club: true,
                     speed: true,
                     goalFinishing: true,
                     shootPower: true,
                     defense: true,
                     stamina: true,
                     rarity: true,
-                    type: true,
+                    createdAt: true,
+                    updatedAt: true,
                 },
                 where: {
-                    playerId: +playerId,
+                    itemId: +itemId,
                 },
             });
         } else {
-            isExistPlayer = await prisma.player.findFirst({
+            isExistItem = await prisma.item.findFirst({
                 select: {
                     name: true,
-                    club: true,
                     speed: true,
                     goalFinishing: true,
                     shootPower: true,
                     defense: true,
                     stamina: true,
                     rarity: true,
-                    type: true,
                 },
                 where: {
-                    playerId: +playerId,
+                    itemId: +itemId,
                 },
             });
         }
 
-        if (!isExistPlayer) {
+        if (!isExistItem) {
             return res
                 .status(404)
-                .json({ message: '존재하지 않는 선수입니다.' });
+                .json({ message: '존재하지 않는 아이템입니다.' });
         }
-        return res.status(200).json(playerList);
+        return res.status(200).json(isExistItem);
     } catch (err) {
         next(err);
     }
 });
-/** 새로운 선수 생성 API **/
-router.post('/players', async (req, res, next) => {
+// /** 새로운 아이템 생성 API **/
+router.post('/items', async (req, res, next) => {
     // 어드민 일때만 생성이 가능하다.
     try {
       //어드민 체크
@@ -105,55 +117,49 @@ router.post('/players', async (req, res, next) => {
 
         const {
             name,
-            club,
             speed,
             goalFinishing,
             shootPower,
             defense,
             stamina,
             rarity,
-            type,
         } = req.body;
         if (
             !name ||
-            !club ||
             !speed ||
             !goalFinishing ||
             !shootPower ||
             !defense ||
             !stamina ||
-            !rarity ||
-            !type
+            !rarity 
         )
             return res
                 .status(400)
                 .json({ message: '데이터 형식이 올바르지 않습니다.' });
 
-        const user = await prisma.player.create({
+        const user = await prisma.item.create({
             data: {
                 name,
-                club,
                 speed,
                 goalFinishing,
                 shootPower,
                 defense,
                 stamina,
                 rarity,
-                type,
             },
         });
 
         return res
             .status(201)
-            .json({ message: `${name}선수가 생성되었습니다.` });
+            .json({ message: `${name}아이템이 생성되었습니다.` });
     } catch (err) {
         next(err);
     }
 });
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-/** 새로운 선수 생성 CSV API **/
-router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
+/** 새로운 아이템 생성 CSV API **/
+router.post('/items/csv', upload.single('csv'), async (req, res, next) => {
     // 어드민 일때만 생성이 가능하다.
     // 주의! 잘못된 데이터이어도 에러를 피하기 위해 기본값을 다 넣어 놨음.
     try {
@@ -171,23 +177,23 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
 
         const csvCreateData = csvParsing(csvStringArr);
 
-        const user = await prisma.player.createMany({
+        const user = await prisma.item.createMany({
             data: csvCreateData,
         });
 
         return res.status(201).json({
-            message: `${csvCreateData.length}명의 선수가 생성되었습니다.`,
+            message: `${csvCreateData.length}개의 아이템이 생성되었습니다.`,
         });
     } catch (err) {
         next(err);
     }
 });
-/** 선수 수정 API **/
-router.post('/players/:playerId', async (req, res, next) => {
-    // playerId를 파라미터로 받아 선수 정보를 수정한다.
+/** 아이템 수정 API **/
+router.post('/items/:itemId', async (req, res, next) => {
+    // itemId를 파라미터로 받아 아이템 정보를 수정한다.
     // 어드민 일때만 수정이 가능하다.
     try {
-        const { playerId } = req.params;
+        const { itemId } = req.params;
 
       //어드민 체크
         const { accountId } = req.account;
@@ -199,72 +205,66 @@ router.post('/players/:playerId', async (req, res, next) => {
         }
         const {
             name,
-            club,
             speed,
             goalFinishing,
             shootPower,
             defense,
             stamina,
             rarity,
-            type,
         } = req.body;
         if (
-            !playerId ||
+            !itemId ||
             !name ||
-            !club ||
             !speed ||
             !goalFinishing ||
             !shootPower ||
             !defense ||
             !stamina ||
-            !rarity ||
-            !type
+            !rarity
         )
             return res
                 .status(400)
                 .json({ message: '데이터 형식이 올바르지 않습니다.' });
 
-        const isExistPlayer = await prisma.player.findFirst({
+        const isExistPlayer = await prisma.item.findFirst({
             select: {
-                playerId: true,
+                itemId: true,
             },
             where: {
-                playerId: +playerId,
+                itemId: +itemId,
             },
         });
         if (!isExistPlayer) {
             return res
                 .status(404)
-                .json({ message: '존재하지 않는 선수입니다.' });
+                .json({ message: '존재하지 않는 아이템입니다.' });
         }
 
-        const user = await prisma.player.update({
+        const user = await prisma.item.update({
             data: {
                 name,
-                club,
                 speed,
                 goalFinishing,
                 shootPower,
                 defense,
                 stamina,
                 rarity,
-                type,
             },
-            where: { playerId: +playerId },
+            where: { itemId: +itemId },
         });
 
         return res
             .status(200)
-            .json({ message: `${name}선수가 수정되었습니다.` });
+            .json({ message: `${name}아이템이 수정되었습니다.` });
     } catch (err) {
         next(err);
     }
 });
-/** 선수 삭제 API **/
-router.delete('/players/:playerId', async (req, res, next) => {
+/** 아이템 삭제 API **/
+router.delete('/items/:itemsId', async (req, res, next) => {
     // 어드민 일때만 삭제가 가능하다.
     try {
-        const { playerId } = req.params;
+        const { itemsId } = req.params;
 
       //어드민 체크
       const { accountId } = req.account;
@@ -275,68 +275,64 @@ router.delete('/players/:playerId', async (req, res, next) => {
           res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
       }
 
-        if (!playerId)
+        if (!itemsId)
             return res
                 .status(400)
                 .json({ message: '데이터 형식이 올바르지 않습니다.' });
 
-        const isExistPlayer = await prisma.player.findFirst({
+        const isExistItem = await prisma.item.findFirst({
             select: {
-                playerId: true,
+                itemId: true,
                 name: true,
             },
             where: {
-                playerId: +playerId,
+                itemId: +itemsId,
             },
         });
-        if (!isExistPlayer) {
+        if (!isExistItem) {
             return res
                 .status(404)
-                .json({ message: '존재하지 않는 선수입니다.' });
+                .json({ message: '존재하지 않는 아이템입니다.' });
         }
 
-        const user = await prisma.player.delete({
-            where: { playerId: +playerId },
+        const user = await prisma.item.delete({
+            where: { itemId: +itemsId },
         });
 
         return res
             .status(200)
-            .json({ message: `${isExistPlayer.name}선수가 삭제되었습니다.` });
+            .json({ message: `${isExistItem.name}아이템이 삭제되었습니다.` });
     } catch (err) {
         next(err);
     }
 });
 
-//csv 파일을 배열로 변환
+// //csv 파일을 배열로 변환
 function csvParsing(csvString) {
-    //player 테이블 데이터
+    //item 테이블 데이터
 
-    // playerId      Int          @id @default(autoincrement()) @map("playerId")
-    // name          String       @map("name")
-    // club          String       @map("club")
-    // speed         Int          @map("speed")
-    // goalFinishing Int          @map("goalFinishing")
-    // shootPower    Int          @map("shootPower")
-    // defense       Int          @map("defense")
-    // stamina       Int          @map("stamina")
-    // rarity        Int          @map("rarity")
-    // type          Int?         @map("type")
-    // playerImage   String?      @map("playerImage")
+//     itemId        Int         @id @default(autoincrement())
+//     name          String
+//     speed         Int
+//     goalFinishing Int
+//     shootPower    Int
+//     defense       Int
+//     stamina       Int
+//     rarity        Int
+//     itemImage     String?
 
     //리턴할 변수
-    let playerCreateData = [];
+    let itemCreateData = [];
     // 헤더 기준으로 데이터 인덱스 저장
-    let indexName = -1,
-        indexClub = -1,
-        indexSpeed = -1,
-        indexGoalFinishing = -1,
-        indexShootPower = -1,
-        indexDefense = -1,
-        indexStamina = -1,
-        indexRarity = -1,
-        indexType = -1,
-        indexplayerImage = -1;
-
+    let     
+    indexName = -1,
+    indexSpeed = -1,
+    indexGoalFinishing = -1,
+    indexShootPower    = -1,
+    indexDefense       = -1,
+    indexStamina       = -1,
+    indexRarity        = -1,
+    indexItemImage     = -1;
     //헤더 확인
     const scvHeaderSplit = csvString[0].split(',');
     for (let i in scvHeaderSplit) {
@@ -344,10 +340,6 @@ function csvParsing(csvString) {
             case 'name':
             case `full_name`:
                 indexName = i;
-                break;
-            case 'club':
-            case `current club`:
-                indexClub = i;
                 break;
             case 'speed':
                 indexSpeed = i;
@@ -367,11 +359,8 @@ function csvParsing(csvString) {
             case 'rarity':
                 indexRarity = i;
                 break;
-            case 'type':
-                indexType = i;
-                break;
-            case 'playerimage':
-                indexplayerImage = i;
+            case 'itemimage':
+                indexItemImage = i;
                 break;
             default:
                 break;
@@ -383,32 +372,30 @@ function csvParsing(csvString) {
         if (csvSingleLine.length <= 0) continue;
         //1이 제일 높고 10이 제일 낮음으로 계산을 위해 (11- 레어도) 적용
         const tmpRarity = (11 - (csvSingleLine[indexRarity] ?? simpleLogic.getRandomInt(1, 11)));
-        const singlePlayerData = {
+        const singleItemData = {
             name: csvSingleLine[indexName] ?? '무명',
-            club: csvSingleLine[indexClub] ?? '조기축구회',
             speed:
                 +(csvSingleLine[indexSpeed] ??
-                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
+                simpleLogic.getRandomInt(1, 5) * tmpRarity),
             goalFinishing:
                 +(csvSingleLine[indexGoalFinishing] ??
-                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
+                simpleLogic.getRandomInt(1, 5) * tmpRarity),
             shootPower:
                 +(csvSingleLine[indexShootPower] ??
-                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
+                simpleLogic.getRandomInt(1, 5) * tmpRarity),
             defense:
                 +(csvSingleLine[indexDefense] ??
-                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
+                simpleLogic.getRandomInt(1, 5) * tmpRarity),
             stamina:
                 +(csvSingleLine[indexStamina] ??
-                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
+                simpleLogic.getRandomInt(1, 5) * tmpRarity),
                 //레어도 복구
-            rarity: +(csvSingleLine[indexRarity] ?? (11 - tmpRarity)),
-            type: +(csvSingleLine[indexType] ?? 1),
-            playerImage: csvSingleLine[indexplayerImage] ?? '',
+                rarity: +(csvSingleLine[indexRarity] ?? (11 - tmpRarity)),
+            itemImage: csvSingleLine[indexItemImage] ?? '',
         };
-        playerCreateData.push(singlePlayerData);
+        itemCreateData.push(singleItemData);
     }
-    return playerCreateData;
+    return itemCreateData;
 }
 
-export default router;
+ export default router;
