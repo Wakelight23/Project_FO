@@ -184,7 +184,21 @@ gachaRouter.get('/gacha/item', async (req, res) => {
     }
 });
 
-//#region 아이템 뽑기
+const getRandomItem = async (drawCount, gachaCount) => {
+    const items = await prisma.item.findMany();
+    if (items.length === 0) {
+        throw new Error('아이템이 없습니다.');
+    }
+
+    const drawnItems = [];
+    for (let i = 0; i < drawCount; i++) {
+        const randomIndex = Math.floor(Math.random() * items.length);
+        drawnItems.push(items[randomIndex]);
+    }
+
+    return drawnItems;
+};
+
 // 아이템 뽑기 라우터
 gachaRouter.post('/gacha/item', authM, async (req, res) => {
     const { accountId } = req.account;
@@ -256,7 +270,5 @@ gachaRouter.post('/gacha/item', authM, async (req, res) => {
         Exception('아이템 뽑기 라우터 에러: ' + error);
     }
 });
-
-//#endregion
 
 export default gachaRouter;
