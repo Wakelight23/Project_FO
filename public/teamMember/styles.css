@@ -1,0 +1,89 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar {
+    width: 200px;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.sidebar button {
+    margin: 5px 0;
+    padding: 10px;
+    border: none;
+    background: #ddd;
+    cursor: pointer;
+    text-align: left;
+}
+
+.sidebar button:hover {
+    background: #ccc;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    border: none;
+    background: #ddd;
+    cursor: pointer;
+}
+
+.tabs button:hover {
+    background: #ccc;
+}
+
+.list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.player-card {
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 5px 10px;
+    margin: 0 10px;
+    border: none;
+    background: #ddd;
+    cursor: pointer;
+}
+
+.pagination span {
+    font-weight: bold;
+}
