@@ -40,6 +40,7 @@ model Manager {
   accountId Int @unique @map("accountId")
   nickname String @map("nickname")
   cash Int @map("cash")
+  gachaCount Int @default(0) @map("gachaCount")
   rating Int @map("rating")
 
   createdAt DateTime @default(now()) @map("createdAt")

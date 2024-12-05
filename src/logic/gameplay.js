@@ -79,6 +79,26 @@ export function calculatePlayerPower(player) {
 // 게임 결과 저장
 export async function updateGameResult(managerId, gameResult) {
     try {
+        // Manager의 현재 rating 조회
+        const manager = await prisma.manager.findUnique({
+            where: { managerId },
+        });
+
+        if (!manager) {
+            throw new Error('매니저를 찾을 수 없습니다.');
+        }
+
+        // rating 변경값 계산 (승: +1, 패: -1, 무: 0)
+        const ratingChange = gameResult === 1 ? 1 : gameResult === 0 ? -1 : 0;
+
+        // Manager rating 업데이트
+        await prisma.manager.update({
+            where: { managerId },
+            data: {
+                rating: manager.rating + ratingChange,
+            },
+        });
+
         // Ranking 테이블 업데이트
         const ranking = await prisma.ranking.findFirst({
             where: { managerId },
@@ -114,4 +134,38 @@ export async function updateGameResult(managerId, gameResult) {
     } catch (error) {
         throw new Error(`게임 결과 저장 중 오류 발생: ${error.message}`);
     }
+}
+
+// 대장전 승패 결정 함수
+export function determineCaptainWinner(myPlayers, opponentPlayers) {
+    let myWins = 0;
+    let opponentWins = 0;
+    const results = [];
+
+    for (let i = 0; i < 3; i++) {
+        const myPower = myPlayers[i].power;
+        const oppPower = opponentPlayers[i].power;
+
+        if (myPower > oppPower) {
+            myWins++;
+            results.push('승리');
+        } else {
+            opponentWins++;
+            results.push('패배');
+        }
+
+        // 2연승 체크
+        if (opponentWins === 2) {
+            return { result: 0, details: results }; // 패배
+        }
+        if (myWins === 2) {
+            return { result: 1, details: results }; // 승리
+        }
+    }
+
+    // 모든 경기 후 승수로 결정
+    return {
+        result: myWins > opponentWins ? 1 : 0,
+        details: results,
+    };
 }
