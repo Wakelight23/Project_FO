@@ -113,7 +113,7 @@ router.post('/choicematch/start', authM, async (req, res) => {
         if (opponentSelectedPlayers.length === 0) {
             const availableManagers = await prisma.manager.findMany({
                 where: {
-                    TeamMember: {
+                    teamMembers: {
                         some: {
                             isSelected: true,
                         },

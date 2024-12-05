@@ -13,12 +13,7 @@ router.post('/create-manager', authM, async (req, res) => {
 
     // authM 미들웨어에서 인증을 거친 accounts 정보를 가져오고
     // accounts에서 account_id를 추출한다
-
     const { accountId } = req.account;
-    // const { name } = req.account;
-    // const { age } = req.account;
-    // const { email } = req.account;
-    // const { password } = req.account;
 
     // 닉네임 중복 검증
     const isExistnickname = await prisma.manager.findFirst({

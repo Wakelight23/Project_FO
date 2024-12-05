@@ -54,8 +54,9 @@ router.get('/cash/lucky', authM, async (req, res, next) => {
 });
 
 /**O 캐시 구매API email, 캐시, 비번! **/
-router.post('/cash/payment', async (req, res, next) => {
-    const { email, buyCash, password } = req.body;
+router.post('/cash/payment', authM, async (req, res, next) => {
+    const { accountId } = req.account;
+    const { buyCash, password } = req.body;
     try {
         // 구매할 캐시가 유효한지 확인
         if (!buyCash || buyCash <= 0) {
@@ -66,7 +67,7 @@ router.post('/cash/payment', async (req, res, next) => {
 
         // 이메일과 비밀번호로 Account 조회
         const account = await prisma.account.findUnique({
-            where: { email: email },
+            where: { accountId },
             select: {
                 password: true,
                 manager: {
@@ -153,7 +154,8 @@ router.get('/cash', authM, async (req, res, next) => {
 });
 
 /** 1. 다른 유저에게 캐시 선물API   비번!**/
-router.post('/cash/gift', async (req, res, next) => {
+router.post('/cash/gift', authM, async (req, res, next) => {
+    const { accountId } = req.account;
     const { senderEmail, receiverEmail, amount, password } = req.body;
     try {
         // 입력정보 확인
@@ -166,7 +168,7 @@ router.post('/cash/gift', async (req, res, next) => {
 
         // 송신자 이메일 확인
         const sender = await prisma.account.findFirst({
-            where: { email: senderEmail },
+            where: { accountId: +accountId, email: senderEmail },
             select: {
                 email: true,
                 password: true,
@@ -234,12 +236,13 @@ router.post('/cash/gift', async (req, res, next) => {
 });
 
 /** 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
-router.post('/cash/roulette', async (req, res, next) => {
-    const { email, betAmount, password } = req.body;
+router.post('/cash/roulette', authM, async (req, res, next) => {
+    const { accountId } = req.account;
+    const { betAmount, password } = req.body;
     try {
         // 입력정보 유효성 확인
         const account = await prisma.account.findFirst({
-            where: { email },
+            where: { accountId },
             select: {
                 email: true,
                 password: true,
