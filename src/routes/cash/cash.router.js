@@ -2,11 +2,17 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 
+import bcrypt from 'bcrypt';
+
 import { prisma } from '../../utils/prisma/index.js';
 import authM from '../../middlewares/auth.js';
 
 const router = express.Router();
 
+// const bcryptPassword = await bcrypt.hash(password, 10); // 생성
+// const isPasswordMatch = await bcrypt.compare(password, account.password); // 비교
+
+/** Lucky캐시API email **/
 // const bcryptPassword = await bcrypt.hash(password, 10); // 생성
 // const isPasswordMatch = await bcrypt.compare(password, account.password); // 비교
 
@@ -53,6 +59,7 @@ router.post('/cash/lucky', async (req, res, next) => {
     }
 });
 
+/**O 캐시 구매API email, 캐시, 비번! **/
 /**O 캐시 구매API email, 캐시, 비번! **/
 router.post('/cash/payment', async (req, res, next) => {
     const { email, buyCash, password } = req.body;
@@ -123,6 +130,7 @@ router.get('/cash', authM, async (req, res, next) => {
             select: {
                 email: true,
                 password: true,
+                password: true,
                 manager: {
                     select: {
                         cash: true,
@@ -153,6 +161,7 @@ router.get('/cash', authM, async (req, res, next) => {
 });
 
 /** 1. 다른 유저에게 캐시 선물API   비번!**/
+/** 1. 다른 유저에게 캐시 선물API   비번!**/
 router.post('/cash/gift', async (req, res, next) => {
     const { senderEmail, receiverEmail, amount, password } = req.body;
     try {
@@ -165,6 +174,7 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 송신자 이메일 확인
+        // 송신자 이메일 확인
         const sender = await prisma.account.findFirst({
             where: { email: senderEmail },
             select: {
@@ -175,6 +185,7 @@ router.post('/cash/gift', async (req, res, next) => {
         });
         if (!sender) {
             return res.status(404).json({
+                message: '송신자 이메일이 존재하지 않습니다.',
                 message: '송신자 이메일이 존재하지 않습니다.',
             });
         }
@@ -188,6 +199,7 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 수신자 이메일 확인
+        // 수신자 이메일 확인
         const receiver = await prisma.account.findFirst({
             where: { email: receiverEmail },
             select: { manager: { select: { cash: true, managerId: true } } },
@@ -195,6 +207,7 @@ router.post('/cash/gift', async (req, res, next) => {
 
         if (!receiver) {
             return res.status(404).json({
+                message: '수신자 이메일이 존재하지 않습니다.',
                 message: '수신자 이메일이 존재하지 않습니다.',
             });
         }
@@ -233,6 +246,7 @@ router.post('/cash/gift', async (req, res, next) => {
     }
 });
 
+/** 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
 /** 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
 router.post('/cash/roulette', async (req, res, next) => {
     const { email, betAmount, password } = req.body;
