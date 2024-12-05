@@ -38,11 +38,11 @@ model Manager {
   accountId   Int          @unique @map("accountId")
   nickname    String       @map("nickname")
   cash        Int          @map("cash")
-  gachaCount  Int          @default(0)
+  gachaCount  Int          @default(0) @map("gachaCount")
   rating      Int          @map("rating")
   createdAt   DateTime     @default(now()) @map("createdAt")
   updatedAt   DateTime     @updatedAt @map("updatedAt")
-  Inventory   Inventory[]
+  Inventorys  Inventory[]
   account     Account      @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
   rankings    Ranking[]
   records     Record[]
@@ -86,6 +86,39 @@ model TeamMember {
   @@map("TeamMember")
 }
 
+model Item {
+  itemId        Int         @id @default(autoincrement()) @map("itemId")
+  name          String      @map("name")
+  speed         Int         @map("speed")
+  goalFinishing Int         @map("goalFinishing")
+  shootPower    Int         @map("shootPower")
+  defense       Int         @map("defense")
+  stamina       Int         @map("stamina")
+  rarity        Int         @map("rarity")
+  itemImage     String?     @map("itemImage")
+  createdAt     DateTime    @default(now()) @map("createdAt")
+  updatedAt     DateTime    @updatedAt @map("updatedAt")
+  Inventorys    Inventory[]
+
+  @@map("Item")
+}
+
+model Inventory {
+  inventoryId Int      @id @default(autoincrement()) @map("inventoryId")
+  itemId      Int      @map("itemId")
+  managerId   Int      @map("managerId")
+  upgrade     Int      @default(0) @map("upgrade")
+  isEquipped  Int?     @map("isEquipped")
+  createdAt   DateTime @default(now()) @map("createdAt")
+  updatedAt   DateTime @updatedAt @map("updatedAt")
+  item        Item     @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
+  manager     Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  @@index([managerId], map: "TeamMember_managerId_fkey")
+  @@index([itemId], map: "TeamMember_itemId_fkey")
+  @@map("Inventory")
+}
+
 model Ranking {
   rankingId Int      @id @default(autoincrement()) @map("rankingId")
   managerId Int      @map("managerId")
@@ -112,6 +145,19 @@ model Record {
   @@map("Record")
 }
 
+model Equipment {
+  equipmentId Int     @id @default(autoincrement())
+  itemId      Int
+  managerId   Int
+  upgrade     Int     @default(0)
+  isEquipped  Int?
+  Item        Item    @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
+  Manager     Manager @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  @@index([itemId], map: "TeamMember_itemId_fkey")
+  @@index([managerId], map: "TeamMember_managerId_fkey")
+}
+
 model Item {
   itemId        Int         @id @default(autoincrement())
   name          String
@@ -122,22 +168,8 @@ model Item {
   stamina       Int
   rarity        Int
   itemImage     String?
-  createdAt     DateTime    @default(now()) @map("createdAt")
-  updatedAt     DateTime    @updatedAt @map("updatedAt")
-  Inventory     Inventory[]
-}
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
-model Inventory {
-  inventoryId Int      @id @default(autoincrement())
-  itemId      Int
-  managerId   Int
-  upgrade     Int      @default(0)
-  isEquipped  Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  Item        Item     @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
-  Manager     Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
-
-  @@index([itemId], map: "TeamMember_itemId_fkey")
-  @@index([managerId], map: "TeamMember_managerId_fkey")
+  Equipment     Equipment[]
 }
