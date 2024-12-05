@@ -60,6 +60,11 @@ router.patch('/upgrade', authM, async (req, res, next) => {
                 upgrade: true,
             },
         });
+        if (!members || members.length !== 2) {
+            return res.status(400).json({
+                error: '계정이 소유한 선수 카드가 아닙니다.',
+            });
+        }
         // 배열로 만든다.
         const playerIds = members.map((member) => member.playerId);
         const playerUpgrades = members.map((member) => member.upgrade);
@@ -94,6 +99,7 @@ router.patch('/upgrade', authM, async (req, res, next) => {
                     ); // 0 이상 기존 등급 미만의 랜덤한 등급
                     await tx.teamMember.update({
                         where: {
+                            managerId: managerId.managerId,
                             teamMemberId: memberIds[0],
                         },
                         data: {
@@ -103,6 +109,7 @@ router.patch('/upgrade', authM, async (req, res, next) => {
                     // 재료 카드 파괴
                     await tx.teamMember.delete({
                         where: {
+                            managerId: managerId.managerId,
                             teamMemberId: memberIds[1],
                         },
                     });
