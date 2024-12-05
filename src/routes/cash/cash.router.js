@@ -4,30 +4,38 @@ import { prisma } from '../../utils/prisma/index.js';
 
 const router = express.Router();
 
-// Lucky캐시API email
+/**O Lucky캐시API email **/
 router.post('/cash/lucky', async (req, res, next) => {
     const { email } = req.body;
     try {
         // email이 있는지 확인
-        const isEmail = await prisma.manager.findFirst({
-            where: { email: email },
+        const account = await prisma.account.findFirst({
+            where: { email },
             select: {
                 email: true,
-                cash: true,
+                manager: {
+                    select: {
+                        // 수정: `select`로 변경
+                        cash: true,
+                        managerId: true,
+                    },
+                },
             },
         });
+
         // 있으면
-        if (!isEmail) {
+        if (!account) {
             return res
                 .status(404)
                 .json({ message: '존재하지 않는 Email 입니다.' });
         }
+
         const giftCash = Math.floor(Math.random() * 200) + 20;
 
         // originalCache는 객체 형태. originalCache -> originalCache.cash
         await prisma.manager.update({
-            data: { cash: isEmail.cash + giftCash },
-            where: { email },
+            where: { managerId: account.manager.managerId },
+            data: { cash: account.manager.cash + giftCash },
         });
 
         return res
@@ -39,79 +47,99 @@ router.post('/cash/lucky', async (req, res, next) => {
     }
 });
 
-///////////////////////////////////////////////////////////////////////////
-// 캐시 구매API email, 캐시, pw
+/**O 캐시 구매API email, 캐시, pw **/
 router.post('/cash/payment', async (req, res, next) => {
     const { email, buyCash, password } = req.body;
-    if (!buyCash || buyCash <= 0) {
-        return res.status(404).json({
-            message: '구매하려는 캐시는 0 이상의 정수를 입력해주세요.',
-        });
-    }
-
-    const isEmail = await prisma.manager.findFirst({
-        where: { email: email },
-        select: {
-            email: true,
-            cash: true,
-            account: {
-                select: {
-                    password: true, // Account.password
-                },
-            },
-        },
-    });
-
-    // 없으면
-    if (!isEmail) {
-        return res.status(404).json({ message: '존재하지 않는 Email 입니다.' });
-    }
-    // 비번틀리면
-    if (isEmail.account.password != password) {
-        return res.status(404).json({ message: '틀린 비밀번호 입니다.' });
-    }
-
-    await prisma.manager.update({
-        data: { cash: isEmail.cash + buyCash },
-        where: { email },
-    });
-
-    return res
-        .status(200)
-        .json({ message: `${buyCash}캐시를 결제하셧습니다.` });
-});
-
-/////////////////////////////////////////////
-// 캐시 조회API  email
-router.get('/cash/:email', async (req, res, next) => {
-    const { email } = req.params;
     try {
-        const myCash = await prisma.manager.findFirst({
+        // 구매할 캐시가 유효한지 확인
+        if (!buyCash || buyCash <= 0) {
+            return res.status(400).json({
+                message: '구매하려는 캐시는 0 이상의 정수를 입력해주세요.',
+            });
+        }
+
+        // 이메일과 비밀번호로 Account 조회
+        const account = await prisma.account.findUnique({
             where: { email: email },
             select: {
-                nickname: true,
-                cash: true,
+                password: true,
+                manager: {
+                    select: { managerId: true, cash: true },
+                },
             },
         });
 
-        if (!myCash) {
+        // 없으면
+        if (!account) {
+            return res
+                .status(404)
+                .json({ message: '존재하지 않는 Email 입니다.' });
+        }
+        // 비번확인
+        if (account.password != password) {
+            return res
+                .status(401)
+                .json({ message: '비밀번호가 일치하지 않습니다.' });
+        }
+        // Manager 업데이트
+        await prisma.manager.update({
+            where: { managerId: account.manager.managerId },
+            data: { cash: account.manager.cash + buyCash },
+        });
+
+        return res
+            .status(200)
+            .json({ message: `${buyCash}캐시를 결제하셧습니다.` });
+    } catch (error) {
+        console.error('Error fetching cash data:', error);
+        return res
+            .status(500)
+            .json({ message: '캐시 구매 Internal server error' });
+    }
+});
+
+/**O 캐시 조회API  email **/
+router.get('/cash/:email', async (req, res, next) => {
+    const { email } = req.params;
+    // 이메일 유효성 검사
+    if (!email || typeof email !== 'string') {
+        return res.status(400).json({ message: 'Invalid email parameter' });
+    }
+    try {
+        const account = await prisma.account.findFirst({
+            where: { email },
+            select: {
+                email: true,
+                manager: {
+                    select: {
+                        cash: true,
+                        managerId: true,
+                    },
+                },
+            },
+        });
+
+        if (!account) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        return res.status(200).json({ data: myCash });
+        return res.status(200).json({
+            data: { email: account.email, cash: account.manager.cash },
+        });
     } catch (error) {
         console.error('Error fetching cash data:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res
+            .status(500)
+            .json({ message: '캐시조회 Internal server error' });
     }
 });
 
-// 1. 다른 유저에게 캐시 선물API
+/**O 1. 다른 유저에게 캐시 선물API **/
 router.post('/cash/gift', async (req, res, next) => {
-    const { senderNickname, receiverNickname, amount, password } = req.body;
-    let newAmount = +amount;
+    const { senderEmail, receiverEmail, amount, password } = req.body;
     try {
         // 입력정보 확인
-        if (!senderNickname || !receiverNickname || !newAmount || !password) {
+        if (!senderEmail || !receiverEmail || !amount || !password) {
             return res.status(404).json({
                 message:
                     '보내는 닉네임, 받는 닉네임, 금액, 비밀번호를 모두 입력해주세요.',
@@ -119,15 +147,12 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 송신자 닉네임 확인
-        const sender = await prisma.manager.findFirst({
-            where: { nickname: senderNickname },
+        const sender = await prisma.account.findFirst({
+            where: { email: senderEmail },
             select: {
-                cash: true,
-                account: {
-                    select: {
-                        password: true, // Account.password
-                    },
-                },
+                email: true,
+                password: true,
+                manager: { select: { cash: true, managerId: true } },
             },
         });
         if (!sender) {
@@ -137,18 +162,16 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 송신자 비번확인
-        if (sender.account.password !== password) {
+        if (sender.password !== password) {
             return res.status(404).json({
                 message: '송신자의 비밀번호가 일치하지 않습니다.',
             });
         }
 
         // 수신자 닉네임 확인
-        const receiver = await prisma.manager.findFirst({
-            where: { nickname: receiverNickname },
-            select: {
-                cash: true,
-            },
+        const receiver = await prisma.account.findFirst({
+            where: { email: receiverEmail },
+            select: { manager: { select: { cash: true, managerId: true } } },
         });
 
         if (!receiver) {
@@ -158,13 +181,15 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 캐시 1이상의 정수 확인
-        if (!Number.isInteger(Number(betAmount)) || newAmount < 1) {
+        const parsedAmount = Number(amount);
+        if (!Number.isInteger(parsedAmount) || parsedAmount < 1) {
             return res.status(404).json({
                 message: '선물하는 금액은 1 이상의 정수여야 합니다.',
             });
         }
+
         // 송신자 잔액 확인
-        if (sender.cash < newAmount) {
+        if (sender.manager.cash < amount) {
             return res.status(400).json({
                 message: '송신자의 잔액이 부족합니다.',
             });
@@ -172,25 +197,16 @@ router.post('/cash/gift', async (req, res, next) => {
 
         // 캐시 수정하기  내꺼 줄어들고 받은사람 늘어나고
         await prisma.manager.update({
-            where: { nickname: senderNickname },
-            data: { cash: sender.cash - newAmount },
+            where: { managerId: sender.manager.managerId },
+            data: { cash: sender.manager.cash - amount },
         });
         await prisma.manager.update({
-            where: { nickname: receiverNickname },
-            data: { cash: receiver.cash + newAmount },
+            where: { managerId: receiver.manager.managerId },
+            data: { cash: receiver.manager.cash + amount },
         });
 
-        // 수신 알림 저장 <- 알림용 테이블을 만들어야함
-        // await prisma.notification.create({
-        //     data: {
-        //         receiverNickname,
-        //         message: `${senderNickname}님이 ${newAmount}캐시를 선물하였습니다.`,
-        //         createdAt: new Date(),
-        //     },
-        // });
-
         return res.status(200).json({
-            message: `${receiverNickname}님에게 ${newAmount}캐시를 선물했습니다.`,
+            message: `${receiverEmail}님에게 ${amount}캐시를 선물했습니다.`,
         });
     } catch (error) {
         console.error('Error gifting cash:', error);
@@ -198,28 +214,28 @@ router.post('/cash/gift', async (req, res, next) => {
     }
 });
 
-// 2. 돈 불리기 ( 행운의 룰렛)API
+/**O 2. 돈 불리기 ( 행운의 룰렛)API **/
 router.post('/cash/roulette', async (req, res, next) => {
     const { email, betAmount, password } = req.body;
     try {
         // 입력정보 유효성 확인
-        const bet = await prisma.manager.findFirst({
+        const account = await prisma.account.findFirst({
             where: { email },
             select: {
                 email: true,
-                cash: true,
-                account: { select: { password: true } },
+                password: true,
+                manager: { select: { cash: true, managerId: true } },
             },
         });
         // 이메일
-        if (!bet) {
+        if (!account) {
             return res
                 .status(404)
                 .json({ message: '일치하는 이메일이 없습니다.' });
         }
 
         // 비번
-        if (bet.account.password !== password) {
+        if (account.password !== password) {
             return res
                 .status(404)
                 .json({ message: '비밀번호가 일치하지 않습니다.' });
@@ -231,9 +247,16 @@ router.post('/cash/roulette', async (req, res, next) => {
                 .status(404)
                 .json({ message: '캐시는 정수로 적어주세요.' });
         }
-        if (bet.cash < betAmount && betAmount < 1) {
+        // 캐시 보유금액 확인
+        if (!Number.isInteger(betAmount) || betAmount < 1) {
             return res.status(404).json({
-                message: '0보다 크고 보유캐시보다 적은 캐시를 걸어주세요.',
+                message: '캐시는 1 이상의 정수로 적어주세요.',
+            });
+        }
+
+        if (betAmount > account.manager.cash) {
+            return res.status(404).json({
+                message: '보유 캐시보다 적은 금액만 걸 수 있습니다.',
             });
         }
 
@@ -256,50 +279,25 @@ router.post('/cash/roulette', async (req, res, next) => {
             multiplyC = 50;
         }
 
-        await prisma.manager.update({
-            data: {
-                cash: bet.cash - betAmount + Math.floor(betAmount * multiplyC),
-            },
-            where: { email },
-        });
-
-        /* 스위치문에서 계산
-        
-        let multiplyCash = 0;
-        
-
-        if (roulette <= 20) {
-            multiplyCash = Math.floor(betAmount * 0.5);
-        } else if (roulette <= 70) {
-            multiplyCash = Math.floor(betAmount * 1);
-        } else if (roulette <= 90) {
-            multiplyCash = Math.floor(betAmount * 2);
-        } else if (roulette <= 98) {
-            multiplyCash = Math.floor(betAmount * 5);
-        } else if (roulette <= 99.8) {
-            multiplyCash = Math.floor(betAmount * 10);
-        } else {
-            multiplyCash = Math.floor(betAmount * 50);
-        }
+        let batR = Math.floor(betAmount * multiplyC);
 
         await prisma.manager.update({
-            data: { cash: bet.cash - betAmount + multiplyCash },
-            where: { email },
+            where: { managerId: account.manager.managerId },
+            data: { cash: account.manager.cash - betAmount + batR },
         });
-    */
 
         return res.status(200).json({
-            message: `${multiplyC}배에 당첨되셨습니다! ${Math.floor(
-                multiplyC * betAmount
-            )} 캐시를 획득하셨습니다.`,
+            message: `${multiplyC}배에 당첨되셨습니다! ${batR} 캐시를 획득하셨습니다.`,
         });
     } catch (error) {
         console.error('Error fetching cash data:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res
+            .status(500)
+            .json({ message: '캐시 룰렛 Internal server error' });
     }
 });
 
-// 3. 게임 승패로 캐시 증감API
+/**O  3. 게임 승패로 캐시 증감API  **/
 //     게임 결과로 캐시 주고 뺐기
 router.post('/cash/game-result', async (req, res, next) => {
     const { winnerEmail, loserEmail, result, amount } = req.body;
@@ -320,9 +318,9 @@ router.post('/cash/game-result', async (req, res, next) => {
         }
 
         // 승자 데이터 확인
-        const winner = await prisma.manager.findFirst({
+        const winner = await prisma.account.findFirst({
             where: { email: winnerEmail },
-            select: { cash: true },
+            select: { manager: { select: { cash: true, managerId: true } } },
         });
         if (!winner) {
             return res
@@ -331,9 +329,9 @@ router.post('/cash/game-result', async (req, res, next) => {
         }
 
         // 패자 데이터 확인
-        const loser = await prisma.manager.findFirst({
+        const loser = await prisma.account.findFirst({
             where: { email: loserEmail },
-            select: { cash: true },
+            select: { manager: { select: { cash: true, managerId: true } } },
         });
         if (!loser) {
             return res
@@ -346,28 +344,32 @@ router.post('/cash/game-result', async (req, res, next) => {
         let loserPenalty = 0;
         if (result) {
             winnerReward = amount;
-            loserPenalty = Math.max(-loser.cash, -amount); // 최대 패널티는 가진 돈까지만
-            /*
-            if (loser.cash < amount) {
-                loserPenalty = -loser.cash; // 돈 없으면 있는것만 뺏기
-            } else {
-                loserPenalty = -amount;
-            }*/
+            loserPenalty = Math.max(-loser.manager.cash, -amount); // 최대 패널티는 가진 돈까지만
         } else {
-            // 무승부: 승자에게 배팅 금액의 절반만 지급, 패자는 그대로
+            // 무승부: 배팅 금액의 절반씩 지급
             winnerReward = Math.floor(amount / 2);
             loserPenalty = Math.floor(amount / 2);
         }
 
+        if (isNaN(winnerReward) || isNaN(loserPenalty)) {
+            throw new Error('캐시 계산1 중 오류가 발생했습니다.');
+        }
+
+        const winnerCashUpdate = winner.manager.cash + winnerReward;
+        const loserCashUpdate = loser.manager.cash + loserPenalty;
+
+        if (isNaN(winnerCashUpdate) || isNaN(loserCashUpdate)) {
+            throw new Error('캐시 계산2 중 오류가 발생했습니다.');
+        }
+
         // 데이터 업데이트
         await prisma.manager.update({
-            where: { email: winnerEmail },
-            data: { cash: winner.cash + winnerReward },
+            where: { managerId: winner.manager.managerId },
+            data: { cash: winnerCashUpdate },
         });
-        // 데이터 업데이트
         await prisma.manager.update({
-            where: { email: loserEmail },
-            data: { cash: loser.cash + loserPenalty },
+            where: { managerId: loser.manager.managerId },
+            data: { cash: loserCashUpdate },
         });
 
         if (result) {
@@ -391,7 +393,9 @@ router.post('/cash/game-result', async (req, res, next) => {
         }
     } catch (error) {
         console.error('Error processing game result:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res
+            .status(500)
+            .json({ message: '캐시 승패 Internal server error' });
     }
 });
 
