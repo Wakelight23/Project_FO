@@ -4,7 +4,8 @@ import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
 //
-const price = 500;
+const playerPrice = 500;
+const ItemPrice = 200;
 
 // 로그 및 예외 처리 함수
 const isLog = false;
@@ -93,7 +94,7 @@ const getRandomPlayer = async (drawCount, gachaCount) => {
 gachaRouter.post('/gacha/player', authM, async (req, res) => {
     const { accountId } = req.account;
     const { drawCount } = req.body;
-    const resultPrice = price * drawCount;
+    const resultPrice = playerPrice * drawCount;
 
     let result; // result 변수를 미리 선언
 
@@ -182,5 +183,80 @@ gachaRouter.get('/gacha/item', async (req, res) => {
         Exception('아이템 뽑기 단일 정보 조회 에러: ' + error);
     }
 });
+
+//#region 아이템 뽑기
+// 아이템 뽑기 라우터
+gachaRouter.post('/gacha/item', authM, async (req, res) => {
+    const { accountId } = req.account;
+    const { drawCount } = req.body;
+    const resultPrice = ItemPrice * drawCount;
+
+    let result;
+
+    try {
+        const manager = await prisma.manager.findFirst({
+            where: { accountId },
+        });
+
+        if (!manager) {
+            Log('매니저를 찾을 수 없습니다!!');
+            return res.json({ success: false, message: '잘못된 접근입니다.' });
+        }
+
+        if (manager.cash < resultPrice) {
+            return res.json({ success: false, message: '잔액이 부족합니다.' });
+        }
+
+        // 랜덤 아이템 뽑기
+        const drawnItems = await getRandomItem(drawCount, manager.gachaCount);
+        if (!drawnItems.length) {
+            throw new Error('뽑기에 실패했습니다.');
+        }
+
+        // 천장 시스템
+        if (manager.gachaCount + drawCount >= 1000) {
+            manager.gachaCount = 0;
+        } else {
+            manager.gachaCount += drawCount;
+        }
+
+        // 트랜잭션 시작
+        result = await prisma.$transaction(async (tx) => {
+            // 결제 처리
+            const updatedManager = await tx.manager.update({
+                where: { managerId: manager.managerId },
+                data: {
+                    cash: manager.cash - resultPrice,
+                    gachaCount: manager.gachaCount,
+                },
+            });
+
+            // 인벤토리에 추가
+            const inventoryItems = await Promise.all(
+                drawnItems.map(async (item) => {
+                    const inventoryItem = await tx.inventory.create({
+                        data: {
+                            itemId: item.itemId,
+                            managerId: updatedManager.managerId,
+                        },
+                    });
+                    return inventoryItem;
+                })
+            );
+
+            return { drawnItems, inventoryItems };
+        });
+
+        return res.json({
+            success: true,
+            items: result.drawnItems, // 모든 뽑은 아이템 반환
+            inventory: result.inventoryItems, // 인벤토리에 추가된 아이템 반환
+        });
+    } catch (error) {
+        Exception('아이템 뽑기 라우터 에러: ' + error);
+    }
+});
+
+//#endregion
 
 export default gachaRouter;
