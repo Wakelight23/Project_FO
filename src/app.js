@@ -10,6 +10,8 @@ import CashRouter from './routes/cash/cash.router.js';
 import GachaRouter from './routes/gacha/gacha.router.js';
 // player
 import PlayerRouter from './routes/player/players.router.js';
+// item
+import itemRouter from './routes/item/items.router.js'
 // teammebmer
 import CreateRosterRouter from './routes/teammember/createRoster.router.js';
 import UpgradeMemberRouter from './routes/teammember/upgradeMember.router.js';
@@ -37,7 +39,7 @@ app.use(express.static('public'));
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
-app.use('/api', authM, [PlayerRouter]); // player
+app.use('/api', authM, [PlayerRouter,itemRouter]); // player, item
 app.use('/api', [CreateRosterRouter, UpgradeMemberRouter, MyTeamMemberRouter]); // teammember
 app.use('/api', [PlayGame, CaptainGame, GameRecord]); // gameplay
 

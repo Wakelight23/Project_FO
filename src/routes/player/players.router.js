@@ -1,6 +1,7 @@
 // src/routes/players.router.js
 import express from 'express';
 import multer from 'multer';
+import simpleLogic from '../../logic/simpleLogic.js'
 import { prisma } from '../../utils/prisma/index.js';
 import { isValidInput } from '../teammember/createRoster.router.js';
 
@@ -42,7 +43,7 @@ router.get('/players/:playerId', async (req, res, next) => {
         }
 
         let isExistPlayer;
-        if (checkAdmin(accountId)) {
+        if (simpleLogic.checkAdmin(accountId)) {
             isExistPlayer = await prisma.player.findFirst({
                 select: {
                     playerId: true,
@@ -98,7 +99,7 @@ router.post('/players', async (req, res, next) => {
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!checkAdmin(accountId)) {
+        if (!simpleLogic.checkAdmin(accountId)) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
@@ -161,7 +162,7 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!checkAdmin(accountId)) {
+        if (!simpleLogic.checkAdmin(accountId)) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
@@ -193,7 +194,7 @@ router.post('/players/:playerId', async (req, res, next) => {
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!checkAdmin(accountId)) {
+        if (!simpleLogic.checkAdmin(accountId)) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
         const {
@@ -270,7 +271,7 @@ router.delete('/players/:playerId', async (req, res, next) => {
       if (!accountId) {
           res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
       }
-      if (!checkAdmin(accountId)) {
+      if (!simpleLogic.checkAdmin(accountId)) {
           res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
       }
 
@@ -339,22 +340,22 @@ function csvParsing(csvString) {
     //헤더 확인
     const scvHeaderSplit = csvString[0].split(',');
     for (let i in scvHeaderSplit) {
-        switch (scvHeaderSplit[i]) {
+        switch (scvHeaderSplit[i].toLowerCase()) {
             case 'name':
             case `full_name`:
                 indexName = i;
                 break;
             case 'club':
-            case `Current Club`:
+            case `current club`:
                 indexClub = i;
                 break;
             case 'speed':
                 indexSpeed = i;
                 break;
-            case 'goalFinishing':
+            case 'goalfinishing':
                 indexGoalFinishing = i;
                 break;
-            case 'shootPower':
+            case 'shootpower':
                 indexShootPower = i;
                 break;
             case 'defense':
@@ -369,7 +370,7 @@ function csvParsing(csvString) {
             case 'type':
                 indexType = i;
                 break;
-            case 'playerImage':
+            case 'playerimage':
                 indexplayerImage = i;
                 break;
             default:
@@ -379,57 +380,35 @@ function csvParsing(csvString) {
     // 내용 리턴 변수에 대입
     for (let i = 1; i < csvString.length; i++) {
         const csvSingleLine = csvString[i].split(',');
-        if (!csvSingleLine.length <= 0) continue;
-        const tmpRarity = csvSingleLine[indexRarity] ?? getRandomInt(1, 11);
+        if (csvSingleLine.length <= 0) continue;
+        //1이 제일 높고 10이 제일 낮음으로 계산을 위해 (11- 레어도) 적용
+        const tmpRarity = (11 - (csvSingleLine[indexRarity] ?? simpleLogic.getRandomInt(1, 11)));
         const singlePlayerData = {
             name: csvSingleLine[indexName] ?? '무명',
             club: csvSingleLine[indexClub] ?? '조기축구회',
             speed:
-                csvSingleLine[indexSpeed] ??
-                30 + Math.random() * tmpRarity * 10,
+                +(csvSingleLine[indexSpeed] ??
+                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
             goalFinishing:
-                csvSingleLine[indexGoalFinishing] ??
-                30 + Math.random() * tmpRarity * 10,
+                +(csvSingleLine[indexGoalFinishing] ??
+                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
             shootPower:
-                csvSingleLine[indexShootPower] ??
-                30 + Math.random() * tmpRarity * 10,
+                +(csvSingleLine[indexShootPower] ??
+                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
             defense:
-                csvSingleLine[indexDefense] ??
-                30 + Math.random() * tmpRarity * 10,
+                +(csvSingleLine[indexDefense] ??
+                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
             stamina:
-                csvSingleLine[indexStamina] ??
-                30 + Math.random() * tmpRarity * 10,
-            rarity: csvSingleLine[indexRarity] ?? tmpRarity,
-            type: csvSingleLine[indexType] ?? 1,
+                +(csvSingleLine[indexStamina] ??
+                30 + simpleLogic.getRandomInt(1, 10) * tmpRarity),
+                //레어도 복구
+            rarity: +(csvSingleLine[indexRarity] ?? (11 - tmpRarity)),
+            type: +(csvSingleLine[indexType] ?? 1),
             playerImage: csvSingleLine[indexplayerImage] ?? '',
         };
         playerCreateData.push(singlePlayerData);
     }
     return playerCreateData;
-}
-//두 값 사이의 난수 생성
-function getRandomInt(min, max) {
-    const minCeiled = Math.ceil(min);
-    const maxFloored = Math.floor(max);
-    return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // 최댓값은 제외, 최솟값은 포함
-}
-//어드민 체크
-// 어드민이면 true
-async function checkAdmin(accountId) {
-    const isAdmin = await prisma.account.findFirst({
-        select: {
-            accountId: true,
-            isAdmin: true,
-        },
-        where: {
-            accountId: +accountId,
-        },
-    });
-    if (!isAdmin || isAdmin.isAdmin!=1) {
-      return false;
-        //res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-    }
-    return true;
 }
 
 export default router;

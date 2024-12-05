@@ -134,7 +134,8 @@ model Item {
   stamina       Int
   rarity        Int
   itemImage     String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
   Equipment     Equipment[]
 }
