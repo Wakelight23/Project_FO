@@ -6,10 +6,68 @@ import authM from '../../middlewares/auth.js';
 
 const router = express.Router();
 
+/** 업그레이드 가능한 멤버 조회 API */
+router.get('/upgrade', authM, async (req, res, next) => {
+    const { accountId } = req.account;
+
+    try {
+        // accoutId를 통해 managerId 가져오기
+        const managerId = await prisma.manager.findFirst({
+            where: {
+                accountId: +accountId,
+            },
+            select: {
+                managerId: true,
+            },
+        });
+
+        // 로그인한 계정이 보유한 선수 카드를 'upgrade', 'playerId'로 그룹핑+카운트
+        const countMembers = await prisma.teamMember.groupBy({
+            by: ['upgrade', 'playerId'], // 그룹화할 필드
+            where: {
+                managerId: managerId.managerId,
+            },
+            _count: {
+                _all: true, // 집계할 필드
+            },
+        });
+
+        // count한 값이 2이상인 것만 필터링
+        const filteredMembers = countMembers.filter(
+            (group) => group._count._all >= 2
+        );
+
+        const upgradableMembers = await prisma.teamMember.findMany({
+            where: {
+                managerId: managerId.managerId,
+                OR: filteredMembers.map((group) => ({
+                    upgrade: group.upgrade,
+                    playerId: group.playerId,
+                })),
+            },
+            select: {
+                teamMemberId: true,
+                upgrade: true,
+                player: {
+                    select: {
+                        name: true,
+                        club: true,
+                    },
+                },
+            },
+            orderBy: { player: {
+                name: 'asc'
+            } },
+        });
+
+        return res.status(200).json(upgradableMembers);
+    } catch (err) {
+        next(err);
+    }
+});
+
 // 같은 등급의 카드가 있으면 확률에 따라 강화가 된다.
 // 강화가 실패하면 임의의 등급으로 하락한다.
-// 인증 미들웨어 추가
-
 /** 멤버 업그레이드 API */
 router.patch('/upgrade', authM, async (req, res, next) => {
     const { accountId } = req.account;
