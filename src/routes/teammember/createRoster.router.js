@@ -151,7 +151,7 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
             select: {
                 managerId: true,
             },
-        }).managerId;
+        });
 
         // 교체할 선수 둘을 request body를 통해 요청받는다.
         const { outMemberId, inMemberId } = req.body;
@@ -186,6 +186,7 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
         // 예외처리 (teamtest 테이블에서 조회했을 때 outMemberId를 조회했을 때 isSelected가 true인가?)
         const isValidOutMember = await prisma.teamMember.findUnique({
             where: {
+                managerId: managerId.managerId,
                 teamMemberId: memberIds[0],
             },
             select: {
@@ -201,7 +202,7 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
         // 예외처리 (teamtest 테이블에서 조회했을 때 inMemberId를 조회했을 때 isSelected가 false인가?)
         const isValidInMember = await prisma.teamMember.findUnique({
             where: {
-                // managerId: +managerId,
+                managerId: managerId.managerId,
                 teamMemberId: memberIds[1],
             },
             select: {
@@ -217,19 +218,9 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
 
         await prisma.$transaction(
             async (tx) => {
-                // accoutId를 통해 managerId 가져오기
-                const managerId = await prisma.manager.findFirst({
-                    where: {
-                        accountId: +accountId,
-                    },
-                    select: {
-                        managerId: true,
-                    },
-                }).managerId;
-
                 await tx.teamMember.updateMany({
                     where: {
-                        managerId,
+                        managerId: managerId.managerId,
                         teamMemberId: memberIds[0],
                     },
                     data: {
@@ -238,7 +229,7 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
                 });
                 await tx.teamMember.updateMany({
                     where: {
-                        managerId,
+                        managerId: managerId.managerId,
                         teamMemberId: memberIds[1],
                     },
                     data: {
@@ -252,7 +243,7 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
         // 바뀐 선발 선수 명단을 반환
         const membersInRoster = await prisma.teamMember.findMany({
             where: {
-                managerId,
+                managerId: managerId.managerId,
                 isSelected: true,
             },
             select: {
