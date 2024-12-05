@@ -78,41 +78,40 @@ export function calculatePlayerPower(player) {
 
 // 게임 결과 저장
 export async function updateGameResult(managerId, gameResult) {
-    // Ranking 테이블 업데이트
-    const ranking = await prisma.ranking.findFisrt({
-        where: { managerId },
-    });
-
-    if (ranking) {
-        // 기존 랭킹 정보 업데이트
-        await prisma.ranking.update({
+    try {
+        // Ranking 테이블 업데이트
+        const ranking = await prisma.ranking.findFirst({
             where: { managerId },
-            data: {
-                win: gameResult === 1 ? ranking.win + 1 : ranking.win,
-                lose: gameResult === 0 ? ranking.lose + 1 : ranking.lose,
-                draw: gameResult === 2 ? ranking.draw + 1 : ranking.draw,
-            },
         });
-    } else {
-        // 새로운 랭킹 정보 생성
-        await prisma.ranking.create({
+
+        if (ranking) {
+            await prisma.ranking.update({
+                where: { rankingId: ranking.rankingId },
+                data: {
+                    win: gameResult === 1 ? ranking.win + 1 : ranking.win,
+                    lose: gameResult === 0 ? ranking.lose + 1 : ranking.lose,
+                    draw: gameResult === 2 ? ranking.draw + 1 : ranking.draw,
+                },
+            });
+        } else {
+            await prisma.ranking.create({
+                data: {
+                    managerId,
+                    win: gameResult === 1 ? 1 : 0,
+                    lose: gameResult === 0 ? 1 : 0,
+                    draw: gameResult === 2 ? 1 : 0,
+                },
+            });
+        }
+
+        // Record 테이블에 게임 결과 저장
+        await prisma.record.create({
             data: {
                 managerId,
-                win: gameResult === 1 ? 1 : 0,
-                lose: gameResult === 0 ? 1 : 0,
-                draw: gameResult === 2 ? 1 : 0,
+                gameResult,
             },
         });
+    } catch (error) {
+        throw new Error(`게임 결과 저장 중 오류 발생: ${error.message}`);
     }
-
-    // Record 테이블에 게임 결과 저장
-    await Promise.all([
-        prisma.record.create({
-            data: {
-                managerId: manager.managerId,
-                gameResult: gameResult.result,
-            },
-        }),
-        updateGameResult(manager.managerId, gameResult.result),
-    ]);
 }

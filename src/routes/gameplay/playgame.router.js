@@ -6,6 +6,7 @@ import {
     determineWinner,
     updateGameResult,
 } from '../../logic/gameplay.js';
+import authM from '../../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -13,9 +14,9 @@ const router = express.Router();
 const gameSessionMap = new Map();
 
 /** 일반 게임 시작 API **/
-router.get('/choicematch/start/:accountId', async (req, res) => {
+router.get('/choicematch/start', authM, async (req, res) => {
     try {
-        const { accountId } = req.params;
+        const accountId = req.account.accountId;
 
         // accountId 존재 여부 확인
         const account = await prisma.account.findUnique({
@@ -70,9 +71,9 @@ router.get('/choicematch/start/:accountId', async (req, res) => {
 });
 
 /** 일반 게임 결과 API **/
-router.get('/choicematch/result/:accountId', async (req, res) => {
+router.get('/choicematch/result', authM, async (req, res) => {
     try {
-        const { accountId } = req.params;
+        const accountId = req.account.accountId;
 
         // 게임 세션 확인
         const gameSession = gameSessionMap.get(accountId);

@@ -106,7 +106,7 @@ const getRandomItems = async (drawCount) => {
 
 //#region 뽑기 라우터
 // 뽑기
-gachaRouter.post('/api/gacha', async (req, res) => {
+gachaRouter.post('/gacha', authM, async (req, res) => {
     try {
         Log('Test');
         const { accountId } = req.account;
