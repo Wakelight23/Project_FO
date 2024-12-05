@@ -77,44 +77,36 @@ router.get('/myTeamMember', authM, async (req, res, next) => {
             });
         }
 
-        // 선수 목록 조회
-        await prisma.$transaction(
-            async (tx) => {
-                const membersInTeam = await tx.teamMember.findMany({
-                    where: {
-                        managerId: managerId.managerId,
-                    },
-                    select: {
-                        teamMemberId: true,
-                        player: {
-                            select: {
-                                name: true,
-                                club: true,
-                                speed: true,
-                                goalFinishing: true,
-                                shootPower: true,
-                                defense: true,
-                                stamina: true,
-                                rarity: true,
-                                type: true,
-                            },
-                        },
-                    },
-                    orderBy: {
-                        player: {
-                            [orderField]: 'asc',
-                        },
-                    },
-                    take: 10,
-                    skip: 10 * (page - 1),
-                });
-
-                return res.status(200).json(membersInTeam);
+        const membersInTeam = await prisma.teamMember.findMany({
+            where: {
+                managerId: managerId.managerId,
             },
-            {
-                isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-            }
-        );
+            select: {
+                teamMemberId: true,
+                player: {
+                    select: {
+                        name: true,
+                        club: true,
+                        speed: true,
+                        goalFinishing: true,
+                        shootPower: true,
+                        defense: true,
+                        stamina: true,
+                        rarity: true,
+                        type: true,
+                    },
+                },
+            },
+            orderBy: {
+                player: {
+                    [orderField]: 'asc',
+                },
+            },
+            take: 10,
+            skip: 10 * (page - 1),
+        });
+
+        return res.status(200).json(membersInTeam);
     } catch (err) {
         next(err);
     }
