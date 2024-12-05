@@ -4,7 +4,7 @@ import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
 //
-const price = 500;
+const price = 1;
 
 // 로그 및 예외 처리 함수
 const isLog = false;

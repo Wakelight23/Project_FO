@@ -136,7 +136,7 @@ export async function updateGameResult(managerId, gameResult) {
     }
 }
 
-// 대장전 승패 결정 함수
+// 대장전 승패 결정
 export function determineCaptainWinner(myPlayers, opponentPlayers) {
     let myWins = 0;
     let opponentWins = 0;
