@@ -1,13 +1,15 @@
 // routes/cash.router.js
 import express from 'express';
+import bcrypt from 'bcrypt';
+
 import { prisma } from '../../utils/prisma/index.js';
 
 const router = express.Router();
 
-// const bcryptPassword = await bcrypt.hash(password, 10);
+// const bcryptPassword = await bcrypt.hash(password, 10); // 생성
+// const isPasswordMatch = await bcrypt.compare(password, account.password); // 비교
 
-
-/**O Lucky캐시API email **/
+/** Lucky캐시API email **/
 router.post('/cash/lucky', async (req, res, next) => {
     const { email } = req.body;
     try {
@@ -28,9 +30,7 @@ router.post('/cash/lucky', async (req, res, next) => {
 
         // 있으면
         if (!account) {
-            return res
-                .status(404)
-                .json({ message: '존재하지 않는 Email 입니다.' });
+            return res.status(404).json({ message: '존재하지 않는 Email 입니다.' });
         }
 
         const giftCash = Math.floor(Math.random() * 200) + 20;
@@ -41,9 +41,7 @@ router.post('/cash/lucky', async (req, res, next) => {
             data: { cash: account.manager.cash + giftCash },
         });
 
-        return res
-            .status(200)
-            .json({ message: `LUCKY!!! ${giftCash}캐시를 받았습니다.` });
+        return res.status(200).json({ message: `LUCKY!!! ${giftCash}캐시를 받았습니다.` });
     } catch (error) {
         console.error('Error lucky cash:', error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -74,16 +72,12 @@ router.post('/cash/payment', async (req, res, next) => {
 
         // 없으면
         if (!account) {
-            return res
-                .status(404)
-                .json({ message: '존재하지 않는 Email 입니다.' });
+            return res.status(404).json({ message: '존재하지 않는 Email 입니다.' });
         }
         // 비번확인
-        const bcryptPassword = await bcrypt.hash(password, 10);
-        if (account.password != bcryptPassword) {
-            return res
-                .status(401)
-                .json({ message: '비밀번호가 일치하지 않습니다.' });
+        const isPasswordMatch = await bcrypt.compare(password, account.password); // (password, account.password);
+        if (!isPasswordMatch) {
+            return res.status(404).json({ message: '비밀번호가 일치하지 않습니다.' });
         }
         // Manager 업데이트
         await prisma.manager.update({
@@ -91,66 +85,63 @@ router.post('/cash/payment', async (req, res, next) => {
             data: { cash: account.manager.cash + buyCash },
         });
 
-        return res
-            .status(200)
-            .json({ message: `${buyCash}캐시를 결제하셧습니다.` });
+        return res.status(200).json({ message: `${buyCash}캐시를 결제하셧습니다.` });
     } catch (error) {
         console.error('Error fetching cash data:', error);
-        return res
-            .status(500)
-            .json({ message: '캐시 구매 Internal server error' });
+        return res.status(500).json({ message: '캐시 구매 Internal server error' });
     }
 });
 
 /**O 캐시 조회API  email, 비번 추가하기 **/
 router.get('/cash/:email', async (req, res, next) => {
+    console.log('조회');
     const { email } = req.params;
+    const { password } = req.body;
     // 이메일 유효성 검사
     if (!email || typeof email !== 'string') {
         return res.status(400).json({ message: 'Invalid email parameter' });
     }
     try {
         const account = await prisma.account.findFirst({
-        where: { email },
-        select: {
-        email: true, password : true,
-        manager: {
-        select: {
-        cash: true,
-        managerId: true,
-    },},},});
+            where: { email },
+            select: {
+                email: true,
+                password: true,
+                manager: {
+                    select: {
+                        cash: true,
+                        managerId: true,
+                    },
+                },
+            },
+        });
 
         if (!account) {
             return res.status(404).json({ message: 'User not found' });
         }
-                // 비번
-                const bcryptPassword = await bcrypt.hash(password, 10);
-                if (account.password !== bcryptPassword) {
-                    return res
-                        .status(404)
-                        .json({ message: '비밀번호가 일치하지 않습니다.' });
-                }
+        // 비번
+        const isPasswordMatch = await bcrypt.compare(password, account.password); // (password, account.password);
+        if (!isPasswordMatch) {
+            return res.status(404).json({ message: '비밀번호가 일치하지 않습니다.' });
+        }
 
         return res.status(200).json({
             data: { email: account.email, cash: account.manager.cash },
         });
     } catch (error) {
         console.error('Error fetching cash data:', error);
-        return res
-            .status(500)
-            .json({ message: '캐시조회 Internal server error' });
+        return res.status(500).json({ message: '캐시조회 Internal server error' });
     }
 });
 
-/**O 1. 다른 유저에게 캐시 선물API   비번!**/
+/** 1. 다른 유저에게 캐시 선물API   비번!**/
 router.post('/cash/gift', async (req, res, next) => {
     const { senderEmail, receiverEmail, amount, password } = req.body;
     try {
         // 입력정보 확인
         if (!senderEmail || !receiverEmail || !amount || !password) {
             return res.status(404).json({
-                message:
-                    '송신자 이메일, 수신자 이메일, 금액, 비밀번호를 모두 입력해주세요.',
+                message: '송신자 이메일, 수신자 이메일, 금액, 비밀번호를 모두 입력해주세요.',
             });
         }
 
@@ -165,19 +156,17 @@ router.post('/cash/gift', async (req, res, next) => {
         });
         if (!sender) {
             return res.status(404).json({
-                message: '송신자 닉네임이 존재하지 않습니다.',
+                message: '송신자 이메일이 존재하지 않습니다.',
             });
         }
 
         // 송신자 비번확인
-        const bcryptPassword = await bcrypt.hash(password, 10);
-        if (sender.password !== bcryptPassword) {
-            return res.status(404).json({
-                message: '송신자의 비밀번호가 일치하지 않습니다.',
-            });
+        const isPasswordMatch = await bcrypt.compare(password, sender.password); // (password, account.password);
+        if (!isPasswordMatch) {
+            return res.status(404).json({ message: '비밀번호가 일치하지 않습니다.' });
         }
 
-        // 수신자 닉네임 확인
+        // 수신자 이메일 확인
         const receiver = await prisma.account.findFirst({
             where: { email: receiverEmail },
             select: { manager: { select: { cash: true, managerId: true } } },
@@ -185,7 +174,7 @@ router.post('/cash/gift', async (req, res, next) => {
 
         if (!receiver) {
             return res.status(404).json({
-                message: '수신자 닉네임이 존재하지 않습니다.',
+                message: '수신자 이메일이 존재하지 않습니다.',
             });
         }
 
@@ -223,7 +212,7 @@ router.post('/cash/gift', async (req, res, next) => {
     }
 });
 
-/**O 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
+/** 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
 router.post('/cash/roulette', async (req, res, next) => {
     const { email, betAmount, password } = req.body;
     try {
@@ -238,24 +227,18 @@ router.post('/cash/roulette', async (req, res, next) => {
         });
         // 이메일
         if (!account) {
-            return res
-                .status(404)
-                .json({ message: '일치하는 이메일이 없습니다.' });
+            return res.status(404).json({ message: '일치하는 이메일이 없습니다.' });
         }
 
         // 비번
-        const bcryptPassword = await bcrypt.hash(password, 10);
-        if (account.password !== bcryptPassword) {
-            return res
-                .status(404)
-                .json({ message: '비밀번호가 일치하지 않습니다.' });
+        const isPasswordMatch = await bcrypt.compare(password, account.password);
+        if (!isPasswordMatch) {
+            return res.status(404).json({ message: '비밀번호가 일치하지 않습니다.' });
         }
 
         // 캐시 보유금액
         if (!Number.isInteger(betAmount)) {
-            return res
-                .status(404)
-                .json({ message: '캐시는 정수로 적어주세요.' });
+            return res.status(404).json({ message: '캐시는 정수로 적어주세요.' });
         }
         // 캐시 보유금액 확인
         if (!Number.isInteger(betAmount) || betAmount < 1) {
@@ -301,9 +284,7 @@ router.post('/cash/roulette', async (req, res, next) => {
         });
     } catch (error) {
         console.error('Error fetching cash data:', error);
-        return res
-            .status(500)
-            .json({ message: '캐시 룰렛 Internal server error' });
+        return res.status(500).json({ message: '캐시 룰렛 Internal server error' });
     }
 });
 
@@ -315,15 +296,13 @@ router.post('/cash/game-result', async (req, res, next) => {
     try {
         if (!winnerEmail || !loserEmail || !amount || amount <= 0) {
             return res.status(400).json({
-                message:
-                    '승자, 패자 이메일, 경기결과, 0 이상의 보상캐시을 입력해주세요.',
+                message: '승자, 패자 이메일, 경기결과, 0 이상의 보상캐시을 입력해주세요.',
             });
         }
 
         if (!result === 0 && !result === 1) {
             return res.status(400).json({
-                message:
-                    '승패는 무승부면 0을, 아니면 1을 정수 형태로 넣어주세요.',
+                message: '승패는 무승부면 0을, 아니면 1을 정수 형태로 넣어주세요.',
             });
         }
 
@@ -333,9 +312,7 @@ router.post('/cash/game-result', async (req, res, next) => {
             select: { manager: { select: { cash: true, managerId: true } } },
         });
         if (!winner) {
-            return res
-                .status(404)
-                .json({ message: '승자 이메일이 존재하지 않습니다.' });
+            return res.status(404).json({ message: '승자 이메일이 존재하지 않습니다.' });
         }
 
         // 패자 데이터 확인
@@ -344,9 +321,7 @@ router.post('/cash/game-result', async (req, res, next) => {
             select: { manager: { select: { cash: true, managerId: true } } },
         });
         if (!loser) {
-            return res
-                .status(404)
-                .json({ message: '패자 이메일이 존재하지 않습니다.' });
+            return res.status(404).json({ message: '패자 이메일이 존재하지 않습니다.' });
         }
 
         // result 승패 있으면 1, 무승부면 0 을 넣기
@@ -403,9 +378,7 @@ router.post('/cash/game-result', async (req, res, next) => {
         }
     } catch (error) {
         console.error('Error processing game result:', error);
-        return res
-            .status(500)
-            .json({ message: '캐시 승패 Internal server error' });
+        return res.status(500).json({ message: '캐시 승패 Internal server error' });
     }
 });
 
