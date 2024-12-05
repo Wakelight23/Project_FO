@@ -8,112 +8,139 @@ datasource db {
 }
 
 model Account {
-  accountId Int @id @default(autoincrement()) @map("accountId") // 계정 고유 ID (Primary Key)
-  email String @unique @map("email") // 이메일 (고유)
-  password String @map("password") //비밀번호
-  name String @map("name")  // 실명
-  age Int @map("age") // 나이
-  gender String @map("gender") // 성별
-  isAdmin Boolean @default(false) @map("isAdmin")
-
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
-  manager  Manager?
+  accountId    Int            @id @default(autoincrement()) @map("accountId")
+  email        String         @unique @map("email")
+  password     String         @map("password")
+  name         String         @map("name")
+  age          Int            @map("age")
+  gender       String         @map("gender")
+  isAdmin      Boolean        @default(false) @map("isAdmin")
+  createdAt    DateTime       @default(now()) @map("createdAt")
+  updatedAt    DateTime       @updatedAt @map("updatedAt")
+  manager      Manager?
   refreshToken RefreshToken[]
 
   @@map("Account")
 }
 
 model RefreshToken {
-  accountId Int @map("accountId") // Accounts 참조 외래키
-  token String @unique @map("token") // 리프레시 토큰 (고유)
-  createdAt DateTime @default(now()) @map("created_at") // 생성일자
+  accountId Int      @map("accountId")
+  token     String   @unique @map("token")
+  createdAt DateTime @default(now()) @map("created_at")
+  account   Account  @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
 
-  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
-
+  @@index([accountId], map: "RefreshToken_accountId_fkey")
   @@map("RefreshToken")
 }
 
 model Manager {
-  managerId Int @id @default(autoincrement()) @map("managerId")
-  accountId Int @unique @map("accountId")
-  nickname String @map("nickname")
-  cash Int @map("cash")
-  rating Int @map("rating")
-
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
-  account      Account       @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
-  records      Record[] 
-  teamMembers  TeamMember[] 
-  rankings Ranking[] 
+  managerId   Int          @id @default(autoincrement()) @map("managerId")
+  accountId   Int          @unique @map("accountId")
+  nickname    String       @map("nickname")
+  cash        Int          @map("cash")
+  gachaCount  Int          @default(0) @map("gachaCount")
+  rating      Int          @map("rating")
+  createdAt   DateTime     @default(now()) @map("createdAt")
+  updatedAt   DateTime     @updatedAt @map("updatedAt")
+  Inventorys  Inventory[]
+  account     Account      @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+  rankings    Ranking[]
+  records     Record[]
+  teamMembers TeamMember[]
 
   @@map("Manager")
 }
 
 model Player {
-  playerId Int @id @default(autoincrement()) @map("playerId")
-  name String @map("name")
-  club String @map("club")
-  speed Int @map("speed")
-  goalFinishing Int @map("goalFinishing")
-  shootPower Int @map("shootPower")
-  defense Int @map("defense")
-  stamina Int @map("stamina")
-  rarity Int @map("rarity")
-  type Int? @map("type")
-  playerImage String? @map("playerImage")
-
-  teamMembers   TeamMember[]  
-
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
+  playerId      Int          @id @default(autoincrement()) @map("playerId")
+  name          String       @map("name")
+  club          String       @map("club")
+  speed         Int          @map("speed")
+  goalFinishing Int          @map("goalFinishing")
+  shootPower    Int          @map("shootPower")
+  defense       Int          @map("defense")
+  stamina       Int          @map("stamina")
+  rarity        Int          @map("rarity")
+  type          Int?         @map("type")
+  playerImage   String?      @map("playerImage")
+  createdAt     DateTime     @default(now()) @map("createdAt")
+  updatedAt     DateTime     @updatedAt @map("updatedAt")
+  teamMembers   TeamMember[]
 
   @@map("Player")
 }
 
 model TeamMember {
-  teamMemberId Int @id @default(autoincrement()) @map("teamMemberId")
-  playerId Int @map("playerId")
-  managerId Int @map("managerId")
-  upgrade Int @default(0) @map("upgrade")
-  isSelected Boolean @default(false) @map("isSelected")
+  teamMemberId Int      @id @default(autoincrement()) @map("teamMemberId")
+  playerId     Int      @map("playerId")
+  managerId    Int      @map("managerId")
+  upgrade      Int      @default(0) @map("upgrade")
+  isSelected   Boolean  @default(false) @map("isSelected")
+  createdAt    DateTime @default(now()) @map("createdAt")
+  updatedAt    DateTime @updatedAt @map("updatedAt")
+  manager      Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+  player       Player   @relation(fields: [playerId], references: [playerId], onDelete: Cascade)
 
-  player  Player  @relation(fields: [playerId], references: [playerId], onDelete: Cascade)
-  manager Manager @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
+  @@index([managerId], map: "TeamMember_managerId_fkey")
+  @@index([playerId], map: "TeamMember_playerId_fkey")
   @@map("TeamMember")
 }
 
+model Item {
+  itemId        Int         @id @default(autoincrement()) @map("itemId")
+  name          String      @map("name")
+  speed         Int         @map("speed")
+  goalFinishing Int         @map("goalFinishing")
+  shootPower    Int         @map("shootPower")
+  defense       Int         @map("defense")
+  stamina       Int         @map("stamina")
+  rarity        Int         @map("rarity")
+  itemImage     String?     @map("itemImage")
+  createdAt     DateTime    @default(now()) @map("createdAt")
+  updatedAt     DateTime    @updatedAt @map("updatedAt")
+  Inventorys    Inventory[]
+
+  @@map("Item")
+}
+
+model Inventory {
+  inventoryId Int      @id @default(autoincrement()) @map("inventoryId")
+  itemId      Int      @map("itemId")
+  managerId   Int      @map("managerId")
+  upgrade     Int      @default(0) @map("upgrade")
+  isEquipped  Int?     @map("isEquipped")
+  createdAt   DateTime @default(now()) @map("createdAt")
+  updatedAt   DateTime @updatedAt @map("updatedAt")
+  item        Item     @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
+  manager     Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+
+  @@index([managerId], map: "TeamMember_managerId_fkey")
+  @@index([itemId], map: "TeamMember_itemId_fkey")
+  @@map("Inventory")
+}
+
 model Ranking {
-  rankingId Int @id @default(autoincrement()) @map("rankingId")
-  managerId Int @map("managerId")
-  win Int @default(0) @map("win")
-  lose Int @default(0) @map("lose")
-  draw Int @default(0) @map("draw")
-
-  manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
-
+  rankingId Int      @id @default(autoincrement()) @map("rankingId")
+  managerId Int      @map("managerId")
+  win       Int      @default(0) @map("win")
+  lose      Int      @default(0) @map("lose")
+  draw      Int      @default(0) @map("draw")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
+  manager   Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
 
+  @@index([managerId], map: "Ranking_managerId_fkey")
   @@map("Ranking")
 }
 
 model Record {
-  recordId Int @id @default(autoincrement()) @map("recordId")
-  managerId Int @map("managerId")
-  gameResult Int @map("gameResult")
-
+  recordId   Int      @id @default(autoincrement()) @map("recordId")
+  managerId  Int      @map("managerId")
+  gameResult Int      @map("gameResult")
+  createdAt  DateTime @default(now()) @map("createdAt")
+  updatedAt  DateTime @updatedAt @map("updatedAt")
   manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
 
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
+  @@index([managerId], map: "Record_managerId_fkey")
   @@map("Record")
 }

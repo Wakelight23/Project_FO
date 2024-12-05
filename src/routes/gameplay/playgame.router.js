@@ -1,11 +1,12 @@
 import express from 'express';
 import { prisma } from '../../utils/prisma/index.js';
 import {
-  calculateTeamPower,
-  generateOpponentPower,
-  determineWinner,
-  updateGameResult,
+    calculateTeamPower,
+    generateOpponentPower,
+    determineWinner,
+    updateGameResult,
 } from '../../logic/gameplay.js';
+import authM from '../../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -13,179 +14,284 @@ const router = express.Router();
 const gameSessionMap = new Map();
 
 /** 일반 게임 시작 API **/
-router.get('/choicematch/:accountId/start', async (req, res) => {
-  try {
-    const { accountId } = req.params;
+router.post('/choicematch/start', authM, async (req, res) => {
+    try {
+        const myAccountId = req.account.accountId;
+        const { opponentAccountId } = req.body;
 
-    // accountId 존재 여부 확인
-    const account = await prisma.account.findUnique({
-      where: { accountId: +accountId },
-    });
+        if (!opponentAccountId) {
+            return res.status(400).json({
+                error: '상대방 계정 ID가 필요합니다.',
+            });
+        }
 
-    if (!account) {
-      return res.status(404).json({
-        error: '존재하지 않는 계정입니다.',
-      });
+        // 내 계정 확인
+        const myAccount = await prisma.account.findUnique({
+            where: { accountId: Number(myAccountId) },
+        });
+
+        if (!myAccount) {
+            return res.status(404).json({
+                error: '존재하지 않는 계정입니다.',
+            });
+        }
+
+        // 상대방 계정 확인 전에 자신과의 대결 체크
+        if (Number(myAccountId) === Number(opponentAccountId)) {
+            return res.status(400).json({
+                error: '자신의 계정과는 대결할 수 없습니다.',
+            });
+        }
+
+        // 상대방 계정 확인
+        const opponentAccount = await prisma.account.findUnique({
+            where: { accountId: Number(opponentAccountId) },
+        });
+
+        if (!opponentAccount) {
+            // isSelected가 true인 매니저 목록 조회
+            const availableManagers = await prisma.manager.findMany({
+                where: {
+                    teamMembers: {
+                        some: {
+                            isSelected: true,
+                        },
+                    },
+                },
+                select: {
+                    managerId: true,
+                    nickname: true,
+                    accountId: true,
+                    rating: true,
+                },
+            });
+
+            return res.status(404).json({
+                error: '상대방 계정을 찾을 수 없습니다.',
+                availableOpponents: availableManagers,
+            });
+        }
+
+        // 매니저 정보 한 번에 조회
+        const [myManager, opponentManager] = await Promise.all([
+            prisma.manager.findUnique({
+                where: { accountId: Number(myAccountId) },
+            }),
+            prisma.manager.findUnique({
+                where: { accountId: Number(opponentAccountId) },
+            }),
+        ]);
+
+        if (!myManager || !opponentManager) {
+            return res.status(404).json({
+                error: '매니저 정보를 찾을 수 없습니다.',
+            });
+        }
+
+        // 선수 정보 한 번에 조회
+        const [mySelectedPlayers, opponentSelectedPlayers] = await Promise.all([
+            prisma.teamMember.findMany({
+                where: {
+                    managerId: myManager.managerId,
+                    isSelected: true,
+                },
+            }),
+            prisma.teamMember.findMany({
+                where: {
+                    managerId: opponentManager.managerId,
+                    isSelected: true,
+                },
+            }),
+        ]);
+
+        if (mySelectedPlayers.length === 0) {
+            return res.status(400).json({
+                error: '선택된 선수가 없습니다. 선수를 먼저 선택해주세요.',
+            });
+        }
+
+        if (opponentSelectedPlayers.length === 0) {
+            const availableManagers = await prisma.manager.findMany({
+                where: {
+                    TeamMember: {
+                        some: {
+                            isSelected: true,
+                        },
+                    },
+                },
+                select: {
+                    managerId: true,
+                    nickname: true,
+                    accountId: true,
+                    rating: true,
+                },
+            });
+
+            return res.status(400).json({
+                error: '상대방의 선택된 선수가 없습니다.',
+                availableOpponents: availableManagers,
+            });
+        }
+
+        // 게임 세션 생성
+        gameSessionMap.set(String(myAccountId), {
+            startTime: new Date(),
+            isGameStarted: true,
+            opponentAccountId: Number(opponentAccountId),
+        });
+
+        res.status(201).json({
+            data: {
+                message: '게임이 시작되었습니다.',
+                opponent: {
+                    nickname: opponentManager.nickname,
+                    rating: opponentManager.rating,
+                },
+            },
+        });
+    } catch (error) {
+        console.error('Game start error:', error);
+        res.status(500).json({ error: error.message });
     }
-
-    // 해당 account의 manager 확인
-    const manager = await prisma.manager.findUnique({
-      where: { accountId: parseInt(accountId) },
-    });
-
-    if (!manager) {
-      return res.status(404).json({
-        error: '매니저 정보를 찾을 수 없습니다.',
-      });
-    }
-
-    // 선택된 선수 확인
-    const selectedPlayers = await prisma.teamMember.findMany({
-      where: {
-        managerId: manager.managerId,
-        isSelected: true,
-      },
-    });
-
-    if (selectedPlayers.length === 0) {
-      return res.status(400).json({
-        error: '선택된 선수가 없습니다. 선수를 먼저 선택해주세요.',
-      });
-    }
-
-    // 게임 세션 생성
-    gameSessionMap.set(accountId, {
-      startTime: new Date(),
-      isGameStarted: true,
-    });
-
-    res.status(201).json({
-      data: {
-        gameStart: '게임을 시작합니다',
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 /** 일반 게임 결과 API **/
-router.get('/choicematch/:accountId/result', async (req, res) => {
-  try {
-    const { accountId } = req.params;
+router.get('/choicematch/result', authM, async (req, res) => {
+    try {
+        const accountId = req.account.accountId;
 
-    // 게임 세션 확인
-    const gameSession = gameSessionMap.get(accountId);
+        // 게임 세션 확인 - String으로 변환하여 확인
+        const gameSession = gameSessionMap.get(String(accountId));
 
-    if (!gameSession || !gameSession.isGameStarted) {
-      return res.status(400).json({
-        error: '진행되고 있는 게임이 존재하지 않습니다',
-      });
+        if (!gameSession || !gameSession.isGameStarted) {
+            return res.status(400).json({
+                error: '진행되고 있는 게임이 존재하지 않습니다',
+            });
+        }
+
+        const manager = await prisma.manager.findUnique({
+            where: { accountId: Number(accountId) },
+        });
+
+        if (!manager) {
+            return res.status(404).json({
+                error: '매니저 정보를 찾을 수 없습니다.',
+            });
+        }
+
+        // 내 선수들 정보 조회
+        const selectedPlayers = await prisma.teamMember.findMany({
+            where: {
+                managerId: manager.managerId,
+                isSelected: true,
+            },
+            include: {
+                player: true,
+            },
+        });
+
+        // 상대방 정보 조회 (start에서 저장한 opponentAccountId 사용)
+        const opponentManager = await prisma.manager.findUnique({
+            where: { accountId: Number(gameSession.opponentAccountId) },
+        });
+
+        const totalPower = calculateTeamPower(selectedPlayers);
+        const opponentPower = generateOpponentPower(totalPower);
+        const gameResult = determineWinner(totalPower, opponentPower);
+
+        // 양쪽 플레이어의 결과 업데이트
+        await Promise.all([
+            updateGameResult(manager.managerId, gameResult.result),
+            updateGameResult(
+                opponentManager.managerId,
+                gameResult.result === 1 ? 0 : gameResult.result === 0 ? 1 : 2
+            ),
+        ]);
+
+        res.status(202).json({
+            data: {
+                totalPower: `나의 팀 전투력 : ${Math.floor(totalPower)}`,
+                opponentPower: `상대 팀 전투력 : ${Math.floor(opponentPower)}`,
+                randomResult: `${gameResult.details.randomFactor}(=랜덤 수치) : ${gameResult.details.winProbability}(=내 전투력에 기반한 승률)`,
+                gameResult: `${
+                    gameResult.result === 1
+                        ? '승리'
+                        : gameResult.result === 2
+                          ? '무승부'
+                          : '패배'
+                } 입니다`,
+                opponent: {
+                    nickname: opponentManager.nickname,
+                    rating: opponentManager.rating,
+                },
+            },
+        });
+
+        // 게임 결과 처리 후 세션 삭제
+        gameSessionMap.delete(String(accountId));
+    } catch (error) {
+        console.error('Game result error:', error);
+        res.status(500).json({ error: error.message });
     }
-
-    const manager = await prisma.manager.findUnique({
-      where: { accountId: parseInt(accountId) },
-    });
-
-    const selectedPlayers = await prisma.teamMember.findMany({
-      where: {
-        managerId: manager.managerId,
-        isSelected: true,
-      },
-      include: {
-        player: true,
-      },
-    });
-
-    const totalPower = calculateTeamPower(selectedPlayers);
-    const opponentPower = generateOpponentPower(totalPower);
-    const gameResult = determineWinner(totalPower, opponentPower);
-    await updateGameResult(manager.managerId, gameResult.result);
-
-    await prisma.record.create({
-      data: {
-        managerId: manager.managerId,
-        gameResult: gameResult.result,
-      },
-    });
-
-    res.status(202).json({
-      data: {
-        totalPower: `나의 팀 전투력 : ${Math.floor(totalPower)}`,
-        opponentPower: `상대 팀 전투력 : ${Math.floor(opponentPower)}`,
-        randomResult: `${gameResult.details.randomFactor}(=랜덤 수치) : ${gameResult.details.winProbability}(=내 전투력에 기반한 승률)`,
-        gameResult: `${
-          gameResult.result === 1
-            ? '승리'
-            : gameResult.result === 2
-            ? '무승부'
-            : '패배'
-        } 입니다`,
-      },
-    });
-
-    // 게임 결과 처리 후 세션 삭제
-    gameSessionMap.delete(accountId);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 // 선택된 선수들 정보 조회
-router.get('/choicematch/:accountId', async (req, res) => {
-  try {
-    const { accountId } = req.params;
+router.get('/selectplayer', authM, async (req, res) => {
+    try {
+        const accountId = req.account.accountId;
 
-    // 해당 account의 manager 찾기
-    const manager = await prisma.manager.findUnique({
-      where: { accountId: parseInt(accountId) },
-    });
+        // 해당 account의 manager 찾기
+        const manager = await prisma.manager.findUnique({
+            where: { accountId: parseInt(accountId) },
+        });
 
-    if (!manager) {
-      return res.status(404).json({ message: '해당 감독을 찾을 수 없습니다.' });
+        if (!manager) {
+            return res
+                .status(404)
+                .json({ message: '해당 감독을 찾을 수 없습니다.' });
+        }
+
+        // 선택된 선수들 조회
+        const selectedPlayers = await prisma.teamMember.findMany({
+            where: {
+                managerId: manager.managerId,
+                isSelected: true,
+            },
+            include: {
+                player: true, // player 정보 포함
+            },
+        });
+
+        // 전투력 계산
+        const totalPower = calculateTeamPower(selectedPlayers);
+
+        // 상대방 전투력 생성 (현재 전투력의 80~120% 범위)
+        const opponentPower = generateOpponentPower(totalPower);
+
+        // 승패 결정
+        const gameResult = determineWinner(totalPower, opponentPower);
+
+        // 게임 결과 저장
+        await prisma.record.create({
+            data: {
+                managerId: manager.managerId,
+                gameResult: gameResult.result, // 1: 승리, 0: 패배
+            },
+        });
+
+        res.json({
+            myTeam: {
+                players: selectedPlayers,
+                power: totalPower,
+            },
+            opponent: {
+                power: opponentPower,
+            },
+            result: gameResult,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-
-    // 선택된 선수들 조회
-    const selectedPlayers = await prisma.teamMember.findMany({
-      where: {
-        managerId: manager.managerId,
-        isSelected: true,
-      },
-      include: {
-        player: true, // player 정보 포함
-      },
-    });
-
-    // 전투력 계산
-    const totalPower = calculateTeamPower(selectedPlayers);
-
-    // 상대방 전투력 생성 (현재 전투력의 80~120% 범위)
-    const opponentPower = generateOpponentPower(totalPower);
-
-    // 승패 결정
-    const gameResult = determineWinner(totalPower, opponentPower);
-
-    // 게임 결과 저장
-    await prisma.record.create({
-      data: {
-        managerId: manager.managerId,
-        gameResult: gameResult.result, // 1: 승리, 0: 패배
-      },
-    });
-
-    res.json({
-      myTeam: {
-        players: selectedPlayers,
-        power: totalPower,
-      },
-      opponent: {
-        power: opponentPower,
-      },
-      result: gameResult,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 export default router;

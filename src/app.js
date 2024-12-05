@@ -10,6 +10,8 @@ import CashRouter from './routes/cash/cash.router.js';
 import GachaRouter from './routes/gacha/gacha.router.js';
 // player
 import PlayerRouter from './routes/player/players.router.js';
+// item
+import itemRouter from './routes/item/items.router.js';
 // teammebmer
 import CreateRosterRouter from './routes/teammember/createRoster.router.js';
 import UpgradeMemberRouter from './routes/teammember/upgradeMember.router.js';
@@ -19,7 +21,7 @@ import PlayGame from './routes/gameplay/playgame.router.js';
 import CaptainGame from './routes/gameplay/captaingame.router.js';
 import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-
+import authM from './middlewares/auth.js';
 const app = express();
 const PORT = 3001;
 
@@ -34,12 +36,13 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // 5. 라우터
+app.use('/api', [GameRecord]); // gameRecord
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
-app.use('/api', [PlayerRouter]); // player
+app.use('/api', authM, [PlayerRouter, itemRouter]); // player, item
 app.use('/api', [CreateRosterRouter, UpgradeMemberRouter, MyTeamMemberRouter]); // teammember
-app.use('/api', [PlayGame, CaptainGame, GameRecord]); // gameplay
+app.use('/api', [PlayGame, CaptainGame]); // gameplay
 
 // 6. 404 에러 핸들링 미들웨어 추가
 app.use((req, res, next) => {
