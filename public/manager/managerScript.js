@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('accessToken');
-
+    console.log('Access Token:', token); // 토큰 확인
     if (!token) {
         // 로그인하지 않은 경우 로그인 페이지로 리디렉션
-        window.location.href = '/login';
+        window.location.href = '/login.html';
         return;
     }
 
@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     messageDiv.textContent = data.message;
                     messageDiv.style.color = 'green';
+                    // 성공 시 추가 동작 (예: 매니저 목록 페이지로 리디렉션)
+                    // window.location.href = '/manager-list'; // 필요 시 주석 해제
                 } else {
                     messageDiv.textContent = data.message;
                     messageDiv.style.color = 'red';

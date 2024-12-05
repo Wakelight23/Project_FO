@@ -134,7 +134,9 @@ router.post('/sign-in', async (req, res) => {
 
     res.setHeader('x-info', accountData.email);
 
-    return res.status(200).json({ message: '로그인 성공', accesstoken });
+    return res
+        .status(200)
+        .json({ message: '로그인 성공', accessToken: accesstoken });
 });
 
 export default router;
