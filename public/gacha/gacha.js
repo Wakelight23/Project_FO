@@ -12,33 +12,53 @@ video.playbackRate = 1.5; // 비디오 재생 속도 1.5배속
 const championImages = [
     'https://i.namu.wiki/i/Zd_R6pGVt0CokiwArMkbpGFwAdwL38z79nzlFg8PirteueCdxYHkakWBKJ9ZglBAnAj4t4S-89zDZNfpu8fl4gBiCFoxlfJ0SBN4uaFrvfWtuWZeRbfO9TKNic71nOPSDMik7emT7YJRckF0XvfImw.webp',
 ];
+const accessToken = sessionStorage.getItem('accessToken');
 
 // 100개의 캐릭터를 뽑아 결과를 표시하는 함수
-function fetchAndDisplayCharacters() {
+async function fetchAndDisplayCharacters() {
     resultList.innerHTML = ''; // 기존 결과 초기화
 
-    // 카드 100장을 생성하여 표시
-    for (let i = 0; i < 100; i++) {
-        const card = document.createElement('div');
-        card.className = 'result-item'; // 카드 클래스 설정
+    //#서버에서 카드가져오기
 
-        // 랜덤 이미지 선택 (순환)
-        const imageUrl = championImages[i % championImages.length];
-        card.style.backgroundImage = `url('${imageUrl}')`;
+    try {
+        //const response = await fetch('/gacha/players'); // 서버에서 캐릭터 정보 요청
+        const response = await fetch('/gacha/player', {
+            method: 'POST',
+            headers: {
+                // headers 객체 내에 포함
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`, // 대문자로 'Authorization' 사용
+            },
+            body: JSON.stringify(itemData),
+        });
+        const data = await response.json();
 
-        card.addEventListener('click', () =>
-            showPopup({
-                name: `캐릭터 ${i + 1}`,
-                playerImage: imageUrl,
-                speed: Math.floor(Math.random() * 100),
-                goalFinishing: Math.floor(Math.random() * 100),
-                shootPower: Math.floor(Math.random() * 100),
-                defense: Math.floor(Math.random() * 100),
-                stamina: Math.floor(Math.random() * 100),
-                rarity: Math.floor(Math.random() * 5) + 1,
-            })
-        );
-        resultList.appendChild(card);
+        if (data.success) {
+            // 가져온 카드 개수 만큼 생성
+            data.items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'result-item'; // 카드 클래스 설정
+                card.style.backgroundImage = `url('${item.playerImage}')`;
+
+                card.addEventListener('click', () =>
+                    showPopup({
+                        name: item.name,
+                        playerImage: item.playerImage,
+                        speed: Math.floor(Math.random() * 100),
+                        goalFinishing: Math.floor(Math.random() * 100),
+                        shootPower: Math.floor(Math.random() * 100),
+                        defense: Math.floor(Math.random() * 100),
+                        stamina: Math.floor(Math.random() * 100),
+                        rarity: item.rarity,
+                    })
+                );
+                resultList.appendChild(card);
+            });
+        } else {
+            console.error('캐릭터 정보를 가져오는 데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('서버와의 통신 중 오류 발생:', error);
     }
 }
 
