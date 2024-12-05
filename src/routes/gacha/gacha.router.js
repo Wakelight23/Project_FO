@@ -19,7 +19,7 @@ const Exception = (str) => {
 gachaRouter.use(express.json());
 
 // 모든 뽑기 정보 조회
-gachaRouter.get('/gachas', async (req, res) => {
+gachaRouter.get('/gacha/players', async (req, res) => {
     const items = await prisma.player.findMany({
         select: { name: true, type: true, rarity: true, playerImage: true },
     });
@@ -27,7 +27,7 @@ gachaRouter.get('/gachas', async (req, res) => {
 });
 
 // 단일 뽑기 정보 조회
-gachaRouter.get('/gacha', async (req, res) => {
+gachaRouter.get('/gacha/player', async (req, res) => {
     try {
         const { playerId } = req.body;
         const item = await prisma.player.findFirst({
@@ -48,26 +48,31 @@ gachaRouter.get('/gacha', async (req, res) => {
     }
 });
 
-// 랜덤 아이템을 뽑는 함수
-const getRandomItems = async (drawCount, gachaCount) => {
+// 랜덤 플레이어를 뽑는 함수
+const getRandomPlayer = async (drawCount, gachaCount) => {
     const items = await prisma.player.findMany();
+    if (items.length === 0) {
+        throw new Error('플레이어 아이템이 없습니다.');
+    }
     const max = Math.max(...items.map((item) => item.rarity));
     const mid = Math.floor(max / 2);
-    const isUnfotunateSystem = gachaCount > 100 ? true : false;
+    const isUnfotunateSystem = gachaCount > 100;
+
+    //주작 시스템
     const totalProbability = items.reduce((sum, item) => {
-        //악날한 시스템
-        if (isUnfotunateSystem)
-            if (item.rarity < mid) {
-                sum + Math.floor(item.rarity + Math.floor(gachaCount / 10));
-            } else {
-                sum + Math.floor(item.rarity / 2);
-            }
-        else {
-            sum + item.rarity;
+        if (isUnfotunateSystem) {
+            return (
+                sum +
+                (item.rarity < mid
+                    ? Math.floor(item.rarity + Math.floor(gachaCount / 10))
+                    : Math.floor(item.rarity / 2))
+            );
+        } else {
+            return sum + item.rarity;
         }
     }, 0);
-    const drawnItems = [];
 
+    const drawnItems = [];
     for (let i = 0; i < drawCount; i++) {
         const randomValue = Math.random() * totalProbability;
         let cumulativeProbability = 0;
@@ -85,7 +90,7 @@ const getRandomItems = async (drawCount, gachaCount) => {
 };
 
 // 뽑기 라우터
-gachaRouter.post('/gacha', authM, async (req, res) => {
+gachaRouter.post('/gacha/player', authM, async (req, res) => {
     const { accountId } = req.account;
     const { drawCount } = req.body;
     const resultPrice = price * drawCount;
@@ -107,9 +112,14 @@ gachaRouter.post('/gacha', authM, async (req, res) => {
         }
 
         // 랜덤 아이템 뽑기
-        const drawnItems = await getRandomItems(drawCount, manager.gachaCount);
+        const drawnItems = await getRandomPlayer(drawCount, manager.gachaCount);
         if (!drawnItems.length) {
             throw new Error('뽑기에 실패했습니다.');
+        }
+
+        //천장 시스템
+        if (manager.gachaCount + drawCount >= 1000) {
+            manager.gachaCount = 0;
         }
 
         // 트랜잭션 시작
@@ -143,6 +153,33 @@ gachaRouter.post('/gacha', authM, async (req, res) => {
         });
     } catch (error) {
         Exception('아이템 뽑기 라우터 에러: ' + error);
+    }
+});
+
+// 모든 아이템 정보 조회
+gachaRouter.get('/gacha/items', async (req, res) => {
+    const items = await prisma.item.findMany();
+    res.json({ success: true, items: items });
+});
+
+// 단일 아이템 정보 조회
+gachaRouter.get('/gacha/item', async (req, res) => {
+    try {
+        const { itemId } = req.body;
+        const item = await prisma.item.findFirst({
+            where: { itemId: itemId },
+        });
+        if (item) {
+            res.json({ success: true, item: item });
+        } else {
+            Log('잘못된 아이템 ID 입니다.');
+            res.status(404).json({
+                success: false,
+                message: '아이템을 찾을 수 없습니다.',
+            });
+        }
+    } catch (error) {
+        Exception('아이템 뽑기 단일 정보 조회 에러: ' + error);
     }
 });
 
