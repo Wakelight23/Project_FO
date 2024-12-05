@@ -3,7 +3,7 @@ import { prisma } from '../../utils/prisma/index.js';
 import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
-const isLog = true;
+const isLog = false;
 
 const Log = (str) => {
     if (isLog) console.log(str);
@@ -29,12 +29,6 @@ gachaRouter.get('/gachas', async (req, res) => {
 //#region 단일 뽑기 정보
 //단일 뽑기 정보 조회
 gachaRouter.get('/gacha', async (req, res) => {
-    const isAccess = true;
-
-    if (!isAccess) {
-        Log('잘못된 접근');
-    }
-
     try {
         const { playerId } = req.body;
         const item = await prisma.player.findFirst({
