@@ -1,5 +1,6 @@
 import express from 'express';
 import { prisma } from '../../utils/prisma/index.js';
+import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
 const isLog = false;
@@ -10,94 +11,6 @@ const Log = (str) => {
 
 // json 요청 파싱
 gachaRouter.use(express.json()); // 메인으로 이동해야함
-
-//#region regacy
-/*
-//#region Test용 데이터
-const items = [
-  {
-    id: 1,
-    name: '호나우드',
-    club: 'FC 바르셀로나',
-    speed: 90,
-    goalFinishing: 95,
-    shootPower: 92,
-    defense: 40,
-    stamina: 85,
-    rarity: 50,
-    playerImage: 'url_to_honald_image',
-  },
-  {
-    id: 2,
-    name: '맥도날드',
-    club: '맨체스터 유나이티드',
-    speed: 85,
-    goalFinishing: 88,
-    shootPower: 90,
-    defense: 50,
-    stamina: 80,
-    rarity: 30,
-    playerImage: 'url_to_macdonald_image',
-  },
-  {
-    id: 3,
-    name: '신밧드',
-    club: '레알 마드리드',
-    speed: 80,
-    goalFinishing: 87,
-    shootPower: 85,
-    defense: 60,
-    stamina: 75,
-    rarity: 15,
-    playerImage: 'url_to_sinbad_image',
-  },
-  {
-    id: 4,
-    name: '이몽룡',
-    club: 'AC 밀란',
-    speed: 78,
-    goalFinishing: 85,
-    shootPower: 84,
-    defense: 75,
-    stamina: 70,
-    rarity: 5,
-    playerImage: 'url_to_imongryong_image',
-  },
-  {
-    id: 5,
-    name: '리오넬 메시',
-    club: '파리 생제르맹',
-    speed: 95,
-    goalFinishing: 98,
-    shootPower: 94,
-    defense: 45,
-    stamina: 88,
-    rarity: 5,
-    playerImage: 'url_to_messi_image',
-  },
-];
-//#endregion
-*/
-
-/*
-//#region 뽑기
-// 랜덤 아이템을 뽑는 함수
-const getRandomItem = () => {
-  const totalProbability = items.reduce((sum, item) => sum + item.rarity, 0);
-  const randomValue = Math.random() * totalProbability;
-
-  let cumulativeProbability = 0;
-  for (const item of items) {
-    cumulativeProbability += item.rarity;
-    if (randomValue < cumulativeProbability) {
-      return item;
-    }
-  }
-};
-//#endregion
-*/
-
-//#endregion
 
 //라우터
 //#region 모든뽑기정보
@@ -116,12 +29,6 @@ gachaRouter.get('/gachas', async (req, res) => {
 //#region 단일 뽑기 정보
 //단일 뽑기 정보 조회
 gachaRouter.get('/gacha', async (req, res) => {
-    const isAccess = true;
-
-    if (!isAccess) {
-        Log('잘못된 접근');
-    }
-
     try {
         const { playerId } = req.body;
         const item = await prisma.player.findFirst({
@@ -157,14 +64,14 @@ const getRandomItems = async (drawCount) => {
     try {
         Log('뽑기 시작');
         const items = await prisma.player.findMany();
-        Log('뽑기 플레이어 가져옴');
-        Log(items);
+        Log('뽑기 플레이어 가져옴' + drawCount);
+        //Log(items);
 
         const totalProbability = items.reduce(
             (sum, item) => sum + item.rarity,
             0
         );
-        Log('뽑기의 가중치 모두 계산');
+        Log('뽑기의 가중치 모두 계산' + totalProbability);
 
         const drawnItems = [];
 
@@ -193,11 +100,23 @@ const getRandomItems = async (drawCount) => {
 
 //#region 뽑기 라우터
 // 뽑기
-gachaRouter.post('/gacha', async (req, res) => {
+gachaRouter.post('/gacha', authM, async (req, res) => {
     try {
-        const { managerId, drawCount } = req.body; // drawCount 추가
-        Log(managerId);
+        Log('Test');
+        const { accountId } = req.account;
+        Log(accountId);
+        const { drawCount } = req.body;
         Log(drawCount);
+
+        const manager = await prisma.manager.findFirst({
+            where: { accountId },
+        });
+
+        if (!manager) {
+            throw new Error(
+                '매니저가 없습니다! 이것은 저를 찔러도 뭐 안나옵니다!!!'
+            );
+        }
 
         const drawnItems = await getRandomItems(drawCount); // 여러 아이템을 뽑기 위한 호출
         if (!drawnItems.length) {
@@ -213,7 +132,7 @@ gachaRouter.post('/gacha', async (req, res) => {
                 prisma.teamMember.create({
                     data: {
                         playerId: item.playerId,
-                        managerId: managerId,
+                        managerId: manager.managerId,
                     },
                 })
             )
