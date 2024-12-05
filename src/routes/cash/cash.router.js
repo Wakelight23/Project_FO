@@ -4,6 +4,9 @@ import { prisma } from '../../utils/prisma/index.js';
 
 const router = express.Router();
 
+// const bcryptPassword = await bcrypt.hash(password, 10);
+
+
 /**O Lucky캐시API email **/
 router.post('/cash/lucky', async (req, res, next) => {
     const { email } = req.body;
@@ -47,7 +50,7 @@ router.post('/cash/lucky', async (req, res, next) => {
     }
 });
 
-/**O 캐시 구매API email, 캐시, pw **/
+/**O 캐시 구매API email, 캐시, 비번! **/
 router.post('/cash/payment', async (req, res, next) => {
     const { email, buyCash, password } = req.body;
     try {
@@ -76,7 +79,8 @@ router.post('/cash/payment', async (req, res, next) => {
                 .json({ message: '존재하지 않는 Email 입니다.' });
         }
         // 비번확인
-        if (account.password != password) {
+        const bcryptPassword = await bcrypt.hash(password, 10);
+        if (account.password != bcryptPassword) {
             return res
                 .status(401)
                 .json({ message: '비밀번호가 일치하지 않습니다.' });
@@ -98,7 +102,7 @@ router.post('/cash/payment', async (req, res, next) => {
     }
 });
 
-/**O 캐시 조회API  email **/
+/**O 캐시 조회API  email, 비번 추가하기 **/
 router.get('/cash/:email', async (req, res, next) => {
     const { email } = req.params;
     // 이메일 유효성 검사
@@ -107,21 +111,25 @@ router.get('/cash/:email', async (req, res, next) => {
     }
     try {
         const account = await prisma.account.findFirst({
-            where: { email },
-            select: {
-                email: true,
-                manager: {
-                    select: {
-                        cash: true,
-                        managerId: true,
-                    },
-                },
-            },
-        });
+        where: { email },
+        select: {
+        email: true, password : true,
+        manager: {
+        select: {
+        cash: true,
+        managerId: true,
+    },},},});
 
         if (!account) {
             return res.status(404).json({ message: 'User not found' });
         }
+                // 비번
+                const bcryptPassword = await bcrypt.hash(password, 10);
+                if (account.password !== bcryptPassword) {
+                    return res
+                        .status(404)
+                        .json({ message: '비밀번호가 일치하지 않습니다.' });
+                }
 
         return res.status(200).json({
             data: { email: account.email, cash: account.manager.cash },
@@ -134,7 +142,7 @@ router.get('/cash/:email', async (req, res, next) => {
     }
 });
 
-/**O 1. 다른 유저에게 캐시 선물API **/
+/**O 1. 다른 유저에게 캐시 선물API   비번!**/
 router.post('/cash/gift', async (req, res, next) => {
     const { senderEmail, receiverEmail, amount, password } = req.body;
     try {
@@ -142,11 +150,11 @@ router.post('/cash/gift', async (req, res, next) => {
         if (!senderEmail || !receiverEmail || !amount || !password) {
             return res.status(404).json({
                 message:
-                    '보내는 닉네임, 받는 닉네임, 금액, 비밀번호를 모두 입력해주세요.',
+                    '송신자 이메일, 수신자 이메일, 금액, 비밀번호를 모두 입력해주세요.',
             });
         }
 
-        // 송신자 닉네임 확인
+        // 송신자 이메일 확인
         const sender = await prisma.account.findFirst({
             where: { email: senderEmail },
             select: {
@@ -162,7 +170,8 @@ router.post('/cash/gift', async (req, res, next) => {
         }
 
         // 송신자 비번확인
-        if (sender.password !== password) {
+        const bcryptPassword = await bcrypt.hash(password, 10);
+        if (sender.password !== bcryptPassword) {
             return res.status(404).json({
                 message: '송신자의 비밀번호가 일치하지 않습니다.',
             });
@@ -214,7 +223,7 @@ router.post('/cash/gift', async (req, res, next) => {
     }
 });
 
-/**O 2. 돈 불리기 ( 행운의 룰렛)API **/
+/**O 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
 router.post('/cash/roulette', async (req, res, next) => {
     const { email, betAmount, password } = req.body;
     try {
@@ -235,7 +244,8 @@ router.post('/cash/roulette', async (req, res, next) => {
         }
 
         // 비번
-        if (account.password !== password) {
+        const bcryptPassword = await bcrypt.hash(password, 10);
+        if (account.password !== bcryptPassword) {
             return res
                 .status(404)
                 .json({ message: '비밀번호가 일치하지 않습니다.' });
