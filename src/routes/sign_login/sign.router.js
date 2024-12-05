@@ -46,7 +46,7 @@ router.post('/sign-up', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 사용자 정보를 Account 테이블에 추가
+    // 사용자 정보를 account 테이블에 추가
     const accountData = await prisma.account.create({
         data: {
             email,
