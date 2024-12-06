@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 (player) => `
         <div class="player-card">
           <h3>${player.player.name}</h3>
+          <p>ID: ${player.teamMemberId}</p>
           <p>구단: ${player.player.club}</p>
           <p>속도: ${player.player.speed}</p>
           <p>골결정력: ${player.player.goalFinishing}</p>
@@ -106,6 +107,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('prevPage').addEventListener('click', () => {
         updatePage('prev');
+    });
+
+    document.getElementById('selectPlayers').addEventListener('click', () => {
+        const playerId1 = document.getElementById('playerId1').value;
+        const playerId2 = document.getElementById('playerId2').value;
+        const playerId3 = document.getElementById('playerId3').value;
+
+        // 입력값 검증
+        if (!playerId1 || !playerId2 || !playerId3) {
+            alert('선수 ID를 모두 입력해주세요.');
+            return;
+        }
+
+        // 로컬 스토리지에 저장
+        localStorage.setItem(
+            'selectedPlayerIds',
+            JSON.stringify([playerId1, playerId2, playerId3])
+        );
+
+        // createRoster.html로 이동
+        window.location.href = 'createRoster.html';
     });
 
     // 초기 데이터 로드

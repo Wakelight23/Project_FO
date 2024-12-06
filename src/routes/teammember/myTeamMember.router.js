@@ -72,7 +72,7 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
                 where: {
                     managerId: managerId.managerId,
                 },
-            })) / 10
+            })) / 5
         );
         if (page > pageNumber) {
             return res.status(400).json({
@@ -105,8 +105,8 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
                     [orderField]: 'asc',
                 },
             },
-            take: 10,
-            skip: 10 * (page - 1),
+            take: 5,
+            skip: 5 * (page - 1),
         });
 
         return res.status(200).json(membersInTeam);
