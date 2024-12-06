@@ -1,30 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 페이지</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-    <div class="container">
-        <h1>로그인</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">이메일:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">비밀번호:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">로그인</button>
-        </form>
-        <div id="message"></div>
-    </div>
-    <script src="loginScript.js"></script>
-</body>
-
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>로그인 페이지</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <nav class="sidebar">
+            <button id="signup">
+                <a href="/public/signup/signup.html">회원가입</a>
+            </button>
+            <button id="login">
+                <a href="/public/login/login.html">로그인</a>
+            </button>
+            <button id="createCharacter">
+                <a href="/public/manager/create.html">매니저 생성</a>
+            </button>
+            <button id="recruitPlayer">선수 영입</button>
+            <button id="viewRoster">
+                <a href="/public/teamMember/teamMember.html"
+                    >선수 명단 보기<br />
+                    출전 선수 선발</a
+                >
+            </button>
+            <button id="selectRoster">
+                <a href="/public/teamMember/createRoster.html"
+                    >출전 선수 변경</a
+                >
+            </button>
+            <button id="upgradePlayer">
+                <a href="/public/teamMember/upgradeMember.html">선수 강화</a>
+            </button>
+        </nav>
+        <div class="container">
+            <h1>로그인</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">이메일:</label>
+                    <input type="email" id="email" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호:</label>
+                    <input type="password" id="password" required />
+                </div>
+                <button id="loginButton" type="submit">로그인</button>
+            </form>
+            <div id="message"></div>
+        </div>
+        <script src="loginScript.js"></script>
+    </body>
 </html>

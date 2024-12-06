@@ -105,7 +105,7 @@ router.post('/sign-in', async (req, res) => {
         // JWT를 서명하는 데 사용되는 비밀 키
         // 서버가 비밀 키를 사용하여 토큰 변조 여부를 알 수 있다
         process.env.SERVER_ACCESS_KEY,
-        { expiresIn: '5m' }
+        { expiresIn: '1m' }
     );
 
     // 기존 리프레시 토큰 삭제
