@@ -10,8 +10,6 @@ router.get('/search', async (req, res, next) => {
             nickname: true,
             rating: true,
             cash: true,
-<<<<<<< HEAD
-=======
             rankings: {
                 select: {
                     win: true,
@@ -19,7 +17,6 @@ router.get('/search', async (req, res, next) => {
                     draw: true,
                 },
             },
->>>>>>> 97df264409276b681807935068d3e9d30674e944
         },
         orderBy: {
             rating: 'desc',

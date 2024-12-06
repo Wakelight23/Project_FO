@@ -4,18 +4,15 @@ import { prisma } from '../utils/prisma/index.js';
 export function calculateTeamPower(selectedPlayers) {
     return selectedPlayers.reduce((total, member) => {
         const player = member.player;
-        // 각 능력치에 가중치 부여 = 가중치를 넣을 것인가?
-        const powerScore =
-            player.speed * 1.2 +
-            player.goalFinishing * 1.5 +
-            player.shootPower * 1.3 +
-            player.defense * 1.1 +
-            player.stamina * 1.0;
+        const equipment = member.equipment;
 
-        // 강화 레벨에 따른 추가 보너스 (5% 씩 증가) = 일단 넣어본 것.
-        const upgradeBonus = 1 + member.upgrade * 0.05;
+        const powerScore = calculatePlayerPower(
+            player,
+            member.upgrade,
+            equipment
+        );
 
-        return total + powerScore * upgradeBonus;
+        return total + powerScore;
     }, 0);
 }
 
@@ -66,14 +63,30 @@ export function determineWinner(myPower, opponentPower) {
 }
 
 // 선수 능력치 계산 -> 대장전에서 사용
-export function calculatePlayerPower(player) {
-    return Math.floor(
+export function calculatePlayerPower(player, upgrade = 0, equipment = null) {
+    // 기본 능력치 계산
+    let powerScore =
         player.speed * 1.2 +
-            player.goalFinishing * 1.5 +
-            player.shootPower * 1.3 +
-            player.defense * 1.1 +
-            player.stamina * 1.0
-    );
+        player.goalFinishing * 1.5 +
+        player.shootPower * 1.3 +
+        player.defense * 1.1 +
+        player.stamina * 1.0;
+
+    // 강화 보너스 적용
+    const upgradeBonus = 1 + upgrade * 0.05;
+    powerScore *= upgradeBonus;
+
+    // 장착된 아이템 보너스 적용
+    if (equipment) {
+        powerScore +=
+            equipment.speed * 1.2 +
+            equipment.goalFinishing * 1.5 +
+            equipment.shootPower * 1.3 +
+            equipment.defense * 1.1 +
+            equipment.stamina * 1.0;
+    }
+
+    return Math.floor(powerScore);
 }
 
 // 게임 결과 저장
@@ -136,7 +149,7 @@ export async function updateGameResult(managerId, gameResult) {
     }
 }
 
-// 대장전 승패 결정 함수
+// 대장전 승패 결정
 export function determineCaptainWinner(myPlayers, opponentPlayers) {
     let myWins = 0;
     let opponentWins = 0;

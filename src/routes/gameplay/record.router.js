@@ -20,11 +20,7 @@ router.get('/ranking', async (req, res) => {
             orderBy: [{ win: 'desc' }],
         });
 
-        if (!rankings.length) {
-            return res.status(404).json({ error: '랭킹 정보가 없습니다.' });
-        }
-
-        // Ranking 테이블에 어떤 식으로 데이터가 삽입될 것인가
+        // 빈 배열이어도 200 응답으로 처리
         const formattedRankings = rankings
             .sort((a, b) => {
                 if (b.win === a.win) {
@@ -37,15 +33,20 @@ router.get('/ranking', async (req, res) => {
                 nickname: ranking.manager.nickname,
                 rating: ranking.manager.rating,
                 record: {
-                    win: ranking.win,
-                    lose: ranking.lose,
-                    draw: ranking.draw,
-                    total: ranking.win + ranking.lose + ranking.draw,
-                    winRate: Math.round(
-                        (ranking.win /
-                            (ranking.win + ranking.lose + ranking.draw)) *
-                            100
-                    ),
+                    win: ranking.win || 0,
+                    lose: ranking.lose || 0,
+                    draw: ranking.draw || 0,
+                    total:
+                        (ranking.win || 0) +
+                        (ranking.lose || 0) +
+                        (ranking.draw || 0),
+                    winRate: ranking.win
+                        ? Math.round(
+                              (ranking.win /
+                                  (ranking.win + ranking.lose + ranking.draw)) *
+                                  100
+                          )
+                        : 0,
                 },
             }));
 
@@ -60,6 +61,10 @@ router.get('/record/:accountId', async (req, res) => {
     try {
         const { accountId } = req.params;
 
+        if (!accountId) {
+            return res.status(400).json({ error: 'accountId가 필요합니다.' });
+        }
+
         const manager = await prisma.manager.findUnique({
             where: { accountId: Number(accountId) },
         });
@@ -70,15 +75,16 @@ router.get('/record/:accountId', async (req, res) => {
                 .json({ error: '매니저 정보를 찾을 수 없습니다.' });
         }
 
-        const records = await prisma.record.findMany({
-            where: { managerId: manager.managerId },
-            orderBy: { createdAt: 'desc' },
-            take: 10,
-        });
-
-        const ranking = await prisma.ranking.findFirst({
-            where: { managerId: manager.managerId },
-        });
+        const [records, ranking] = await Promise.all([
+            prisma.record.findMany({
+                where: { managerId: manager.managerId },
+                orderBy: { createdAt: 'desc' },
+                take: 10,
+            }),
+            prisma.ranking.findFirst({
+                where: { managerId: manager.managerId },
+            }),
+        ]);
 
         res.status(200).json({
             data: {

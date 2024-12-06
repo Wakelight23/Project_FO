@@ -12,6 +12,7 @@ import GachaRouter from './routes/gacha/gacha.router.js';
 import PlayerRouter from './routes/player/players.router.js';
 // teammebmer
 import CreateRosterRouter from './routes/teammember/createRoster.router.js';
+import EquipmentRouter from './routes/teammember/equipment.router.js';
 import UpgradeMemberRouter from './routes/teammember/upgradeMember.router.js';
 import MyTeamMemberRouter from './routes/teammember/myTeamMember.router.js';
 // gameplay
@@ -37,12 +38,18 @@ app.use(cors());
 app.use(express.static('public'));
 
 // 5. 라우터
+app.use('/api', [GameRecord]); // gameRecord는 권한이 필요 없음
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
 app.use('/api', [PlayerRouter]); // player
-app.use('/api', [CreateRosterRouter, UpgradeMemberRouter, MyTeamMemberRouter]); // teammember
-app.use('/api', [PlayGame, CaptainGame, GameRecord]); // gameplay
+app.use('/api', [
+    CreateRosterRouter,
+    UpgradeMemberRouter,
+    EquipmentRouter,
+    MyTeamMemberRouter,
+]); // teammember
+app.use('/api', [PlayGame, CaptainGame]); // gameplay
 
 // 6. 404 에러 핸들링 미들웨어 추가
 app.use((req, res, next) => {

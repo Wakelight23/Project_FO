@@ -38,7 +38,7 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
         }
 
         // 유효한 정렬 방식이 아니면 희귀도별 정렬이 default
-        const validOrderByFields = ['name', 'club', 'rarity', 'type'];
+        const validOrderByFields = ['name', 'club', 'rarity'];
         const orderField = validOrderByFields.includes(orderByThis)
             ? orderByThis
             : 'upgrade';
@@ -98,7 +98,6 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
                             defense: true,
                             stamina: true,
                             rarity: true,
-                            type: true,
                         },
                     },
                 },
@@ -126,7 +125,6 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
                             defense: true,
                             stamina: true,
                             rarity: true,
-                            type: true,
                         },
                     },
                 },
