@@ -24,7 +24,7 @@ import cors from 'cors'; // CORS 미들웨어 import
 
 dotenv.config();
 const app = express();
-const PORT = 3002;
+const PORT = 3001;
 
 // 1. 기본 미들웨어
 app.use(express.json());
@@ -37,12 +37,13 @@ app.use(cors());
 app.use(express.static('public'));
 
 // 5. 라우터
+app.use('/api', [GameRecord]); // gameRecord는 권한이 필요 없음
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
 app.use('/api', [PlayerRouter]); // player
 app.use('/api', [CreateRosterRouter, UpgradeMemberRouter, MyTeamMemberRouter]); // teammember
-app.use('/api', [PlayGame, CaptainGame, GameRecord]); // gameplay
+app.use('/api', [PlayGame, CaptainGame]); // gameplay
 
 // 6. 404 에러 핸들링 미들웨어 추가
 app.use((req, res, next) => {
