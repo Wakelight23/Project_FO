@@ -4,8 +4,8 @@ import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
 // 가격 설정
-const playerPrice = 500;
-const ItemPrice = 200;
+const playerPrice = 0;
+const ItemPrice = 0;
 
 // 로그 및 예외 처리 함수
 const isLog = false;
@@ -55,18 +55,19 @@ const getRandomPlayer = async (drawCount, gachaCount) => {
     if (items.length === 0) {
         throw new Error('플레이어 아이템이 없습니다.');
     }
+
     const max = Math.max(...items.map((item) => item.rarity));
     const mid = Math.floor(max / 2);
     const isUnfotunateSystem = gachaCount > 100;
 
-    //주작 시스템
+    // 주작 시스템
     const totalProbability = items.reduce((sum, item) => {
         if (isUnfotunateSystem) {
             return (
                 sum +
                 (item.rarity < mid
                     ? Math.floor(item.rarity + Math.floor(gachaCount / 10))
-                    : Math.floor(item.rarity / 2))
+                    : item.rarity)
             );
         } else {
             return sum + item.rarity;
@@ -74,15 +75,18 @@ const getRandomPlayer = async (drawCount, gachaCount) => {
     }, 0);
 
     const drawnItems = [];
-    for (let i = 0; i < drawCount; i++) {
+
+    // 항상 drawCount만큼 뽑기
+    while (drawnItems.length < drawCount) {
         const randomValue = Math.random() * totalProbability;
         let cumulativeProbability = 0;
 
         for (const item of items) {
             cumulativeProbability += item.rarity;
+
             if (randomValue < cumulativeProbability) {
                 drawnItems.push(item);
-                break;
+                break; // 성공적으로 뽑았으므로 반복 종료
             }
         }
     }
@@ -99,6 +103,13 @@ gachaRouter.post('/gacha/player', authM, async (req, res) => {
     let result; // result 변수를 미리 선언
 
     try {
+        if (drawCount > 20) {
+            return res.json({
+                success: false,
+                message: '20개 이상 뽑을수 없습니다!!',
+            });
+        }
+
         const manager = await prisma.manager.findFirst({
             where: { accountId },
         });
@@ -208,6 +219,13 @@ gachaRouter.post('/gacha/item', authM, async (req, res) => {
     let result;
 
     try {
+        if (drawCount > 20) {
+            return res.json({
+                success: false,
+                message: '20개 이상 뽑을수 없습니다!!',
+            });
+        }
+
         const manager = await prisma.manager.findFirst({
             where: { accountId },
         });
