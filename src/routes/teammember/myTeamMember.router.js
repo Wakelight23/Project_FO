@@ -41,7 +41,7 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
         const validOrderByFields = ['name', 'club', 'rarity', 'type'];
         const orderField = validOrderByFields.includes(orderByThis)
             ? orderByThis
-            : 'rarity';
+            : 'upgrade';
 
         // accoutId를 통해 managerId 가져오기
         const managerId = await prisma.manager.findFirst({
@@ -80,36 +80,67 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
             });
         }
 
-        const membersInTeam = await prisma.teamMember.findMany({
-            where: {
-                managerId: managerId.managerId,
-            },
-            select: {
-                teamMemberId: true,
-                player: {
-                    select: {
-                        name: true,
-                        club: true,
-                        speed: true,
-                        goalFinishing: true,
-                        shootPower: true,
-                        defense: true,
-                        stamina: true,
-                        rarity: true,
-                        type: true,
+        if (orderField === 'upgrade') {
+            const membersInTeam = await prisma.teamMember.findMany({
+                where: {
+                    managerId: managerId.managerId,
+                },
+                select: {
+                    teamMemberId: true,
+                    upgrade: true,
+                    player: {
+                        select: {
+                            name: true,
+                            club: true,
+                            speed: true,
+                            goalFinishing: true,
+                            shootPower: true,
+                            defense: true,
+                            stamina: true,
+                            rarity: true,
+                            type: true,
+                        },
                     },
                 },
-            },
-            orderBy: {
-                player: {
-                    [orderField]: 'asc',
-                },
-            },
-            take: 5,
-            skip: 5 * (page - 1),
-        });
+                orderBy: { upgrade: 'desc' },
+                take: 5,
+                skip: 5 * (page - 1),
+            });
 
-        return res.status(200).json(membersInTeam);
+            return res.status(200).json(membersInTeam);
+        } else if (validOrderByFields.includes(orderField)) {
+            const membersInTeam = await prisma.teamMember.findMany({
+                where: {
+                    managerId: managerId.managerId,
+                },
+                select: {
+                    teamMemberId: true,
+                    upgrade: true,
+                    player: {
+                        select: {
+                            name: true,
+                            club: true,
+                            speed: true,
+                            goalFinishing: true,
+                            shootPower: true,
+                            defense: true,
+                            stamina: true,
+                            rarity: true,
+                            type: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    player: {
+                        [orderField]: 'asc',
+                    },
+                },
+                take: 5,
+                skip: 5 * (page - 1),
+            });
+
+            return res.status(200).json(membersInTeam);
+        }
     } catch (err) {
         next(err);
     }

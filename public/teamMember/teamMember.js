@@ -2,11 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const listContainer = document.querySelector('.list');
     const currentPageEl = document.getElementById('currentPage');
     let currentPage = 1; // 현재 페이지 값
-    let orderBy = 'name'; // 기본 정렬 방식
+    let orderBy = 'upgrade'; // 기본 정렬 방식
 
     const API_BASE = 'http://localhost:3002';
 
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
+    const email = localStorage.getItem('email');
 
     // 선수 목록 조회 함수
     const fetchPlayers = async () => {
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${accessToken}`, // 인증 토큰
+                    'x-info': email, // 헤더에 email 추가
                 },
                 body: JSON.stringify(requestBody),
             });
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>수비력: ${player.player.defense}</p>
           <p>체력: ${player.player.stamina}</p>
           <p>희귀도: ${player.player.rarity}</p>
+          <p>등급: ${player.upgrade}</p>
           <p>포지션: ${player.player.type}</p>
         </div>`
             )
@@ -70,16 +73,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 페이지 이동 함수
     const updatePage = (direction) => {
-        if (direction === 'next') {
-            currentPage += 1; // 오른쪽 화살표 클릭 시 증가
-        } else if (direction === 'prev' && currentPage > 1) {
-            currentPage -= 1; // 왼쪽 화살표 클릭 시 감소
+        try {
+            if (direction === 'next') {
+                currentPage += 1; // 오른쪽 화살표 클릭 시 증가
+            } else if (direction === 'prev' && currentPage > 1) {
+                currentPage -= 1; // 왼쪽 화살표 클릭 시 감소
+            }
+            currentPageEl.textContent = currentPage; // 현재 페이지 값 업데이트
+            fetchPlayers(); // 변경된 페이지 값으로 목록 갱신
+        } catch (error) {
+            console.error(err.message);
+            alert(err.message);
         }
-        currentPageEl.textContent = currentPage; // 현재 페이지 값 업데이트
-        fetchPlayers(); // 변경된 페이지 값으로 목록 갱신
     };
 
     // 정렬 버튼 이벤트 리스너
+    document.getElementById('sortByGrade').addEventListener('click', () => {
+        orderBy = 'upgrade'; // 이름별 정렬
+        fetchPlayers(); // 데이터 재요청
+    });
     document.getElementById('sortByName').addEventListener('click', () => {
         orderBy = 'name'; // 이름별 정렬
         fetchPlayers(); // 데이터 재요청
