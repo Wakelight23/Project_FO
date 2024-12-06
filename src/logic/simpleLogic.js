@@ -21,7 +21,7 @@ async function checkAdmin(accountId) {
             accountId: +accountId,
         },
     });
-    if (!isAdmin || isAdmin.isAdmin!=1) {
+    if (!isAdmin || isAdmin.isAdmin === false) {
       return false;
         //res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
     }

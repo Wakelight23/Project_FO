@@ -24,6 +24,12 @@ router.post('/create-manager', authM, async (req, res) => {
         return res.status(409).json({ message: '이미 존재하는 닉네임입니다.' });
     }
 
+    if (!/^.{1,8}$/.test(nickname)) {
+        return res
+            .status(409)
+            .json({ message: 'nickname은 8자리 이하로만 설정할 수 있습니다' });
+    }
+
     // 매니저 존재 검증
     const isExistManager = await prisma.manager.findUnique({
         where: { accountId: +accountId },
