@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
     const email = localStorage.getItem('email');
+    console.log('email: ', email);
 
     // 선수 목록 조회 함수
     const fetchPlayers = async () => {

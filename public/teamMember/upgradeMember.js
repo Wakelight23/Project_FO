@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE = 'http://localhost:3002'; // API Base URL
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
     const email = localStorage.getItem('email');
+    console.log('email: ', email);
 
     // 강화 가능한 선수 조회
     const fetchUpgradeablePlayers = async () => {

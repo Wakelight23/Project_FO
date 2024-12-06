@@ -5,26 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         JSON.parse(localStorage.getItem('selectedPlayerIds')) || []; // 이전 페이지에서 저장한 선수 ID
 
     const email = localStorage.getItem('email');
-    
     console.log('email: ', email);
-    if (email) {
-        fetch('https://example.com/api', {
-            method: 'GET', // 또는 'POST', 'PATCH' 등 요청 메서드
-            headers: {
-                'Content-Type': 'application/json',
-                'x-info': email, // 헤더에 email 추가
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('응답 데이터:', data);
-            })
-            .catch((error) => {
-                console.error('오류:', error);
-            });
-    } else {
-        console.error('localStorage에 email이 없습니다.');
-    }
 
     // 선수 변경 이벤트
     document
@@ -52,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${accessToken}`, // 인증 토큰
+                        'x-info': email, // 헤더에 email 추가
                     },
                     body: JSON.stringify({
                         outMemberId: parseInt(selectedPlayerId, 10), // 교체 대상 선수 ID
