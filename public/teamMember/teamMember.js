@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>체력: ${player.player.stamina}</p>
           <p>희귀도: ${player.player.rarity}</p>
           <p>등급: ${player.upgrade}</p>
-          <p>포지션: ${player.player.type}</p>
         </div>`
             )
             .join('');
@@ -105,11 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('sortByRarity').addEventListener('click', () => {
         orderBy = 'rarity'; // 희귀도별 정렬
-        fetchPlayers(); // 데이터 재요청
-    });
-
-    document.getElementById('sortByPosition').addEventListener('click', () => {
-        orderBy = 'type'; // 포지션별 정렬
         fetchPlayers(); // 데이터 재요청
     });
 
