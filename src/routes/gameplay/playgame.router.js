@@ -17,38 +17,38 @@ const gameSessionMap = new Map();
 router.post('/choicematch/start', authM, async (req, res) => {
     try {
         const myAccountId = req.account.accountId;
-        const { opponentAccountId } = req.body;
+        const { opponentManagerId } = req.body;
 
-        if (!opponentAccountId) {
+        if (!opponentManagerId) {
             return res.status(400).json({
-                error: '상대방 계정 ID가 필요합니다.',
+                error: '상대방 매니저 ID가 필요합니다.',
             });
         }
 
         // 내 계정 확인
-        const myAccount = await prisma.account.findUnique({
+        const myManager = await prisma.manager.findUnique({
             where: { accountId: Number(myAccountId) },
         });
 
-        if (!myAccount) {
+        if (!myManager) {
             return res.status(404).json({
-                error: '존재하지 않는 계정입니다.',
+                error: '매니저 정보를 찾을 수 없습니다.',
             });
         }
 
-        // 상대방 계정 확인 전에 자신과의 대결 체크
-        if (Number(myAccountId) === Number(opponentAccountId)) {
+        // 자신과의 대결 체크
+        if (myManager.managerId === Number(opponentManagerId)) {
             return res.status(400).json({
-                error: '자신의 계정과는 대결할 수 없습니다.',
+                error: '자신과는 대결할 수 없습니다.',
             });
         }
 
-        // 상대방 계정 확인
-        const opponentAccount = await prisma.account.findUnique({
-            where: { accountId: Number(opponentAccountId) },
+        // 상대방 매니저 확인
+        const opponentManager = await prisma.manager.findUnique({
+            where: { managerId: Number(opponentManagerId) },
         });
 
-        if (!opponentAccount) {
+        if (!opponentManager) {
             // isSelected가 true인 매니저 목록 조회
             const availableManagers = await prisma.manager.findMany({
                 where: {
@@ -61,34 +61,17 @@ router.post('/choicematch/start', authM, async (req, res) => {
                 select: {
                     managerId: true,
                     nickname: true,
-                    accountId: true,
                     rating: true,
                 },
             });
 
             return res.status(404).json({
-                error: '상대방 계정을 찾을 수 없습니다.',
+                error: '상대방 매니저를 찾을 수 없습니다.',
                 availableOpponents: availableManagers,
             });
         }
 
-        // 매니저 정보 한 번에 조회
-        const [myManager, opponentManager] = await Promise.all([
-            prisma.manager.findUnique({
-                where: { accountId: Number(myAccountId) },
-            }),
-            prisma.manager.findUnique({
-                where: { accountId: Number(opponentAccountId) },
-            }),
-        ]);
-
-        if (!myManager || !opponentManager) {
-            return res.status(404).json({
-                error: '매니저 정보를 찾을 수 없습니다.',
-            });
-        }
-
-        // 선수 정보 한 번에 조회
+        // 선수 정보 조회
         const [mySelectedPlayers, opponentSelectedPlayers] = await Promise.all([
             prisma.teamMember.findMany({
                 where: {
@@ -113,7 +96,7 @@ router.post('/choicematch/start', authM, async (req, res) => {
         if (opponentSelectedPlayers.length === 0) {
             const availableManagers = await prisma.manager.findMany({
                 where: {
-                    TeamMember: {
+                    teamMembers: {
                         some: {
                             isSelected: true,
                         },
@@ -122,7 +105,6 @@ router.post('/choicematch/start', authM, async (req, res) => {
                 select: {
                     managerId: true,
                     nickname: true,
-                    accountId: true,
                     rating: true,
                 },
             });
@@ -137,7 +119,7 @@ router.post('/choicematch/start', authM, async (req, res) => {
         gameSessionMap.set(String(myAccountId), {
             startTime: new Date(),
             isGameStarted: true,
-            opponentAccountId: Number(opponentAccountId),
+            opponentManagerId: Number(opponentManagerId),
         });
 
         res.status(201).json({
@@ -160,7 +142,7 @@ router.get('/choicematch/result', authM, async (req, res) => {
     try {
         const accountId = req.account.accountId;
 
-        // 게임 세션 확인 - String으로 변환하여 확인
+        // 게임 세션 확인
         const gameSession = gameSessionMap.get(String(accountId));
 
         if (!gameSession || !gameSession.isGameStarted) {
@@ -169,11 +151,12 @@ router.get('/choicematch/result', authM, async (req, res) => {
             });
         }
 
-        const manager = await prisma.manager.findUnique({
+        // 내 매니저 정보 조회
+        const myManager = await prisma.manager.findUnique({
             where: { accountId: Number(accountId) },
         });
 
-        if (!manager) {
+        if (!myManager) {
             return res.status(404).json({
                 error: '매니저 정보를 찾을 수 없습니다.',
             });
@@ -182,7 +165,7 @@ router.get('/choicematch/result', authM, async (req, res) => {
         // 내 선수들 정보 조회
         const selectedPlayers = await prisma.teamMember.findMany({
             where: {
-                managerId: manager.managerId,
+                managerId: myManager.managerId,
                 isSelected: true,
             },
             include: {
@@ -190,10 +173,16 @@ router.get('/choicematch/result', authM, async (req, res) => {
             },
         });
 
-        // 상대방 정보 조회 (start에서 저장한 opponentAccountId 사용)
+        // 상대방 매니저 정보 조회
         const opponentManager = await prisma.manager.findUnique({
-            where: { accountId: Number(gameSession.opponentAccountId) },
+            where: { managerId: Number(gameSession.opponentManagerId) },
         });
+
+        if (!opponentManager) {
+            return res.status(404).json({
+                error: '상대방 매니저 정보를 찾을 수 없습니다.',
+            });
+        }
 
         const totalPower = calculateTeamPower(selectedPlayers);
         const opponentPower = generateOpponentPower(totalPower);
@@ -201,7 +190,7 @@ router.get('/choicematch/result', authM, async (req, res) => {
 
         // 양쪽 플레이어의 결과 업데이트
         await Promise.all([
-            updateGameResult(manager.managerId, gameResult.result),
+            updateGameResult(myManager.managerId, gameResult.result),
             updateGameResult(
                 opponentManager.managerId,
                 gameResult.result === 1 ? 0 : gameResult.result === 0 ? 1 : 2

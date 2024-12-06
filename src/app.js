@@ -10,8 +10,6 @@ import CashRouter from './routes/cash/cash.router.js';
 import GachaRouter from './routes/gacha/gacha.router.js';
 // player
 import PlayerRouter from './routes/player/players.router.js';
-// item
-import itemRouter from './routes/item/items.router.js';
 // teammebmer
 import CreateRosterRouter from './routes/teammember/createRoster.router.js';
 import UpgradeMemberRouter from './routes/teammember/upgradeMember.router.js';
@@ -21,7 +19,10 @@ import PlayGame from './routes/gameplay/playgame.router.js';
 import CaptainGame from './routes/gameplay/captaingame.router.js';
 import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-import authM from './middlewares/auth.js';
+import dotenv from 'dotenv';
+import cors from 'cors'; // CORS 미들웨어 import
+
+dotenv.config();
 const app = express();
 const PORT = 3002;
 
@@ -29,18 +30,18 @@ const PORT = 3002;
 app.use(express.json());
 
 // 2. CORS 설정 (Frontend 사용 시)
-
-// 3. 로깅 미들웨어
+app.use(cors());
+// 3. 로깅 미들웨어s
 
 // 4. 정적 파일 제공
 app.use(express.static('public'));
 
 // 5. 라우터
-app.use('/api', [GameRecord]); // gameRecord
+app.use('/api', [GameRecord]); // gameRecord는 권한이 필요 없음
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
-app.use('/api', authM, [PlayerRouter, itemRouter]); // player, item
+app.use('/api', [PlayerRouter]); // player
 app.use('/api', [CreateRosterRouter, UpgradeMemberRouter, MyTeamMemberRouter]); // teammember
 app.use('/api', [PlayGame, CaptainGame]); // gameplay
 
@@ -53,6 +54,8 @@ app.use((req, res, next) => {
 
 // 7. 에러 핸들링 (항상 마지막에 위치)
 app.use(errorHandlingMiddleware);
+
+console.log(process.env.DATABASE_URL);
 
 app.listen(PORT, () => {
     console.log(PORT, '포트로 서버가 열렸어요!');

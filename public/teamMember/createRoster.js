@@ -4,28 +4,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const playerIds =
         JSON.parse(localStorage.getItem('selectedPlayerIds')) || []; // 이전 페이지에서 저장한 선수 ID
 
-    const email = localStorage.getItem('email');
-    
-    console.log('email: ', email);
-    if (email) {
-        fetch('https://example.com/api', {
-            method: 'GET', // 또는 'POST', 'PATCH' 등 요청 메서드
-            headers: {
-                'Content-Type': 'application/json',
-                'x-info': email, // 헤더에 email 추가
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('응답 데이터:', data);
-            })
-            .catch((error) => {
-                console.error('오류:', error);
-            });
-    } else {
-        console.error('localStorage에 email이 없습니다.');
-    }
-
     // 선수 변경 이벤트
     document
         .getElementById('replaceMember')
@@ -54,8 +32,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         Authorization: `Bearer ${accessToken}`, // 인증 토큰
                     },
                     body: JSON.stringify({
-                        outMemberId: parseInt(selectedPlayerId, 10), // 교체 대상 선수 ID
-                        inMemberId: parseInt(replacedPlayerId, 10), // 교체 선수 ID
+                        outMemberId: selectedPlayerId, // 교체 대상 선수 ID
+                        inMemberId: replacedPlayerId, // 교체 선수 ID
                     }),
                 });
 
@@ -66,8 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const updatedPlayers = await response.json();
                 alert('선수 교체가 완료되었습니다.');
 
-                // localStorage 갱신
-                updateSelectedPlayerIds(selectedPlayerId, replacedPlayerId);
+                console.log(updatedPlayers);
 
                 // 화면 업데이트
                 renderPlayers(updatedPlayers.membersInRoster); // 갱신된 선수 정보 표시
@@ -78,25 +55,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('선수 교체에 실패했습니다.');
             }
         });
-
-    /**
-     * localStorage에서 selectedPlayerIds 갱신
-     */
-    const updateSelectedPlayerIds = (outgoingPlayerId, incomingPlayerId) => {
-        const selectedPlayerIds =
-            JSON.parse(localStorage.getItem('selectedPlayerIds')) || [];
-
-        // outgoingPlayerId를 incomingPlayerId로 교체
-        const updatedPlayerIds = selectedPlayerIds.map((id) =>
-            id === outgoingPlayerId ? incomingPlayerId : id
-        );
-
-        localStorage.setItem(
-            'selectedPlayerIds',
-            JSON.stringify(updatedPlayerIds)
-        );
-        console.log('localStorage 갱신 완료:', updatedPlayerIds);
-    };
 
     const fetchSelectedPlayers = async () => {
         try {
@@ -148,7 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p>수비력: ${player.player.defense}</p>
         <p>체력: ${player.player.stamina}</p>
         <p>희귀도: ${player.player.rarity}</p>
-        <p>등급: ${player.upgrade}</p>
         <p>포지션: ${player.player.type}</p>
       </div>`
             )

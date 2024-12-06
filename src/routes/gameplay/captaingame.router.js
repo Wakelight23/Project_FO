@@ -17,7 +17,7 @@ const captainGameSession = new Map();
 router.post('/captain/start', authM, async (req, res) => {
     try {
         const myAccountId = req.account.accountId;
-        const { opponentAccountId, selectedPlayerIds } = req.body;
+        const { opponentManagerId, selectedPlayerIds } = req.body;
 
         if (!myAccountId) {
             return res.status(401).json({ error: '인증 정보가 없습니다.' });
@@ -29,28 +29,34 @@ router.post('/captain/start', authM, async (req, res) => {
             });
         }
 
-        if (Number(myAccountId) === Number(opponentAccountId)) {
-            return res.status(400).json({
-                error: '자신의 계정과는 대결할 수 없습니다.',
-            });
-        }
-
-        const [myAccount, opponentAccount] = await Promise.all([
-            prisma.account.findUnique({
-                where: { accountId: Number(myAccountId) },
-            }),
-            prisma.account.findUnique({
-                where: { accountId: Number(opponentAccountId) },
-            }),
-        ]);
-
-        if (!myAccount || !opponentAccount) {
-            return res.status(404).json({ error: '계정을 찾을 수 없습니다.' });
-        }
-
+        // 내 매니저 정보 조회
         const myManager = await prisma.manager.findUnique({
             where: { accountId: Number(myAccountId) },
         });
+
+        if (!myManager) {
+            return res
+                .status(404)
+                .json({ error: '매니저 정보를 찾을 수 없습니다.' });
+        }
+
+        // 자신과의 대결 체크
+        if (myManager.managerId === Number(opponentManagerId)) {
+            return res.status(400).json({
+                error: '자신과는 대결할 수 없습니다.',
+            });
+        }
+
+        // 상대방 매니저 정보 조회
+        const opponentManager = await prisma.manager.findUnique({
+            where: { managerId: Number(opponentManagerId) },
+        });
+
+        if (!opponentManager) {
+            return res
+                .status(404)
+                .json({ error: '상대방 매니저를 찾을 수 없습니다.' });
+        }
 
         const mySelectedPlayers = await Promise.all(
             selectedPlayerIds.map(async (playerId) => {
@@ -88,11 +94,12 @@ router.post('/captain/start', authM, async (req, res) => {
             startTime: new Date(),
             isGameStarted: true,
             myAccountId: Number(myAccountId),
-            opponentAccountId: Number(opponentAccountId),
+            opponentManagerId: Number(opponentManagerId),
             selectedPlayers: mySelectedPlayers.map((player) => ({
                 playerId: player.playerId,
-                power: calculatePlayerPower(player.player),
+                power: calculatePlayerPower(player.player, player.upgrade),
                 name: player.player.name,
+                upgrade: player.upgrade,
             })),
         });
 
@@ -102,6 +109,10 @@ router.post('/captain/start', authM, async (req, res) => {
                 selectedPlayers: mySelectedPlayers.map(
                     (player) => player.player.name
                 ),
+                opponent: {
+                    nickname: opponentManager.nickname,
+                    rating: opponentManager.rating,
+                },
             },
         });
     } catch (error) {
@@ -127,10 +138,17 @@ router.get('/captain/result', authM, async (req, res) => {
                 where: { accountId: Number(myAccountId) },
             }),
             prisma.manager.findUnique({
-                where: { accountId: Number(gameSession.opponentAccountId) },
+                where: { managerId: Number(gameSession.opponentManagerId) },
             }),
         ]);
 
+        if (!myManager || !opponentManager) {
+            return res.status(404).json({
+                error: '매니저 정보를 찾을 수 없습니다.',
+            });
+        }
+
+        // 상대방의 선택된 선수 조회
         const opponentPlayers = await prisma.teamMember.findMany({
             where: {
                 managerId: opponentManager.managerId,
@@ -142,20 +160,31 @@ router.get('/captain/result', authM, async (req, res) => {
             take: 3,
         });
 
+        if (opponentPlayers.length < 3) {
+            return res.status(400).json({
+                error: '상대방의 선택된 선수가 부족합니다.',
+            });
+        }
+
         const matches = gameSession.selectedPlayers.map((myPlayer, index) => {
             const opponentPlayer = opponentPlayers[index];
-            const power = calculatePlayerPower(opponentPlayer.player);
+            const power = calculatePlayerPower(
+                opponentPlayer.player,
+                opponentPlayer.upgrade
+            );
             return {
                 round: index + 1,
                 myPlayer: {
                     playerId: myPlayer.playerId,
                     power: myPlayer.power,
                     name: myPlayer.name,
+                    upgrade: myPlayer.upgrade,
                 },
                 opponentPlayer: {
                     playerId: opponentPlayer.player.playerId,
                     power: power,
                     name: opponentPlayer.player.name,
+                    upgrade: opponentPlayer.upgrade,
                 },
                 result:
                     myPlayer.power > power
@@ -175,14 +204,11 @@ router.get('/captain/result', authM, async (req, res) => {
 
         // 양쪽 플레이어의 결과 업데이트
         await Promise.all([
-            // 내 결과 업데이트
             updateGameResult(myManager.managerId, finalResult),
-            // 상대방 결과 업데이트 (승패 반대로 적용)
             updateGameResult(
                 opponentManager.managerId,
                 finalResult === 1 ? 0 : finalResult === 0 ? 1 : 2
             ),
-            // Rating 업데이트
             prisma.manager.update({
                 where: { managerId: myManager.managerId },
                 data: {
@@ -214,6 +240,10 @@ router.get('/captain/result', authM, async (req, res) => {
                         : finalResult === 0
                           ? '패배'
                           : '무승부',
+                opponent: {
+                    nickname: opponentManager.nickname,
+                    rating: opponentManager.rating,
+                },
             },
         });
     } catch (error) {

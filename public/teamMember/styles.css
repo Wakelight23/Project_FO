@@ -1,9 +1,5 @@
-/* 구글 폰트 import url */
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Dodum&family=Orbit&family=Song+Myung&display=swap');
-
 body {
-    font-family: 'Orbit', sans-serif;
-    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,66 +7,37 @@ body {
 }
 
 .container {
-    font-family: 'Orbit', sans-serif;
     display: flex;
     width: 100%;
 }
 
 .sidebar {
-    position: relative; /* absolute 제거 */
-    flex: 0 0 200px; /* 고정된 너비 */
-    background: white;
+    width: 200px;
+    background: #f4f4f4;
     display: flex;
     flex-direction: column;
     padding: 10px;
-    height: 100%;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* 약간의 그림자 추가 */
 }
 
 .sidebar button {
-    font-family: 'Orbit', sans-serif;
-    width: 100%;
     margin: 5px 0;
     padding: 10px;
-    background-color: #aa0000;
-    color: white;
     border: none;
-    border-radius: 5px;
+    background: #ddd;
     cursor: pointer;
-    font-size: 16px;
-}
-
-/* 버튼 안의 링크 스타일 제거 */
-.sidebar button a {
-    text-decoration: none; /* 링크 밑줄 제거 */
-    color: inherit; /* 링크 색상 부모와 일치 */
-}
-
-.sidebar button a:visited {
-    color: inherit; /* 방문 후에도 글자색 유지 */
+    text-align: left;
 }
 
 .sidebar button:hover {
-    background: #610000;
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 20px; /* 제목 아래 여백 */
-}
-
-.form-group {
-    margin-bottom: 15px;
-    width: 100%; /* 입력 필드와 버튼 너비를 박스에 맞춤 */
+    background: #ccc;
 }
 
 .content {
     flex: 1;
     padding: 20px;
-    overflow: auto; /* 스크롤 필요 시 추가 */
+    width: 100vw;
     display: flex;
     flex-direction: column;
-    background-color: #f9f9f9; /* 콘텐츠 배경색 */
 }
 
 .tabs {
@@ -79,7 +46,6 @@ h1 {
 }
 
 .tabs button {
-    font-family: 'Orbit', sans-serif;
     margin-right: 10px;
     padding: 10px 20px;
     border: none;
@@ -175,9 +141,8 @@ h1 {
     background-color: #f9f9f9; /* 배경색 */
 }
 
-#selectPlayers:hover,
-#playGame:hover {
-    background-color: #610000;
+#selectPlayers:hover {
+    background-color: #45a049;
 }
 
 .player-card {
@@ -192,10 +157,9 @@ h1 {
     border-radius: 8px; /* 모서리를 둥글게 */
 }
 
-#selectPlayers,
-#playGame {
+#selectPlayers {
     padding: 10px 20px;
-    background-color: #aa0000;
+    background-color: #4caf50;
     color: white;
     border: none;
     border-radius: 5px;
@@ -207,41 +171,6 @@ h1 {
 .play-button-container {
     text-align: center; /* 내용 가운데 정렬 */
     margin: 10px;
-}
-
-.upgrade-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-    align-items: center;
-}
-
-.upgrade-form input {
-    padding: 10px;
-    width: 200px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.upgrade-form button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.upgrade-form button:hover {
-    background-color: #0056b3;
-}
-
-.message {
-    text-align: center;
-    margin-top: 15px;
-    font-weight: bold;
 }
 
 @media (max-width: 1200px) {

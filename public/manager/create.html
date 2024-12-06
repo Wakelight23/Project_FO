@@ -1,52 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>매니저 생성</title>
-        <link rel="stylesheet" href="styles.css" />
-    </head>
 
-    <body>
-        <nav class="sidebar">
-            <button id="signup">
-                <a href="/public/signup/signup.html">회원가입</a>
-            </button>
-            <button id="login">
-                <a href="/public/login/login.html">로그인</a>
-            </button>
-            <button id="createCharacter">
-                <a href="/public/manager/create.html">매니저 생성</a>
-            </button>
-            <button id="recruitPlayer">선수 영입</button>
-            <button id="viewRoster">
-                <a href="/public/teamMember/teamMember.html"
-                    >선수 명단 보기<br />
-                    출전 선수 선발</a
-                >
-            </button>
-            <button id="selectRoster">
-                <a href="/public/teamMember/createRoster.html"
-                    >출전 선수 변경</a
-                >
-            </button>
-            <button id="upgradePlayer"><a href="/public/teamMember/upgradeMember.html">선수 강화</a></button>
-        </nav>
-        <div class="container">
-            <h1>매니저 생성</h1>
-            <form id="managerForm">
-                <label for="nickname">닉네임:</label>
-                <input
-                    type="text"
-                    id="nickname"
-                    name="nickname"
-                    required
-                    maxlength="8"
-                />
-                <button type="submit">매니저 생성</button>
-            </form>
-            <div id="message"></div>
-        </div>
-        <script src="managerScript.js"></script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매니저 생성</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>매니저 생성</h1>
+        <form id="managerForm">
+            <label for="nickname">닉네임:</label>
+            <input type="text" id="nickname" name="nickname" required maxlength="8">
+            <button type="submit">매니저 생성</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script src="managerScript.js"></script>
+</body>
+
 </html>
