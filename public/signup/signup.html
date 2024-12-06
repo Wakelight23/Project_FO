@@ -7,24 +7,6 @@
     <title>회원가입</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .header {
-            background-color: #333;
-            /* 헤더 배경색 */
-            color: white;
-            /* 텍스트 색상 */
-            padding: 10px 20px;
-            /* 패딩 */
-        }
-
-        .header-container {
-            display: flex;
-            /* Flexbox 사용 */
-            justify-content: space-between;
-            /* 요소 간의 간격을 균등하게 배분 */
-            align-items: center;
-            /* 수직 중앙 정렬 */
-        }
-
         .title {
             margin: 0;
             /* 기본 마진 제거 */
@@ -82,7 +64,7 @@
         }
 
         .container {
-            max-width: 400px;
+            max-width: 422px;
             margin: 50px auto;
             padding: 20px;
             background: white;
@@ -106,7 +88,7 @@
 
         input,
         select {
-            width: 100%;
+            width: 400px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -132,27 +114,10 @@
             color: red;
         }
     </style>
-
 </head>
 
 <body>
-    <header class="header">
-        <div class="header-container">
-            <h1 class="title">풋살온라인</h1>
-            <nav class="nav">
-                <ul>
-                    <li><a href="homepage.html">홈페이지</a></li>
-                    <li><a href="gameplay.html">게임플레이</a></li>
-                    <li><a href="card-draw.html">카드뽑기</a></li>
-                    <li><a href="team-formation.html">팀편성</a></li>
-                    <li><a href="ranking.html">랭킹</a></li>
-                </ul>
-            </nav>
-            <div class="auth-links">
-                <a href="login.html">로그인</a> / <a href="signup.html">회원가입</a>
-            </div>
-        </div>
-    </header>
+
     <div class="container">
         <h1>회원가입</h1>
         <form id="signup-form">

@@ -1,167 +1,80 @@
+/* 구글 폰트 import url */
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Dodum&family=Orbit&family=Song+Myung&display=swap');
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    /* 배경색 추가 */
-}
-
-.header {
-    background-color: #333;
-    /* 헤더 배경색 */
-    color: white;
-    /* 텍스트 색상 */
-    padding: 10px 20px;
-    /* 패딩 */
-}
-
-.header-container {
-    display: flex;
-    /* Flexbox 사용 */
-    justify-content: space-between;
-    /* 요소 간의 간격을 균등하게 배분 */
-    align-items: center;
-    /* 수직 중앙 정렬 */
-}
-
-.title {
-    margin: 0;
-    /* 기본 마진 제거 */
-    font-size: 24px;
-    /* 제목 크기 */
-}
-
-.nav ul {
-    list-style: none;
-    /* 기본 리스트 스타일 제거 */
-    padding: 0;
-    /* 패딩 제거 */
-    margin: 0;
-    /* 마진 제거 */
-    display: flex;
-    /* Flexbox 사용 */
-}
-
-.nav li {
-    margin: 0 15px;
-    /* 리스트 아이템 간의 간격 */
-}
-
-.nav a {
-    color: white;
-    /* 링크 색상 */
-    text-decoration: none;
-    /* 밑줄 제거 */
-}
-
-button {
-    cursor: pointer;
-    /* 마우스 커서 변경 */
-    padding: 5px 10px;
-    /* 패딩 조정 */
-    min-width: 60px;
-    /* 최소 너비 설정 */
-    max-width: 60px;
-    /* 최대 너비 설정 */
-    text-align: center;
-    /* 텍스트 중앙 정렬 */
-    border: 1px solid #ccc;
-    /* 테두리 추가 */
-    border-radius: 4px;
-    /* 모서리 둥글게 */
-    background-color: #f0f0f0;
-    /* 배경색 */
-    transition: background-color 0.3s;
-    /* 배경색 변화 효과 */
-}
-
-button:hover {
-    background-color: #e0e0e0;
-    /* 호버 시 배경색 변화 */
-}
-
-.nav a:hover {
-    text-decoration: underline;
-    /* 마우스 오버 시 밑줄 추가 */
+    background-color: #f4f4f4;
+    background-color: #f9f9f9; /* 배경색 추가 */
 }
 
 #rankings {
-    width: 700px;
-    /* 너비 500px로 설정 */
-    margin: 20px auto;
-    /* 수평 중앙 정렬 */
-    background-color: white;
-    /* 배경색 추가 */
-    padding: 20px;
-    /* 패딩 추가 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    /* 그림자 추가 */
-    border-radius: 5px;
-    /* 모서리 둥글게 */
+    width: 700px; /* 너비 700px로 설정 */
+    margin: 20px auto; /* 수평 중앙 정렬 */
+    background-color: white; /* 배경색 추가 */
+    padding: 20px; /* 패딩 추가 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+    border-radius: 5px; /* 모서리 둥글게 */
 }
 
 .ranking-item {
-    display: flex;
-    /* 플렉스 박스 사용 */
-    justify-content: space-between;
-    /* 항목 간의 간격을 균등하게 배분 */
-    padding: 10px 0;
-    /* 항목 간의 패딩 */
+    display: flex; /* 플렉스 박스 사용 */
+    justify-content: space-between; /* 항목 간의 간격을 균등하게 배분 */
+    padding: 10px 0; /* 항목 간의 패딩 */
 }
 
 .nickname {
-    width: 150px;
-    /* 닉네임의 고정 너비 */
-    text-align: left;
-    /* 왼쪽 정렬 */
+    width: 150px; /* 닉네임의 고정 너비 */
+    text-align: left; /* 왼쪽 정렬 */
 }
 
 .score {
-    width: 150px;
-    /* 승무패의 고정 너비 */
-    text-align: right;
-    /* 오른쪽 정렬 */
+    width: 150px; /* 승무패의 고정 너비 */
+    text-align: right; /* 오른쪽 정렬 */
 }
 
 #rankings div {
     padding: 10px;
-    border-bottom: 1px solid #ccc;
-    /* 각 랭킹 항목 구분선 */
+    border-bottom: 1px solid #ccc; /* 각 랭킹 항목 구분선 */
 }
 
 .pagination {
-    text-align: center;
-    /* 페이지네이션 중앙 정렬 */
-    margin: 20px 0;
-    /* 위아래 여백 */
+    text-align: center; /* 페이지네이션 중앙 정렬 */
+    margin: 20px 0; /* 위아래 여백 */
 }
 
 .pagination span {
-    margin: 0 10px;
-    /* 페이지 번호 간격 */
-    cursor: pointer;
-    /* 커서 포인터로 변경 */
+    margin: 0 10px; /* 페이지 번호 간격 */
+    cursor: pointer; /* 커서 포인터로 변경 */
 }
 
 .pagination span:hover {
-    text-decoration: underline;
-    /* 마우스 오버 시 밑줄 추가 */
+    text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
 }
 
 .pagination-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
-    /* 중앙 정렬 */
-    margin: 10px 0;
-    /* 위아래 여백 */
+    justify-content: center; /* 중앙 정렬 */
+    margin: 10px 0; /* 위아래 여백 */
 }
 
 .pagination {
-    margin: 0 10px;
-    /* 버튼과 페이지 번호 사이의 여백 */
+    margin: 0 10px; /* 버튼과 페이지 번호 사이의 여백 */
 }
 
 button {
+    font-family: 'Orbit', sans-serif;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    /* 마우스 커서 변경 */
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #e0e0e0; /* 호버 시 배경색 변화 */
 }
