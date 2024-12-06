@@ -38,7 +38,11 @@ model Manager {
   accountId   Int          @unique @map("accountId")
   nickname    String       @map("nickname")
   cash        Int          @map("cash")
+<<<<<<< HEAD
   gachaCount  Int          @default(0) @map("gachaCount")
+=======
+  gachaCount  Int          @default(0)
+>>>>>>> 97df264409276b681807935068d3e9d30674e944
   rating      Int          @map("rating")
   createdAt   DateTime     @default(now()) @map("createdAt")
   updatedAt   DateTime     @updatedAt @map("updatedAt")
@@ -136,10 +140,32 @@ model Inventory {
   upgrade     Int      @default(0)
   isEquipped  Int?
   createdAt   DateTime @default(now())
+<<<<<<< HEAD
   updatedAt   DateTime @updatedAt @map("updatedAt")
+=======
+  updatedAt   DateTime
+>>>>>>> 97df264409276b681807935068d3e9d30674e944
   Item        Item     @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
   Manager     Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
 
   @@index([itemId], map: "TeamMember_itemId_fkey")
   @@index([managerId], map: "TeamMember_managerId_fkey")
 }
+<<<<<<< HEAD
+=======
+
+model Item {
+  itemId        Int         @id @default(autoincrement())
+  name          String
+  speed         Int
+  goalFinishing Int
+  shootPower    Int
+  defense       Int
+  stamina       Int
+  rarity        Int
+  itemImage     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime
+  Inventory     Inventory[]
+}
+>>>>>>> 97df264409276b681807935068d3e9d30674e944

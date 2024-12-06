@@ -55,9 +55,11 @@ router.get('/upgrade', authM, async (req, res, next) => {
                     },
                 },
             },
-            orderBy: { player: {
-                name: 'asc'
-            } },
+            orderBy: {
+                player: {
+                    name: 'asc',
+                },
+            },
         });
 
         return res.status(200).json(upgradableMembers);
@@ -137,11 +139,11 @@ router.patch('/upgrade', authM, async (req, res, next) => {
                 error: '서로 다른 등급끼리 강화할 수 없습니다.',
             });
         }
-        if (playerUpgrades[0] === 10) {
-            return res.status(400).json({
-                error: '이미 최고 등급에 도달한 카드이므로 강화할 수 없습니다.',
-            });
-        }
+        // if (playerUpgrades[0] === 10) {
+        //     return res.status(400).json({
+        //         error: '이미 최고 등급에 도달한 카드이므로 강화할 수 없습니다.',
+        //     });
+        // }
 
         await prisma.$transaction(
             async (tx) => {

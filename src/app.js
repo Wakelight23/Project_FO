@@ -19,16 +19,19 @@ import PlayGame from './routes/gameplay/playgame.router.js';
 import CaptainGame from './routes/gameplay/captaingame.router.js';
 import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
+import dotenv from 'dotenv';
+import cors from 'cors'; // CORS 미들웨어 import
 
+dotenv.config();
 const app = express();
-const PORT = 3001;
+const PORT = 3002;
 
 // 1. 기본 미들웨어
 app.use(express.json());
 
 // 2. CORS 설정 (Frontend 사용 시)
-
-// 3. 로깅 미들웨어
+app.use(cors());
+// 3. 로깅 미들웨어s
 
 // 4. 정적 파일 제공
 app.use(express.static('public'));
@@ -50,6 +53,8 @@ app.use((req, res, next) => {
 
 // 7. 에러 핸들링 (항상 마지막에 위치)
 app.use(errorHandlingMiddleware);
+
+console.log(process.env.DATABASE_URL);
 
 app.listen(PORT, () => {
     console.log(PORT, '포트로 서버가 열렸어요!');
