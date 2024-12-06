@@ -4,8 +4,8 @@ import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
 // 가격 설정
-const playerPrice = 0;
-const ItemPrice = 0;
+const playerPrice = 500;
+const ItemPrice = 300;
 
 // 로그 및 예외 처리 함수
 const isLog = false;
