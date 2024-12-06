@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>선수 명단</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <nav class="sidebar">
+                <button id="signup">
+                    <a href="/public/signup/signup.html">회원가입</a>
+                </button>
+                <button id="login">
+                    <a href="/public/login/login.html">로그인</a>
+                </button>
+                <button id="createCharacter">
+                    <a href="/public/manager/create.html">매니저 생성</a>
+                </button>
+                <button id="recruitPlayer">선수 영입</button>
+                <button id="viewRoster">
+                    <a href="/public/teamMember/teamMember.html"
+                        >선수 명단 보기<br />
+                        출전 선수 선발</a
+                    >
+                </button>
+                <button id="selectRoster">
+                    <a href="/public/teamMember/createRoster.html"
+                        >출전 선수 변경</a
+                    >
+                </button>
+                <button id="upgradePlayer">
+                    <a href="/public/teamMember/upgradeMember.html"
+                        >선수 강화</a
+                    >
+                </button>
+            </nav>
+            <main class="content">
+                <div class="tabs">
+                    <button id="sortByGrade">등급별</button>
+                    <button id="sortByName">이름별</button>
+                    <button id="sortByClub">구단별</button>
+                    <button id="sortByRarity">희귀도별</button>
+                    <button id="sortByPosition">포지션별</button>
+                </div>
+                <div class="list">
+                    <!-- 선수 목록이 동적으로 표시됨 -->
+                </div>
+                <div class="pagination">
+                    <button id="prevPage">←</button>
+                    <span id="currentPage">1</span>
+                    <button id="nextPage">→</button>
+                </div>
+                <div class="rosterIn">
+                    <!-- 숫자 외 입력 제한 (JavaScript) -->
+                    <label for="strictNumberInput">선발 선수ID 1:</label>
+                    <input
+                        id="playerId1"
+                        type="text"
+                        placeholder="숫자만 입력하세요"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    />
+                    <label for="strictNumberInput">선발 선수ID 2:</label>
+                    <input
+                        id="playerId2"
+                        type="text"
+                        placeholder="숫자만 입력하세요"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    />
+                    <label for="strictNumberInput">선발 선수ID 3:</label>
+                    <input
+                        id="playerId3"
+                        type="text"
+                        placeholder="숫자만 입력하세요"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    />
+                </div>
+                <!-- 선수 선발 버튼 -->
+                <div class="select-button-container">
+                    <button id="selectPlayers">선수 선발</button>
+                </div>
+            </main>
+        </div>
+        <script src="teamMember.js"></script>
+    </body>
+</html>

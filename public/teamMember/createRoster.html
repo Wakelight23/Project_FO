@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>선발 선수</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <nav class="sidebar">
+                <button id="signup">
+                    <a href="/public/signup/signup.html">회원가입</a>
+                </button>
+                <button id="login">
+                    <a href="/public/login/login.html">로그인</a>
+                </button>
+                <button id="createCharacter">
+                    <a href="/public/manager/create.html">매니저 생성</a>
+                </button>
+                <button id="recruitPlayer">선수 영입</button>
+                <button id="viewRoster">
+                    <a href="/public/teamMember/teamMember.html"
+                        >선수 명단 보기<br>
+                        출전 선수 선발</a
+                    >
+                </button>
+                <button id="selectRoster">
+                    <a href="/public/teamMember/createRoster.html"
+                        >출전 선수 변경</a
+                    >
+                </button>
+                <button id="upgradePlayer"><a href="/public/teamMember/upgradeMember.html">선수 강화</a></button>
+            </nav>
+            <main class="content">
+                <!-- 선수 카드 -->
+                <div class="selected-players">
+                    <!-- 동적으로 생성될 선수 카드들 -->
+                </div>
+
+                <!-- 예상 점수 -->
+                <div class="team-power">
+                    <h3>예상 점수: <span id="teamPower">0</span></h3>
+                </div>
+                <!-- 게임 플레이 버튼 -->
+                <div class="replace-container">
+                    <label for="strictNumberInput">선발 선수ID:</label>
+                    <input
+                        id="playerId1"
+                        type="text"
+                        placeholder="숫자만 입력하세요"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    />
+                    <label for="strictNumberInput">교체 선수ID:</label>
+                    <input
+                        id="playerId2"
+                        type="text"
+                        placeholder="숫자만 입력하세요"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    />
+                    <button id="replaceMember">선수 변경</button>
+                </div>
+                <!-- 게임 플레이 버튼 -->
+                <div class="play-button-container">
+                    <button id="playGame">게임 플레이</button>
+                </div>
+            </main>
+        </div>
+        <script src="createRoster.js"></script>
+    </body>
+</html>

@@ -23,7 +23,7 @@ import GameRecord from './routes/gameplay/record.router.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
 import authM from './middlewares/auth.js';
 const app = express();
-const PORT = 3001;
+const PORT = 3002;
 
 // 1. 기본 미들웨어
 app.use(express.json());
