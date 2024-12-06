@@ -144,32 +144,3 @@ model Record {
   @@index([managerId], map: "Record_managerId_fkey")
   @@map("Record")
 }
-
-model Equipment {
-  equipmentId Int     @id @default(autoincrement())
-  itemId      Int
-  managerId   Int
-  upgrade     Int     @default(0)
-  isEquipped  Int?
-  Item        Item    @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
-  Manager     Manager @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
-
-  @@index([itemId], map: "TeamMember_itemId_fkey")
-  @@index([managerId], map: "TeamMember_managerId_fkey")
-}
-
-model Item {
-  itemId        Int         @id @default(autoincrement())
-  name          String
-  speed         Int
-  goalFinishing Int
-  shootPower    Int
-  defense       Int
-  stamina       Int
-  rarity        Int
-  itemImage     String?
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
-  Equipment     Equipment[]
-}

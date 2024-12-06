@@ -41,7 +41,7 @@ router.get('/players/:playerId', async (req, res, next) => {
         }
 
         let isExistPlayer;
-        if (simpleLogic.checkAdmin(accountId)) {
+        if (await simpleLogic.checkAdmin(accountId)) {
             isExistPlayer = await prisma.player.findFirst({
                 select: {
                     playerId: true,
@@ -95,10 +95,10 @@ router.post('/players', async (req, res, next) => {
         //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!await simpleLogic.checkAdmin(accountId)) {
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         const {
@@ -160,7 +160,7 @@ router.post('/players/csv', upload.single('csv'), async (req, res, next) => {
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
+        if (!await simpleLogic.checkAdmin(accountId)) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
@@ -192,7 +192,7 @@ router.post('/players/:playerId', async (req, res, next) => {
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
+        if (!await simpleLogic.checkAdmin(accountId)) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
         const {
@@ -269,7 +269,7 @@ router.delete('/players/:playerId', async (req, res, next) => {
         if (!accountId) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
+        if (!await simpleLogic.checkAdmin(accountId)) {
             res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
