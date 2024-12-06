@@ -1,3 +1,4 @@
+const API_BASE = 'http://localhost:3002/api';
 const modal = document.getElementById('modal');
 const overlay = document.getElementById('overlay');
 const modalBody = document.getElementById('modal-body');
@@ -24,12 +25,12 @@ returnToGameBtn.addEventListener('click', closeModal);
 startGameBtn.addEventListener('click', async () => {
     const opponentId = document.getElementById('opponent-id').value;
     try {
-        const response = await fetch('/choicematch/start', {
+        const response = await fetch(`${API_BASE}/choicematch/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ opponentAccountId: opponentId }),
+            body: JSON.stringify({ opponentManagerId: opponentId }),
         });
         const data = await response.json();
         if (response.ok) {
@@ -61,13 +62,13 @@ startCaptainGameBtn.addEventListener('click', async () => {
     }
 
     try {
-        const response = await fetch('/captain/start', {
+        const response = await fetch(`${API_BASE}/captain/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                opponentAccountId: opponentId,
+                opponentManagerId: opponentId,
                 selectedPlayerIds: selectedPlayers,
             }),
         });
@@ -130,7 +131,7 @@ function flipCard(card) {
 
 async function showCaptainGameResult() {
     try {
-        const response = await fetch('/captain/result');
+        const response = await fetch(`${API_BASE}/captain/result`);
         const data = await response.json();
         if (response.ok) {
             let resultHtml = '<h3>대장전 결과</h3>';
