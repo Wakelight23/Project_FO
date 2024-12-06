@@ -56,6 +56,7 @@ router.get('/upgrade', authM, async (req, res, next) => {
                 },
             },
             orderBy: {
+                upgrade,
                 player: {
                     name: 'asc',
                 },
