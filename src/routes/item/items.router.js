@@ -53,11 +53,11 @@ router.get('/items/:itemId', async (req, res, next) => {
         //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         let isExistItem;
-        if (simpleLogic.checkAdmin(accountId)) {
+        if (await simpleLogic.checkAdmin(accountId)) {
             isExistItem = await prisma.item.findFirst({
                 select: {
                     itemId: true,
@@ -109,10 +109,10 @@ router.post('/items', async (req, res, next) => {
       //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!await simpleLogic.checkAdmin(accountId)) {
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         const {
@@ -166,10 +166,10 @@ router.post('/items/csv', upload.single('csv'), async (req, res, next) => {
       //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!await simpleLogic.checkAdmin(accountId)) {
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         const csvData = req.file.buffer.toString('utf-8');
@@ -198,10 +198,10 @@ router.post('/items/:itemId', async (req, res, next) => {
       //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!simpleLogic.checkAdmin(accountId)) {
-            res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!await simpleLogic.checkAdmin(accountId)) {
+            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
         const {
             name,
@@ -269,10 +269,10 @@ router.delete('/items/:itemsId', async (req, res, next) => {
       //어드민 체크
       const { accountId } = req.account;
       if (!accountId) {
-          res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+          return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
       }
-      if (!simpleLogic.checkAdmin(accountId)) {
-          res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+      if (!await simpleLogic.checkAdmin(accountId)) {
+          return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
       }
 
         if (!itemsId)
