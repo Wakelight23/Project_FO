@@ -25,32 +25,6 @@ body {
     margin: auto; /* 화면 중앙 정렬 */
 }
 
-.sidebar {
-    position: absolute; /* 사이드바 위치 고정 */
-    left: 0;
-    top: 0;
-    height: 100%; /* 화면 전체 높이 */
-    width: 200px;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-}
-
-.sidebar button {
-    font-family: 'Orbit', sans-serif;
-    margin: 5px 0;
-    padding: 10px;
-    border: none;
-    background: #28a745;
-    cursor: pointer;
-    text-align: center;
-}
-
-.sidebar button:hover {
-    background: #218838;
-}
-
 h1 {
     text-align: center;
     margin-bottom: 20px; /* 제목 아래 여백 */

@@ -45,9 +45,9 @@ export default async function authM(req, res, next) {
                 where: { email },
             });
 
-            const getmanagerId = await prisma.manager.findFirst({
-                where: { accountId: getaccountId.accountId },
-            });
+            // const getmanagerId = await prisma.manager.findFirst({
+            //     where: { accountId: getaccountId.accountId },
+            // });
 
             try {
                 // 리프레시 토큰을 데이터베이스에서 조회
@@ -73,7 +73,7 @@ export default async function authM(req, res, next) {
                     {
                         accountId: decodedRefreshToken.accountId,
                         isAdmin: decodedRefreshToken.isAdmin,
-                        managerId: getmanagerId.managerId,
+                        // managerId: getmanagerId.managerId,
                     },
                     process.env.SERVER_ACCESS_KEY,
                     { expiresIn: '1m' }
