@@ -3,7 +3,7 @@ import { prisma } from '../../utils/prisma/index.js';
 import authM from '../../middlewares/auth.js';
 const gachaRouter = express();
 
-//
+// 가격 설정
 const playerPrice = 500;
 const ItemPrice = 200;
 

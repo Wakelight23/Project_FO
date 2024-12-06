@@ -25,7 +25,7 @@ import cors from 'cors'; // CORS 미들웨어 import
 
 dotenv.config();
 const app = express();
-const PORT = 3001;
+const PORT = 3002;
 
 // 1. 기본 미들웨어
 app.use(express.json());
