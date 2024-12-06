@@ -1,30 +1,64 @@
-import { startCaptainGame, getCaptainResult } from './captainGame.js';
-import { startChoiceMatch, getChoiceMatchResult } from './choiceMatch.js';
-import { fetchRanking, fetchRecord } from './record.js';
+const modal = document.getElementById('modal');
+const overlay = document.getElementById('overlay');
+const modalBody = document.getElementById('modal-body');
+const returnToGameBtn = document.getElementById('return-to-game');
+const startGameBtn = document.getElementById('start-game');
+const startCaptainGameBtn = document.getElementById('start-captain-game');
+const gameProgress = document.getElementById('game-progress');
+const myCards = document.getElementById('my-cards');
+const opponentCards = document.getElementById('opponent-cards');
 
-// 대장전 게임 시작
-document
-    .getElementById('captain-start-form')
-    .addEventListener('submit', startCaptainGame);
+function openModal(content) {
+    modalBody.innerHTML = content;
+    modal.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+}
 
-// 일반 게임 시작
-document
-    .getElementById('choice-match-form')
-    .addEventListener('submit', startChoiceMatch);
+function closeModal() {
+    modal.classList.add('hidden');
+    overlay.classList.add('hidden');
+}
 
-// 전적 조회
-document.getElementById('fetch-record').addEventListener('click', fetchRecord);
+returnToGameBtn.addEventListener('click', closeModal);
 
-// 페이지 로드 시 랭킹 조회
-window.addEventListener('load', fetchRanking);
-
-// captainGame.js
-export async function startCaptainGame(e) {
-    e.preventDefault();
+startGameBtn.addEventListener('click', async () => {
     const opponentId = document.getElementById('opponent-id').value;
+    try {
+        const response = await fetch('/choicematch/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ opponentAccountId: opponentId }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            openModal(`
+                <h3>게임 결과</h3>
+                <p>${data.data.totalPower}</p>
+                <p>${data.data.opponentPower}</p>
+                <p>${data.data.randomResult}</p>
+                <p>${data.data.gameResult}</p>
+                <p>상대방: ${data.data.opponent.nickname} (레이팅: ${data.data.opponent.rating})</p>
+            `);
+        } else {
+            openModal(`<p>오류: ${data.error}</p>`);
+        }
+    } catch (error) {
+        openModal(`<p>오류: ${error.message}</p>`);
+    }
+});
+
+startCaptainGameBtn.addEventListener('click', async () => {
+    const opponentId = document.getElementById('captain-opponent-id').value;
     const selectedPlayers = Array.from(
         document.querySelectorAll('#player-selection input:checked')
     ).map((input) => input.value);
+
+    if (selectedPlayers.length !== 3) {
+        openModal('<p>3명의 선수를 선택해야 합니다.</p>');
+        return;
+    }
 
     try {
         const response = await fetch('/captain/start', {
@@ -39,17 +73,62 @@ export async function startCaptainGame(e) {
         });
         const data = await response.json();
         if (response.ok) {
-            document.getElementById('captain-result').textContent =
-                data.data.message;
+            startCaptainGameProgress(
+                data.data.selectedPlayers,
+                data.data.opponent.selectedPlayers
+            );
         } else {
-            document.getElementById('captain-result').textContent = data.error;
+            openModal(`<p>오류: ${data.error}</p>`);
         }
     } catch (error) {
-        console.error('Error:', error);
+        openModal(`<p>오류: ${error.message}</p>`);
     }
+});
+
+function startCaptainGameProgress(myPlayers, opponentPlayers) {
+    gameProgress.classList.remove('hidden');
+    document.getElementById('play-game').classList.add('hidden');
+    document.getElementById('captain-game').classList.add('hidden');
+
+    myCards.innerHTML = myPlayers
+        .map((player) => createCard(player, false))
+        .join('');
+    opponentCards.innerHTML = opponentPlayers
+        .map((player) => createCard(player, true))
+        .join('');
+
+    let round = 0;
+    const interval = setInterval(() => {
+        if (round < 3) {
+            flipCard(myCards.children[round]);
+            setTimeout(() => flipCard(opponentCards.children[round]), 1000);
+            round++;
+        } else {
+            clearInterval(interval);
+            setTimeout(showCaptainGameResult, 2000);
+        }
+    }, 2000);
 }
 
-export async function getCaptainResult() {
+function createCard(player, isOpponent) {
+    return `
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-front"></div>
+                <div class="card-back">
+                    <h3>${player.name}</h3>
+                    <p>능력치: ${player.power}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function flipCard(card) {
+    card.classList.add('flipped');
+}
+
+async function showCaptainGameResult() {
     try {
         const response = await fetch('/captain/result');
         const data = await response.json();
@@ -59,117 +138,39 @@ export async function getCaptainResult() {
                 resultHtml += `<p>라운드 ${match.round}: ${match.myPlayer.name} vs ${match.opponentPlayer.name} - ${match.result}</p>`;
             });
             resultHtml += `<p>최종 결과: ${data.data.finalResult}</p>`;
-            document.getElementById('captain-result').innerHTML = resultHtml;
+            openModal(resultHtml);
         } else {
-            document.getElementById('captain-result').textContent = data.error;
+            openModal(`<p>오류: ${data.error}</p>`);
         }
     } catch (error) {
-        console.error('Error:', error);
+        openModal(`<p>오류: ${error.message}</p>`);
     }
 }
 
-// choiceMatch.js
-export async function startChoiceMatch(e) {
-    e.preventDefault();
-    const opponentId = document.getElementById(
-        'choice-match-opponent-id'
-    ).value;
+returnToGameBtn.addEventListener('click', () => {
+    closeModal();
+    gameProgress.classList.add('hidden');
+    document.getElementById('play-game').classList.remove('hidden');
+    document.getElementById('captain-game').classList.remove('hidden');
+});
 
-    try {
-        const response = await fetch('/choicematch/start', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ opponentAccountId: opponentId }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-            document.getElementById('choice-match-result').textContent =
-                data.data.message;
-        } else {
-            document.getElementById('choice-match-result').textContent =
-                data.error;
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
+// 선수 선택 옵션 로드 (실제 구현 시 서버에서 데이터를 가져와야 함)
+function loadPlayerSelectionOptions() {
+    const playerSelection = document.getElementById('player-selection');
+    // 예시 데이터
+    const players = [
+        { id: 1, name: '선수1' },
+        { id: 2, name: '선수2' },
+        { id: 3, name: '선수3' },
+        { id: 4, name: '선수4' },
+        { id: 5, name: '선수5' },
+    ];
+    playerSelection.innerHTML = players
+        .map(
+            (player) =>
+                `<label><input type="checkbox" value="${player.id}"> ${player.name}</label>`
+        )
+        .join('');
 }
 
-export async function getChoiceMatchResult() {
-    try {
-        const response = await fetch('/choicematch/result');
-        const data = await response.json();
-        if (response.ok) {
-            let resultHtml = `
-                <p>${data.data.totalPower}</p>
-                <p>${data.data.opponentPower}</p>
-                <p>${data.data.randomResult}</p>
-                <p>${data.data.gameResult}</p>
-                <p>상대방: ${data.data.opponent.nickname} (레이팅: ${data.data.opponent.rating})</p>
-            `;
-            document.getElementById('choice-match-result').innerHTML =
-                resultHtml;
-        } else {
-            document.getElementById('choice-match-result').textContent =
-                data.error;
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-// record.js
-export async function fetchRanking() {
-    try {
-        const response = await fetch('/ranking');
-        const data = await response.json();
-        if (response.ok) {
-            const tableBody = document.querySelector('#ranking-table tbody');
-            tableBody.innerHTML = '';
-            data.data.forEach((rank) => {
-                const row = `
-                    <tr>
-                        <td>${rank.rank}</td>
-                        <td>${rank.nickname}</td>
-                        <td>${rank.rating}</td>
-                        <td>${rank.record.win}</td>
-                        <td>${rank.record.draw}</td>
-                        <td>${rank.record.lose}</td>
-                        <td>${rank.record.winRate}%</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        } else {
-            console.error('랭킹 조회 실패:', data.error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-export async function fetchRecord() {
-    const accountId = document.getElementById('record-account-id').value;
-    try {
-        const response = await fetch(`/record/${accountId}`);
-        const data = await response.json();
-        if (response.ok) {
-            let recordHtml = `
-                <h3>${data.data.nickname}의 전적</h3>
-                <p>레이팅: ${data.data.rating}</p>
-                <p>승: ${data.data.record.win}, 무: ${data.data.record.draw}, 패: ${data.data.record.lose}</p>
-                <p>승률: ${data.data.record.winRate}%</p>
-                <h4>최근 게임</h4>
-            `;
-            data.data.recentGames.forEach((game) => {
-                recordHtml += `<p>${game.result} - ${new Date(game.date).toLocaleDateString()}</p>`;
-            });
-            document.getElementById('record-result').innerHTML = recordHtml;
-        } else {
-            document.getElementById('record-result').textContent = data.error;
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
+loadPlayerSelectionOptions();
