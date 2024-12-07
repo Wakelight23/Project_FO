@@ -1,13 +1,5 @@
 const API_BASE = 'http://localhost:3002/api';
 
-function getAuthHeaders() {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-    };
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modal');
     const overlay = document.getElementById('overlay');
@@ -18,6 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameProgress = document.getElementById('game-progress');
     const myCards = document.getElementById('my-cards');
     const opponentCards = document.getElementById('opponent-cards');
+
+    const getAccessToken = () => localStorage.getItem('accessToken');
+    const email = localStorage.getItem('email');
+    console.log('email: ', email);
+
+    function getAuthHeaders() {
+        const accessToken = getAccessToken();
+        return {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            'x-info': email,
+        };
+    }
 
     function openModal(content) {
         modalBody.innerHTML = content;
@@ -47,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     openModal(`
                         <h3>게임 결과</h3>
-                        <p>${data.data.totalPower}</p>
-                        <p>${data.data.opponentPower}</p>
-                        <p>${data.data.randomResult}</p>
-                        <p>${data.data.gameResult}</p>
+                        <p>총 전투력: ${data.data.totalPower}</p>
+                        <p>상대방 전투력: ${data.data.opponentPower}</p>
+                        <p>랜덤 결과: ${data.data.randomResult}</p>
+                        <p>게임 결과: ${data.data.gameResult}</p>
                         <p>상대방: ${data.data.opponent.nickname} (레이팅: ${data.data.opponent.rating})</p>
                     `);
                 } else {
@@ -153,7 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function showCaptainGameResult() {
         try {
-            const response = await fetch(`${API_BASE}/captain/result`);
+            const response = await fetch(`${API_BASE}/captain/result`, {
+                headers: getAuthHeaders(),
+            });
             const data = await response.json();
             if (response.ok) {
                 let resultHtml = '<h3>대장전 결과</h3>';

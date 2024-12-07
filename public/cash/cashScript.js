@@ -26,21 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', fetchRoulett);
 });
 
+const accessToken = localStorage.getItem('accessToken'); // 로그인 후 저장된 토큰을 가져옴
+const email = localStorage.getItem('email');
+
 // 버튼 클릭 시 캐시 조회 요청
 async function fetchCash() {
-    const accessToken = localStorage.getItem('accessToken'); // 로그인 후 저장된 토큰을 가져옴
-
     if (!accessToken) {
         document.getElementById('resultMessage').innerText =
             '로그인이 필요합니다.';
         return;
     }
     try {
-        const response = await fetch('/cash', {
+        const response = await fetch('/api/cash', {
             method: 'GET',
             headers: {
-                Authorization: `Bearer ${accessToken}`, // 저장된 토큰을 Authorization 헤더에 추가
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`, // 인증 토큰
+                'x-info': email, // 헤더에 email 추가
             },
         });
 
@@ -88,6 +90,8 @@ async function fetchLuck() {
         }
 
         const data = await response.json();
+        alert(data.cash);
+
         document.getElementById('resultMessage').innerText =
             `이메일: ${data.data.email}, 캐시: ${data.data.cash}`;
     } catch (error) {
@@ -190,14 +194,14 @@ async function fetchRoulett() {
     const password = document.getElementById('passwordInput').value; // 입력된 password 값
 
     try {
-        const response = await fetch('/cash/roulette', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${accessToken}`, // 저장된 토큰을 Authorization 헤더에 추가
-                'Content-Type': 'application/json',
-            },
-            body: { amount, password },
-        });
+        // const response = await fetch('/cash/roulette', {
+        //     method: 'POST',
+        //     headers: {
+        //         Authorization: `Bearer ${accessToken}`, // 저장된 토큰을 Authorization 헤더에 추가
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: { amount, password },
+        // });
 
         if (!response.ok) {
             // 에러 메시지 출력
