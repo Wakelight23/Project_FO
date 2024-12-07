@@ -155,83 +155,101 @@ router.get('/cash', authM, async (req, res, next) => {
 
 /** 1. 다른 유저에게 캐시 선물API   비번!**/
 router.post('/cash/gift', authM, async (req, res, next) => {
-    const { accountId } = req.account;
-    const { senderEmail, receiverEmail, amount, password } = req.body;
     try {
+        const accountId = req.account.accountId;
+        const { receiverEmail, amount, password } = req.body;
+
         // 입력정보 확인
-        if (!senderEmail || !receiverEmail || !amount || !password) {
-            return res.status(404).json({
-                message:
-                    '송신자 이메일, 수신자 이메일, 금액, 비밀번호를 모두 입력해주세요.',
+        if (!receiverEmail || !amount || !password) {
+            return res.status(400).json({
+                error: '수신자 이메일, 금액, 비밀번호를 모두 입력해주세요.',
             });
         }
 
-        // 송신자 이메일 확인
-        const sender = await prisma.account.findFirst({
-            where: { accountId: +accountId, email: senderEmail },
-            select: {
-                email: true,
-                password: true,
-                manager: { select: { cash: true, managerId: true } },
+        // 송신자 정보 확인
+        const sender = await prisma.account.findUnique({
+            where: { accountId: Number(accountId) },
+            include: {
+                manager: true,
             },
         });
+
         if (!sender) {
             return res.status(404).json({
-                message: '송신자 이메일이 존재하지 않습니다.',
+                error: '송신자 계정을 찾을 수 없습니다.',
             });
         }
 
-        // 송신자 비번확인
-        const isPasswordMatch = await bcrypt.compare(password, sender.password); // (password, account.password);
-        if (!isPasswordMatch) {
-            return res
-                .status(404)
-                .json({ message: '비밀번호가 일치하지 않습니다.' });
+        if (!sender.manager) {
+            return res.status(404).json({
+                error: '송신자의 매니저 정보를 찾을 수 없습니다.',
+            });
         }
 
-        // 수신자 이메일 확인
-        const receiver = await prisma.account.findFirst({
+        // 비밀번호 확인
+        const isPasswordMatch = await bcrypt.compare(password, sender.password);
+        if (!isPasswordMatch) {
+            return res.status(401).json({
+                error: '비밀번호가 일치하지 않습니다.',
+            });
+        }
+
+        // 수신자 확인
+        const receiver = await prisma.account.findUnique({
             where: { email: receiverEmail },
-            select: { manager: { select: { cash: true, managerId: true } } },
+            include: {
+                manager: true,
+            },
         });
 
         if (!receiver) {
             return res.status(404).json({
-                message: '수신자 이메일이 존재하지 않습니다.',
+                error: '수신자 계정을 찾을 수 없습니다.',
             });
         }
 
-        // 캐시 1이상의 정수 확인
+        if (!receiver.manager) {
+            return res.status(404).json({
+                error: '수신자의 매니저 정보를 찾을 수 없습니다.',
+            });
+        }
+
+        // 금액 확인
         const parsedAmount = Number(amount);
         if (!Number.isInteger(parsedAmount) || parsedAmount < 1) {
-            return res.status(404).json({
-                message: '선물하는 금액은 1 이상의 정수여야 합니다.',
-            });
-        }
-
-        // 송신자 잔액 확인
-        if (sender.manager.cash < amount) {
             return res.status(400).json({
-                message: '송신자의 잔액이 부족합니다.',
+                // 404 -> 400으로 변경
+                error: '선물하는 금액을 1캐시 이상 입력해주세요.',
             });
         }
 
-        // 캐시 수정하기  내꺼 줄어들고 받은사람 늘어나고
-        await prisma.manager.update({
-            where: { managerId: sender.manager.managerId },
-            data: { cash: sender.manager.cash - amount },
-        });
-        await prisma.manager.update({
-            where: { managerId: receiver.manager.managerId },
-            data: { cash: receiver.manager.cash + amount },
-        });
+        // 잔액 확인
+        if (sender.manager.cash < parsedAmount) {
+            return res.status(400).json({
+                error: '잔액이 부족합니다.',
+            });
+        }
+
+        // 트랜잭션으로 캐시 이동 처리
+        await prisma.$transaction([
+            prisma.manager.update({
+                where: { managerId: sender.manager.managerId },
+                data: { cash: sender.manager.cash - parsedAmount },
+            }),
+            prisma.manager.update({
+                where: { managerId: receiver.manager.managerId },
+                data: { cash: receiver.manager.cash + parsedAmount },
+            }),
+        ]);
 
         return res.status(200).json({
-            message: `${receiverEmail}님에게 ${amount}캐시를 선물했습니다.`,
+            message: `${receiverEmail}님에게 ${parsedAmount}캐시를 선물했습니다.`,
         });
     } catch (error) {
         console.error('Error gifting cash:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res
+            .status(500)
+            .json({ error: '캐시 선물 중 오류가 발생했습니다.' });
     }
 });
 

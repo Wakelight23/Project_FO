@@ -132,7 +132,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p>체력: ${player.player.stamina}</p>
         <p>희귀도: ${player.player.rarity}</p>
         <p>등급: ${player.upgrade}</p>
-        <p>포지션: ${player.player.type}</p>
       </div>`
             )
             .join('');

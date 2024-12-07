@@ -4,15 +4,15 @@ import authM from '../../middlewares/auth.js';
 
 const router = express.Router();
 
-router.delete('/delete/:managerid', authM, async (req, res) => {
-    const { accountid } = req.account;
+router.delete('/delete/:managerId', authM, async (req, res) => {
+    const { accountId } = req.account;
 
     // 삭제할 캐릭터의 ID 값을 가져옵니다.
-    const managerid = parseInt(req.params.managerid, 10);
+    const managerId = parseInt(req.params.managerId, 10);
 
     // 삭제하려는 '캐릭터'을 가져옵니다. 없다면 에러를 발생시킵니다.
     const manager = await prisma.manager.findUnique({
-        where: { managerid: managerid },
+        where: { managerId: managerId },
     });
 
     if (!manager) {

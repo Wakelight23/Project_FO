@@ -1,15 +1,12 @@
-$("#menuSidebar").hide();
+$('#menuSidebar').hide();
 
+$('#menubox').on('mouseenter', function () {
+    $('#menuSidebar').show();
+});
 
-
-
-$("#menubox").on('mouseenter',function(){
-    $("#menuSidebar").show();
-  });
-
-$("#menuSidebar").on('mouseleave',function(){
-    $("#menuSidebar").hide();
-  });
+$('#menuSidebar').on('mouseleave', function () {
+    $('#menuSidebar').hide();
+});
 
 function on_tab_button_click(event) {
     console.log(event);
@@ -17,7 +14,6 @@ function on_tab_button_click(event) {
 
     const contentDiv = document.getElementById('container_id');
     let html_data;
-    
 
     switch (get_button_object.id) {
         case 'signup':
@@ -30,7 +26,7 @@ function on_tab_button_click(event) {
             html_data = '/public/manager/create.html';
             break;
         case 'recruitPlayer':
-            html_data = '/public/teamMember/teamMember.html';
+            html_data = '/public/gacha/gacha.html';
             break;
         case 'viewRoster':
             html_data = '/public/teamMember/teamMember.html';
@@ -54,6 +50,5 @@ function on_tab_button_click(event) {
     ></object>`;
     console.log(contentDiv);
     console.log(newHtmlString);
-    contentDiv.innerHTML=newHtmlString;
-
+    contentDiv.innerHTML = newHtmlString;
 }
