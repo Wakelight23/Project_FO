@@ -1,87 +1,88 @@
 # Project_FutsalOnline
 
-## Part : 게임 플레이
+# 기능
 
-- 자신의 TeamMember에서 능력치를 계산할 선수 3명을 선택한다
-- 선택된 3명의 선수들의 능력치 합산 = '전투력'
-- 각 선수들의 능력치에 설정한 가중치 더해서 전투력에 대한 차별점
-- 랜덤 수 하나를 뽑아서 승률 비교로 승/패 결정
-- 플레이한 게임 내용 기록
+## 인증 시스템 (유대원)
 
-## 게임 플레이 로직 계산 방식
+## 결제 시스템 (윤예원)
 
-1. myPower & opponentPower 계산
+## 선수 데이터 관리 (김종하)
 
-```Javascript
-// myPower 계산 예시
-const player = {
-  speed: 90,        // 90 * 1.2 = 108
-  goalFinishing: 85, // 85 * 1.5 = 127.5
-  shootPower: 88,   // 88 * 1.3 = 114.4
-  defense: 75,      // 75 * 1.1 = 82.5
-  stamina: 80       // 80 * 1.0 = 80
-};
-const upgrade = 2; // 강화 레벨 2 (10% 보너스)
-const powerScore = 108 + 127.5 + 114.4 + 82.5 + 80 = 512.4
-const myPower = powerScore * (1 + (2 * 0.05)) = 512.4 * 1.1 = 563.64
+## 선수 영입 (김정태)
 
-// opponentPower 계산
-const minPower = 563.64 * 0.8 = 450.91
-const maxPower = 563.64 * 1.2 = 676.37
-const opponentPower = 랜덤값(450.91 ~ 676.37)
+## 팀 편성 (최슬기)
+
+## 게임 플레이 (이기환)
+
+- 일반 매치, 대장전, 랭킹전으로 3가지의 게임 플레이
+- 일반 매치 : 선택된 3명의 능력치를 합산 후 비교 - 상대방 Id를 지정할 수 있다
+- 일반 대장전 : 3명의 선수의 순서를 정하여 상대방이 선택한 선수와 순서대로 각 선수 개인의 능력치 비교 - 상대방의 Id를 지정할 수 있으며 승리 조건은 3판 2선으로 2개의 선수의 능력치가 해당 배열의 선수의 능력치보다 높아야 한다
+- 랭킹전 : 선택한 선수들로 3:3 풋살 진행
+
+### 게임 플레이 방식
+
+<details>
+<summary>함수 설명</summary>
+
+1. calculateTeamPower(selectedPlayers)
+    - 선택된 선수들의 전체 전투력을 계산
+    - 각 선수의 능력치, 강화 수준, 장비를 고려하여 개별 전투력을 계산한 후 합산
+2. generateOpponentPower(playerPower)
+    - 상대방의 전투력을 생성
+    - 플레이어 전투력의 80%에서 120% 사이의 랜덤한 값을 반환
+3. determineWinner(myPower, opponentPower)
+    - 승패를 결정
+    - 전투력 차이에 따른 기본 승률을 계산하고, 랜덤 요소를 추가하여 최종 결과를 결정
+4. calculatePlayerPower(player, upgrade, equipment)
+    - 개별 선수의 전투력을 계산
+    - 선수의 기본 능력치, 강화 수준, 장비 보너스를 고려함
+5. updateGameResult(managerId, gameResult)
+    - 게임 결과를 데이터베이스에 저장
+    - 매니저의 레이팅, 랭킹 정보, 전적을 업데이트
+
+게임 진행 예시
+
+1. 팀 전투력 계산:
+
+```
+예를 들어, 3명의 선수가 있다고 가정했을 때,
+- 선수1: 속도 80, 골 결정력 85, 슛 파워 75, 수비력 70, 체력 90
+- 선수2: 속도 75, 골 결정력 80, 슛 파워 85, 수비력 75, 체력 85
+- 선수3: 속도 85, 골 결정력 70, 슛 파워 80, 수비력 85, 체력 80
+각 선수의 전투력을 계산하면:
+- 선수1: (80 * 1.2) + (85 * 1.5) + (75 * 1.3) + (70 * 1.1) + (90 * 1.0) = 445.5
+- 선수2: (75 * 1.2) + (80 * 1.5) + (85 * 1.3) + (75 * 1.1) + (85 * 1.0) = 445.5
+- 선수3: (85 * 1.2) + (70 * 1.5) + (80 * 1.3) + (85 * 1.1) + (80 * 1.0) = 442.5
+- 총 팀 전투력: 445.5 + 445.5 + 442.5 = 1333.5
 ```
 
-2. totalPower 계산
+2. 상대방 전투력 생성:
 
-```Javascript
-function calculateTeamPower(selectedPlayers) {
-  return selectedPlayers.reduce((total, member) => {
-    // 각 능력치 가중치 적용 -> 이 부분 적용할지 안 할지 미정
-    // 이쪽 부분은 임의 수치 설정 가능
-    const powerScore =
-      (speed * 1.2) +          // 스피드: 20% 추가
-      (goalFinishing * 1.5) +  // 골 결정력: 50% 추가
-      (shootPower * 1.3) +     // 슛파워: 30% 추가
-      (defense * 1.1) +        // 수비력: 10% 추가
-      (stamina * 1.0);         // 스태미나: 기본
-
-    // 강화 레벨 보너스 (레벨당 5% 추가)
-    // 데이터 테이블에 저장된 upgrade의 수치에 따라 5%씩 각 능력치에 가중치 적용
-    const upgradeBonus = 1 + (member.upgrade * 0.05);
-
-    return total + (powerScore * upgradeBonus);
-  }, 0);
-}
+```
+- 플레이어 팀 전투력이 1333.5라면, 상대방 전투력은 1066.8(80%)에서 1600.2(120%) 사이의 랜덤한 값이 됩니다.
+예: 1400
 ```
 
-3. 승패 결정 과정 (isWin)
+3. 승패 결정:
 
-```Javascript
-function determineWinner(myPower, opponentPower) {
-  // 승률 계산 예시
-  const powerDiff = myPower - opponentPower;
-  // 예: myPower = 600, opponentPower = 500
-  // powerDiff = 100
-
-  const winProbability = 0.5 + (powerDiff / (myPower + opponentPower)) * 0.5;
-  // 예: 0.5 + (100 / 1100) * 0.5 = 0.545 (54.5% 승률)
-
-  const randomFactor = Math.random(); // 0~1 사이 랜덤값
-  // 예: randomFactor = 0.4
-
-  const isWin = randomFactor < winProbability;
-  // 0.4 < 0.545 이므로 승리
-}
+```
+- 전투력 차이: 1333.5 - 1400 = -66.5
+- 기본 승률: 0.5 + (-66.5 / (1333.5 + 1400)) * 0.5 ≈ 0.4881 (48.81%)
+- 랜덤 요소 (0~1 사이의 값): 예를 들어 0.6
+- 결과: 0.6 > 0.4881이므로 패배
 ```
 
-4. 결과들을 종합한 결과 값
+4. 결과 저장:
 
-```javascript
-// 예시 케이스
-myPower: 563.64
-opponentPower: 520.00
-powerDiff: 43.64
-winProbability: 52.3%
-randomFactor: 0.4
-결과: 승리 (randomFactor < winProbability)
 ```
+- 매니저의 레이팅 1점 감소
+- 랭킹 테이블의 패배 횟수 1 증가
+- 전적 테이블에 패배 기록 추가
+```
+
+</details>
+
+<details>
+<summary>게임 플레이 설명</summary>
+
+</details>
