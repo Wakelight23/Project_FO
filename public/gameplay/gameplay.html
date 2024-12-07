@@ -11,7 +11,7 @@
             <h1>게임 플레이</h1>
         </header>
         <main>
-            <div class="game-start">
+            <div id="play-game" class="game-start">
                 <input
                     type="number"
                     id="opponent-id"
@@ -19,29 +19,29 @@
                 />
                 <button id="start-game">일반 게임 시작</button>
             </div>
+            <div id="captain-game" class="game-start">
+                <input
+                    type="number"
+                    id="captain-opponent-id"
+                    placeholder="상대방 매니저 ID"
+                />
+                <div id="player-selection"></div>
+                <button id="start-captain-game">대장전 게임 시작</button>
+            </div>
+            <div id="game-progress" class="hidden">
+                <div id="my-cards"></div>
+                <div id="opponent-cards"></div>
+            </div>
         </main>
 
-        <div id="result-modal" class="modal">
+        <div id="modal" class="modal hidden">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2>게임 결과</h2>
-                <div class="team-comparison">
-                    <div class="my-team">
-                        <h3>나의 팀</h3>
-                        <div id="my-players"></div>
-                        <p>총 전투력: <span id="my-total-power"></span></p>
-                    </div>
-                    <div class="opponent-team">
-                        <h3>상대방 팀</h3>
-                        <div id="opponent-players"></div>
-                        <p>
-                            총 전투력: <span id="opponent-total-power"></span>
-                        </p>
-                    </div>
-                </div>
-                <p id="game-result"></p>
+                <div id="modal-body"></div>
+                <button id="return-to-game">게임으로 돌아가기</button>
             </div>
         </div>
+        <div id="overlay" class="hidden"></div>
 
         <script type="module" src="./front_gameplay.js"></script>
     </body>
