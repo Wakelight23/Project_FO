@@ -237,6 +237,7 @@ router.get('/equipment/items', authM, async (req, res) => {
             data: inventories.map((inv) => ({
                 itemId: inv.itemId,
                 name: inv.item.name,
+                managerId: inv.managerId,
                 stats: {
                     speed: inv.item.speed,
                     goalFinishing: inv.item.goalFinishing,
