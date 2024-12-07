@@ -40,6 +40,28 @@ router.get('/cash/lucky', authM, async (req, res, next) => {
 
         const giftCash = Math.floor(Math.random() * 200) + 20;
 
+        if (account.manager.cash + giftCash > 2147483640) {
+            await prisma.manager.update({
+                where: { managerId: account.manager.managerId },
+                data: { cash: 2147483640 },
+            });
+            return res.status(200).json({
+                message: `LUCKY!!! 캐시함이 가득 채워졌습니다.`,
+                cash: giftCash,
+            });
+        } else {
+            // originalCache는 객체 형태. originalCache -> originalCache.cash
+            await prisma.manager.update({
+                where: { managerId: account.manager.managerId },
+                data: { cash: account.manager.cash + giftCash },
+            });
+
+            return res.status(200).json({
+                message: `LUCKY!!! ${giftCash}캐시를 받았습니다.`,
+                cash: giftCash,
+            });
+        }
+
         // originalCache는 객체 형태. originalCache -> originalCache.cash
         await prisma.manager.update({
             where: { managerId: account.manager.managerId },
@@ -55,6 +77,7 @@ router.get('/cash/lucky', authM, async (req, res, next) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 /**O 캐시 구매API email, 캐시, 비번! **/
 router.post('/cash/payment', authM, async (req, res, next) => {
