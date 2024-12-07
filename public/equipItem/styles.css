@@ -7,6 +7,7 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
     height: 100vh;
 }
 
@@ -262,6 +263,62 @@ h1 {
     text-align: center;
     font-size: 16px;
     font-weight: bold;
+}
+
+/* 헤더 스타일 */
+/* header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+} */
+
+/* 메인 컨테이너 */
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 카드 컨테이너 */
+.items-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* 카드 스타일 */
+.equipped-item-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.equipped-item-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.equipped-item-card h3 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    color: #444;
+}
+
+.equipped-item-card p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #555;
 }
 
 @media (max-width: 1200px) {

@@ -149,5 +149,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
+    document
+        .getElementById('equipItemsButton')
+        .addEventListener('click', () => {
+            // 아이템 장착 로직 처리 후 equippedItems.html로 이동
+            window.location.href = 'equippedItems.html';
+        });
+
     fetchData();
 });
