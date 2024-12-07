@@ -340,11 +340,11 @@ main {
     margin: 0 auto;
 }
 
-/* 카드 컨테이너 */
 .items-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    display: flex; /* Flexbox를 사용 */
+    flex-wrap: wrap; /* 화면 크기에 따라 줄바꿈 허용 */
+    justify-content: center; /* 카드가 가운데 정렬되도록 설정 */
+    gap: 1.5rem; /* 카드 간의 간격 */
     margin-top: 2rem;
 }
 

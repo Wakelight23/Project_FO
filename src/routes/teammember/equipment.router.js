@@ -233,6 +233,11 @@ router.get('/equipment/equipped', authM, async (req, res) => {
                 ? {
                       itemId: member.inventories[0].item.itemId,
                       name: member.inventories[0].item.name,
+                      speed: member.inventories[0].item.speed,
+                      goalFinishing: member.inventories[0].item.goalFinishing,
+                      shootPower: member.inventories[0].item.shootPower,
+                      defense: member.inventories[0].item.defense,
+                      stamina: member.inventories[0].item.stamina,
                   }
                 : null,
         }));

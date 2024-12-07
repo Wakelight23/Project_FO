@@ -47,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         item.equippedItem
                             ? `
                         <p>아이템 이름: ${item.equippedItem.name}</p>
+                        <p>아이템 속도: ${item.equippedItem.speed}</p>
+                        <p>아이템 골결정력: ${item.equippedItem.goalFinishing}</p>
+                        <p>아이템 수비력: ${item.equippedItem.defense}</p>
+                        <p>아이템 체력: ${item.equippedItem.stamina}</p>
                     `
                             : '<p>장착된 아이템이 없습니다.</p>'
                     }
