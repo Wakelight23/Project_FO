@@ -9,13 +9,13 @@ body {
     background-color: #f4f4f4;
     display: flex; /* Flexbox 레이아웃 */
     flex-direction: column;
-    height: 100vh;
+    /* height: 100vh; */
     margin: 200px;
 }
 
 .container {
     font-family: 'Orbit', sans-serif;
-    background: white;
+    background: rgb(255, 255, 255);
     padding: 50px; /* 박스 내부 여백 */
     border-radius: 8px; /* 둥근 모서리 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
@@ -29,57 +29,22 @@ body {
     margin: auto; /* 화면 중앙 정렬 */
 }
 
-.menubox {
-    position: absolute; /* 사이드바 위치 고정 */
-    left: 0;
-    top: 0;
-    height: 20px; /* 화면 전체 높이 */
-    width: 20px;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-}
-.sidebar {
-    position: absolute; /* 사이드바 위치 고정 */
-    left: 0;
-    top: 0;
-    height: 100%; /* 화면 전체 높이 */
-    width: 200px;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-}
-
-.sidebar button {
-    font-family: 'Orbit', sans-serif;
-    margin: 5px 0;
-    padding: 10px;
-    border: none;
-    background: #28a745;
-    cursor: pointer;
-    text-align: center;
-}
-
-.sidebar button:hover {
-    background: #218838;
-}
-
 h1 {
     text-align: center;
     margin-bottom: 20px; /* 제목 아래 여백 */
 }
 
-.cash-actions{    
-    background-color: #ad1313;
-    padding: 10px;
-    text-align: center;    
-    margin: 200px;
+#cash-actions{       
+        position: relative; /* 요소를 이동시키기 위해 relative를 사용 */
+        padding: 10px; 
 }
-.output{
-    padding: 10px;
+#output{
+    border-radius: 8px; /* 둥근 모서리 */
+    background-color: #ecfce8;
+    padding-top: 1px; 
+    padding-bottom: 10px;
     text-align: center;  
+    margin-bottom: 20px;
 }
 .form-group {
     margin-bottom: 15px;
