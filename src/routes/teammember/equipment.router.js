@@ -70,6 +70,7 @@ router.patch('/equipment/equip', authM, async (req, res) => {
 
         // 트랜잭션으로 아이템 장착 처리
         await prisma.$transaction(async (tx) => {
+            const usedInventoryIds = new Set();
             for (let i = 0; i < 3; i++) {
                 // 기존 장착 아이템 해제
                 await tx.inventory.updateMany({
@@ -122,20 +123,51 @@ router.patch('/equipment/equip', authM, async (req, res) => {
                         })),
                     });
                     continue;
+                } else {
+                    // 중복 inventoryId 확인
+                    if (usedInventoryIds.has(inventoryItem.inventoryId)) {
+                        // 중복 아이템 발견 시 사용 가능한 아이템 목록 조회
+                        const availableItems = await tx.inventory.findMany({
+                            where: {
+                                managerId: manager.managerId,
+                                isEquipped: false,
+                                inventoryId: {
+                                    notIn: Array.from(usedInventoryIds),
+                                },
+                            },
+                            include: {
+                                item: true,
+                            },
+                            take: 10, // 최대 10개의 아이템만 반환
+                        });
+
+                        throw new Error(
+                            JSON.stringify({
+                                message: `중복된 아이템 (inventoryId: ${inventoryItem.inventoryId})이 선택되었습니다.`,
+                                availableItems: availableItems.map((item) => ({
+                                    inventoryId: item.inventoryId,
+                                    itemId: item.itemId,
+                                    name: item.item.name,
+                                    power: item.item.power,
+                                })),
+                            })
+                        );
+                    }
+
+                    // 아이템 장착
+                    await tx.inventory.update({
+                        where: {
+                            inventoryId: inventoryItem.inventoryId,
+                        },
+                        data: {
+                            isEquipped: true,
+                            teamMemberId: Number(teamMemberIds[i]),
+                        },
+                    });
+
+                    usedInventoryIds.add(inventoryItem.inventoryId);
+                    equippedItems.push(inventoryItem);
                 }
-
-                // 아이템 장착
-                await tx.inventory.update({
-                    where: {
-                        inventoryId: inventoryItem.inventoryId,
-                    },
-                    data: {
-                        isEquipped: true,
-                        teamMemberId: Number(teamMemberIds[i]),
-                    },
-                });
-
-                equippedItems.push(inventoryItem);
             }
         });
 
@@ -152,6 +184,19 @@ router.patch('/equipment/equip', authM, async (req, res) => {
         });
     } catch (error) {
         console.error('장착 에러가 발생했습니다:', error);
+
+        // 중복 아이템 에러 처리
+        if (error.message.startsWith('{')) {
+            try {
+                const errorData = JSON.parse(error.message);
+                return res.status(400).json({
+                    error: errorData.message,
+                    availableItems: errorData.availableItems,
+                });
+            } catch (parseError) {
+                // JSON 파싱 실패 시 기본 에러 메시지 반환
+            }
+        }
         res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
     }
 });
