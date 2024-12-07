@@ -57,22 +57,22 @@ router.get('/ranking', async (req, res) => {
 });
 
 // 전적 조회 API
-router.get('/record/:nickname', async (req, res) => {
+router.get('/record/:accountId', async (req, res) => {
     try {
-        const { nickname } = req.params;
+        const { accountId } = req.params;
 
-        if (!nickname) {
-            return res.status(400).json({ error: '닉네임이 필요합니다.' });
+        if (!accountId) {
+            return res.status(400).json({ error: 'accountId가 필요합니다.' });
         }
 
-        const manager = await prisma.manager.findFirst({
-            where: { nickname },
+        const manager = await prisma.manager.findUnique({
+            where: { accountId: Number(accountId) },
         });
 
         if (!manager) {
-            return res.status(404).json({
-                error: '매니저 정보를 찾을 수 없습니다.',
-            });
+            return res
+                .status(404)
+                .json({ error: '매니저 정보를 찾을 수 없습니다.' });
         }
 
         const [records, ranking] = await Promise.all([

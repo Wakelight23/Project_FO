@@ -136,6 +136,43 @@ router.patch('/rosterIn', authM, async (req, res, next) => {
     }
 });
 
+/** 출전 선수를 확인하는 API */
+router.get('/roster', authM, async (req, res, next) => {
+    try {
+        const { accountId } = req.account;
+
+        // accoutId를 통해 managerId 가져오기
+        const managerId = await prisma.manager.findFirst({
+            where: {
+                accountId: +accountId,
+            },
+            select: {
+                managerId: true,
+            },
+        });
+
+        if (!managerId) {
+            return res.status(400).json({
+                error: '계정을 찾을 수 없습니다.',
+            });
+        }
+
+        const roster = await prisma.teamMember.findMany({
+            where: {
+                managerId: managerId.managerId,
+                isSelected: true,
+            },
+            include: {
+                player: true,
+            },
+        });
+
+        return res.status(200).json(roster);
+    } catch (err) {
+        next(err);
+    }
+});
+
 /** 선발 선수를 다른 선수로 변경하는 API */
 router.patch('/rosterOut', authM, async (req, res, next) => {
     // TO-DO: 토큰 인증

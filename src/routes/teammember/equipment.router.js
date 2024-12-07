@@ -70,17 +70,104 @@ router.patch('/equipment/equip', authM, async (req, res) => {
 
         // 트랜잭션으로 아이템 장착 처리
         await prisma.$transaction(async (tx) => {
-            // 새로운 아이템 장착
+            const usedInventoryIds = new Set();
             for (let i = 0; i < 3; i++) {
-                await tx.inventory.update({
+                // 기존 장착 아이템 해제
+                await tx.inventory.updateMany({
                     where: {
-                        inventoryId: Number(itemIds[i]),
+                        managerId: manager.managerId,
+                        teamMemberId: Number(teamMemberIds[i]),
+                        isEquipped: true,
                     },
                     data: {
-                        isEquipped: true,
-                        teamMemberId: Number(teamMemberIds[i]),
+                        isEquipped: false,
+                        teamMemberId: null,
                     },
                 });
+
+                // 새 아이템 찾기
+                let inventoryItem = await tx.inventory.findFirst({
+                    where: {
+                        itemId: Number(itemIds[i]),
+                        managerId: manager.managerId,
+                    },
+                });
+
+                if (!inventoryItem) {
+                    // 랜덤으로 3가지 아이템 선택
+                    const randomItems = await tx.inventory.findMany({
+                        where: {
+                            managerId: manager.managerId,
+                            isEquipped: false,
+                        },
+                        include: {
+                            item: true,
+                        },
+                        take: 3,
+                        orderBy: {
+                            inventoryId: 'asc',
+                        },
+                    });
+
+                    if (randomItems.length === 0) {
+                        throw new Error('장착 가능한 아이템이 없습니다.');
+                    }
+
+                    unavailableItems.push({
+                        itemId: itemIds[i],
+                        availableItems: randomItems.map((item) => ({
+                            inventoryId: item.inventoryId,
+                            itemId: item.itemId,
+                            name: item.item.name,
+                            power: item.item.power,
+                        })),
+                    });
+                    continue;
+                } else {
+                    // 중복 inventoryId 확인
+                    if (usedInventoryIds.has(inventoryItem.inventoryId)) {
+                        // 중복 아이템 발견 시 사용 가능한 아이템 목록 조회
+                        const availableItems = await tx.inventory.findMany({
+                            where: {
+                                managerId: manager.managerId,
+                                isEquipped: false,
+                                inventoryId: {
+                                    notIn: Array.from(usedInventoryIds),
+                                },
+                            },
+                            include: {
+                                item: true,
+                            },
+                            take: 10, // 최대 10개의 아이템만 반환
+                        });
+
+                        throw new Error(
+                            JSON.stringify({
+                                message: `중복된 아이템 (inventoryId: ${inventoryItem.inventoryId})이 선택되었습니다.`,
+                                availableItems: availableItems.map((item) => ({
+                                    inventoryId: item.inventoryId,
+                                    itemId: item.itemId,
+                                    name: item.item.name,
+                                    power: item.item.power,
+                                })),
+                            })
+                        );
+                    }
+
+                    // 아이템 장착
+                    await tx.inventory.update({
+                        where: {
+                            inventoryId: inventoryItem.inventoryId,
+                        },
+                        data: {
+                            isEquipped: true,
+                            teamMemberId: Number(teamMemberIds[i]),
+                        },
+                    });
+
+                    usedInventoryIds.add(inventoryItem.inventoryId);
+                    equippedItems.push(inventoryItem);
+                }
             }
         });
 
@@ -96,7 +183,67 @@ router.patch('/equipment/equip', authM, async (req, res) => {
             equippedItems,
         });
     } catch (error) {
-        console.error('Equipment error:', error);
+        console.error('장착 에러가 발생했습니다:', error);
+
+        // 중복 아이템 에러 처리
+        if (error.message.startsWith('{')) {
+            try {
+                const errorData = JSON.parse(error.message);
+                return res.status(400).json({
+                    error: errorData.message,
+                    availableItems: errorData.availableItems,
+                });
+            } catch (parseError) {
+                // JSON 파싱 실패 시 기본 에러 메시지 반환
+            }
+        }
+        res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
+    }
+});
+
+router.get('/equipment/equipped', authM, async (req, res) => {
+    try {
+        const { accountId } = req.account;
+
+        const manager = await prisma.manager.findUnique({
+            where: { accountId: Number(accountId) },
+            include: {
+                teamMembers: {
+                    where: { isSelected: true },
+                    include: {
+                        player: true,
+                        inventories: {
+                            where: { isEquipped: true },
+                            include: { item: true },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!manager) {
+            return res
+                .status(404)
+                .json({ error: '매니저 정보를 찾을 수 없습니다.' });
+        }
+
+        const equippedItems = manager.teamMembers.map((member) => ({
+            playerName: member.player.name,
+            equippedItem: member.inventories[0]
+                ? {
+                      itemId: member.inventories[0].item.itemId,
+                      name: member.inventories[0].item.name,
+                  }
+                : null,
+        }));
+
+        res.status(200).json({
+            data: {
+                equippedItems,
+            },
+        });
+    } catch (error) {
+        console.error('장착 아이템 조회 에러:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -134,6 +281,7 @@ router.get('/equipment/items', authM, async (req, res) => {
             data: inventories.map((inv) => ({
                 itemId: inv.itemId,
                 name: inv.item.name,
+                managerId: inv.managerId,
                 stats: {
                     speed: inv.item.speed,
                     goalFinishing: inv.item.goalFinishing,
@@ -144,7 +292,6 @@ router.get('/equipment/items', authM, async (req, res) => {
                 },
                 isEquipped: inv.isEquipped,
                 equippedTo: inv.teamMember?.player.name || null,
-                teamMemberId: inv.teamMember?.teamMemberId || null, // 팀 멤버 ID 추가
                 upgrade: inv.upgrade,
             })),
         });

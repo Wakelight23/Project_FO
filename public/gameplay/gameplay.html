@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>축구 매니저 게임</title>
+        <link rel="stylesheet" href="./gameplaystyle.css" />
+    </head>
+    <body>
+        <header>
+            <h1>게임 플레이</h1>
+        </header>
+        <main>
+            <div id="play-game" class="game-start">
+                <input
+                    type="number"
+                    id="opponent-id"
+                    placeholder="상대방 매니저 ID"
+                />
+                <button id="start-game">일반 게임 시작</button>
+            </div>
+            <div id="captain-game" class="game-start">
+                <input
+                    type="number"
+                    id="captain-opponent-id"
+                    placeholder="상대방 매니저 ID"
+                />
+                <div id="player-selection"></div>
+                <button id="start-captain-game">대장전 게임 시작</button>
+            </div>
+            <div id="game-progress" class="hidden">
+                <div id="my-cards"></div>
+                <div id="opponent-cards"></div>
+            </div>
+        </main>
+
+        <div id="modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="modal-body"></div>
+                <button id="return-to-game">게임으로 돌아가기</button>
+            </div>
+        </div>
+        <div id="overlay" class="hidden"></div>
+
+        <script type="module" src="./front_gameplay.js"></script>
+    </body>
+</html>
