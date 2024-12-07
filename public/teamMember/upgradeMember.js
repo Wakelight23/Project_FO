@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE = 'http://localhost:3002'; // API Base URL
+    // const API_BASE = 'http://localhost:3002'; // API Base URL
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
     const email = localStorage.getItem('email');
     console.log('email: ', email);
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const response = await fetch(`${API_BASE}/api/upgrade`, {
+            const response = await fetch(`/api/upgrade`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${accessToken}`, // 인증 토큰
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                const response = await fetch(`${API_BASE}/api/upgrade`, {
+                const response = await fetch(`/api/upgrade`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',

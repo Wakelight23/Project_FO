@@ -22,10 +22,10 @@ router.delete('/delete/:managerId', authM, async (req, res) => {
     }
 
     // 조회된 캐릭터를 삭제합니다.
+    // 매니저.accountId가 인증을 통해 현재 로그인한 사용자의 account.id와 같은지 판단
+    if (manager.accountId === accountId) {
+        await prisma.manager.delete({ where: { managerId } });
 
-    // 매니저.accountid가 인증을 통해 현재 로그인한 사용자의 account.id와 같은지 판단
-    if (manager.accountid === accountid) {
-        await prisma.manager.delete({ where: { managerid } });
         return res.status(200).json({ message: '매니저가 삭제되었습니다.' });
     } else {
         return res

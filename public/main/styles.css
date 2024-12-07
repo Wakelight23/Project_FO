@@ -54,13 +54,13 @@ body {
     margin: 5px 0;
     padding: 10px;
     border: none;
-    background: #28a745;
+    background: #555555;
     cursor: pointer;
     text-align: center;
 }
 
 .sidebar button:hover {
-    background: #218838;
+    background: #a8a8a8;
 }
 
 h1 {
