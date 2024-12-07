@@ -113,6 +113,7 @@ router.get('/equipment/items', authM, async (req, res) => {
                 },
                 isEquipped: inv.isEquipped,
                 equippedTo: inv.teamMember?.player.name || null,
+                teamMemberId: inv.teamMember?.teamMemberId || null, // 팀 멤버 ID 추가
                 upgrade: inv.upgrade,
             })),
         });

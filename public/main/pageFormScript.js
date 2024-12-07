@@ -25,6 +25,9 @@ function on_tab_button_click(event) {
         case 'createCharacter':
             html_data = '/public/manager/create.html';
             break;
+        case 'ranking':
+            html_data = '/public/ranking/ranking.html';
+            break;
         case 'recruitPlayer':
             html_data = '/public/gacha/gacha.html';
             break;
@@ -33,6 +36,12 @@ function on_tab_button_click(event) {
             break;
         case 'selectRoster':
             html_data = '/public/teamMember/createRoster.html';
+            break;
+        case 'equipItem':
+            html_data = '/public/equipItem/equipItem.html';
+            break;
+        case 'gamePlay':
+            html_data = '/public/gameplay/html/gameplay.html';
             break;
         case 'upgradePlayer':
             html_data = '/public/teamMember/upgradeMember.html';
