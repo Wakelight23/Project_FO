@@ -1,0 +1,167 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(-45deg, #000000, #e73c7e, #002735, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+nav {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+button {
+    margin: 20px 10px 0; /* 위쪽 여백 20px, 좌우 여백 10px, 아래쪽 여백 0 */
+    padding: 10px 20px; /* 버튼 패딩 */
+    background-color: rgba(0, 0, 0, 0.7); /* 기본 배경색 */
+    color: white; /* 글자색 */
+    border: none; /* 테두리 없음 */
+    border-radius: 5px; /* 둥근 모서리 */
+    font-size: 16px; /* 글자 크기 */
+    cursor: pointer; /* 커서 변경 */
+    transition:
+        background-color 0.3s,
+        transform 0.2s; /* 배경색과 변형 효과 */
+}
+
+button:hover {
+    background-color: rgba(255, 219, 112, 0.8); /* 호버 시 배경색 변화 */
+    transform: scale(1.05); /* 호버 시 살짝 확대 */
+}
+
+button:active {
+    transform: scale(0.95); /* 클릭 시 살짝 축소 */
+}
+
+.cardSlot {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 중앙 정렬 */
+}
+
+.row {
+    display: flex; /* 가로로 배치 */
+    justify-content: center; /* 중앙 정렬 */
+    margin-bottom: 20px; /* 각 행 사이의 간격 */
+}
+
+.container {
+    width: 220px;
+    height: 310px;
+    position: relative;
+    transition: all 0.1s;
+    margin: 10px; /* 카드 간의 간격 */
+}
+.overlay {
+    position: absolute;
+    width: 220px;
+    height: 310px;
+    background: linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255, 219, 112, 0.8) 45%,
+        rgba(132, 50, 255, 0.6) 50%,
+        transparent 54%
+    );
+    filter: brightness(1.1) opacity(0.8);
+    mix-blend-mode: color-dodge;
+    background-size: 150% 150%;
+    background-position: 100%;
+    transition: all 0.1s;
+}
+.card {
+    width: 220px;
+    height: 310px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s;
+}
+
+.card-front,
+.card-back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    border-radius: 8px;
+}
+
+.card-front {
+    /*background-image: url('https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX2/EX2_EN_20.png');*/
+    background-size: cover;
+    transform: rotateY(180deg); /* 앞면은 뒤집힌 상태로 시작 */
+    color: white;
+}
+
+.card-back {
+    background: #ccc; /* 뒷면 색상 또는 이미지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    border: 2px solid #000;
+}
+
+/* 카드가 회전될 때 */
+.container.flip .card {
+    transform: rotateY(180deg); /* 앞면이 보이도록 회전 */
+}
+
+.popup {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed; /* 화면 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* 반투명 배경 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 중앙 정렬 */
+    z-index: 1000; /* 최상위 레이어 */
+}
+
+.popup-content {
+    background-color: white; /* 팝업 배경색 */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+
+.close-button {
+    cursor: pointer; /* 커서 변경 */
+    font-size: 24px; /* 닫기 버튼 크기 */
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}

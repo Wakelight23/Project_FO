@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1; // 현재 페이지 값
     let orderBy = 'upgrade'; // 기본 정렬 방식
 
-    const API_BASE = 'http://localhost:3002';
+    // const API_BASE = 'http://localhost:3002';
 
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
     const email = localStorage.getItem('email');
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('요청 데이터:', requestBody); // 요청 데이터 확인
 
-            const response = await fetch(`${API_BASE}/api/myTeamMember`, {
+            const response = await fetch(`/api/myTeamMember`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
