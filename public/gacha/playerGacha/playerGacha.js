@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchCardsFromServer(20)
         );
     }
-    const accessToken = window.localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('accessToken');
 
     if (!accessToken) {
         window.location.href = '../index.html';
@@ -175,8 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 서버에서 카드 불러오기 시뮬레이션 함수
 async function fetchCardsFromServer(count) {
-    const accessToken = window.localStorage.getItem('accessToken');
-    const email = window.localStorage.getItem('email');
+    const accessToken = localStorage.getItem('accessToken');
+    const email = localStorage.getItem('email');
 
     const response = await fetch('/api/gacha/player', {
         method: 'POST',
