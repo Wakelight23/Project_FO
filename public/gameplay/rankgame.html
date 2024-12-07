@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>축구 매니저 게임 - 랭크 매치</title>
+        <link rel="stylesheet" href="./rankgamestyle.css" />
+    </head>
+    <body>
+        <div id="game-container">
+            <div id="score">
+                <span id="homeScore">0</span> - <span id="awayScore">0</span>
+            </div>
+            <div id="field">
+                <div id="center-line"></div>
+                <div id="home-goal" class="goal"></div>
+                <div id="away-goal" class="goal"></div>
+                <div id="home-player-1" class="player home-player"></div>
+                <div id="home-player-2" class="player home-player"></div>
+                <div id="home-player-3" class="player home-player"></div>
+                <div id="away-player-1" class="player away-player"></div>
+                <div id="away-player-2" class="player away-player"></div>
+                <div id="away-player-3" class="player away-player"></div>
+                <div id="ball"></div>
+            </div>
+            <div id="matchLogList"></div>
+        </div>
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2>게임 결과</h2>
+                <p id="result-message"></p>
+                <button id="return-to-game">처음으로 돌아가기</button>
+            </div>
+        </div>
+        <script type="module" src="./front_rankgame.js"></script>
+    </body>
+</html>
