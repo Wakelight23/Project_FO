@@ -17,19 +17,22 @@ function on_tab_button_click(event) {
 
     switch (get_button_object.id) {
         case 'signup':
-            html_data = '/public/signup/signup.html';
+            html_data = '../signup/sign.html';
             break;
         case 'login':
-            html_data = '/public/login/login.html';
+            html_data = '../login/login.html';
             break;
         case 'createCharacter':
-            html_data = '/public/manager/create.html';
+            html_data = '../manager/create.html';
+            break;
+        case 'ranking':
+            html_data = '../ranking/ranking.html';
             break;
         case 'recruitPlayer':
-            html_data = '/public/gacha/gacha.html';
+            html_data = '../gacha/playerGacha/playerGacha.html';
             break;
         case 'viewRoster':
-            html_data = '/public/teamMember/teamMember.html';
+            html_data = '../teamMember/teamMember.html';
             break;
         case 'selectRoster':
             html_data = '../teamMember/createRoster.html';
@@ -44,7 +47,7 @@ function on_tab_button_click(event) {
             html_data = '../gameplay/gameplay.html';
             break;
         case 'upgradePlayer':
-            html_data = '/public/teamMember/upgradeMember.html';
+            html_data = '../teamMember/upgradeMember.html';
             break;
 
         default:

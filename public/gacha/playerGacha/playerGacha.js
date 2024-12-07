@@ -192,7 +192,6 @@ async function fetchCardsFromServer(count) {
         alert('실패');
         throw new Error(`요청 실패: ${response.status}`);
     }
-    alert(response);
     const objects = await response.json();
     const items = objects.items;
     const newCards = items;

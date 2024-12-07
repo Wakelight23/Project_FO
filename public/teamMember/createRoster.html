@@ -13,50 +13,7 @@
                 <div class="selected-players">
                     <!-- 동적으로 생성될 선수 카드들 -->
                 </div>
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>선발 선수</title>
-        <link rel="stylesheet" href="styles.css" />
-    </head>
-    <body>
-        <div class="container">
-            <main class="content">
-                <!-- 선수 카드 -->
-                <div class="selected-players">
-                    <!-- 동적으로 생성될 선수 카드들 -->
-                </div>
 
-                <!-- 예상 점수 -->
-                <div class="team-power">
-                    <h3>예상 점수: <span id="teamPower">0</span></h3>
-                </div>
-                <!-- 게임 플레이 버튼 -->
-                <div class="replace-container">
-                    <label for="strictNumberInput">선발 선수ID:</label>
-                    <input
-                        id="playerId1"
-                        type="text"
-                        placeholder="숫자만 입력하세요"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    />
-                    <label for="strictNumberInput">교체 선수ID:</label>
-                    <input
-                        id="playerId2"
-                        type="text"
-                        placeholder="숫자만 입력하세요"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    />
-                    <button id="replaceMember">선수 변경</button>
-                </div>
-                <!-- 게임 플레이 버튼 -->
-                <div class="play-button-container">
-                    <button id="playGame">게임 플레이</button>
-                </div>
-            </main>
-        </div>
-        <script src="createRoster.js"></script>
-    </body>
                 <!-- 예상 점수 -->
                 <div class="team-power">
                     <h3>예상 점수: <span id="teamPower">0</span></h3>
@@ -88,4 +45,3 @@
         <script src="createRoster.js"></script>
     </body>
 </html>
-
