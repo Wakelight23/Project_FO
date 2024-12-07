@@ -20,7 +20,7 @@ document
             if (response.ok) {
                 // 로그인 성공 시 액세스 토큰 저장
                 localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('x-info', email);
+                localStorage.setItem('email', email);
                 document.getElementById('message').innerText = '로그인 성공!';
 
                 // 리디렉션 URL이 있는 경우
@@ -38,3 +38,4 @@ document
                 '로그인 중 오류가 발생했습니다.';
         }
     });
+
