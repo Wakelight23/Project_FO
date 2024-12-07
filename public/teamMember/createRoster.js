@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const API_BASE = 'http://localhost:3002'; // API URL
+    // const API_BASE = 'http://localhost:3002'; // API URL
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
     const playerIds =
         JSON.parse(localStorage.getItem('selectedPlayerIds')) || []; // 이전 페이지에서 저장한 선수 ID
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 // API 호출
-                const response = await fetch(`${API_BASE}/api/rosterOut`, {
+                const response = await fetch(`/api/rosterOut`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // 서버로 요청 보내기
-            const response = await fetch(`${API_BASE}/api/rosterIn`, {
+            const response = await fetch(`/api/rosterIn`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const API_BASE = 'http://localhost:3002';
+    // const API_BASE = 'http://localhost:3002';
     const getAccessToken = () => localStorage.getItem('accessToken');
     const playerIds =
         JSON.parse(localStorage.getItem('selectedPlayerIds')) || [];
@@ -18,13 +18,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 아이템 목록 및 선수 정보 가져오기
             const [playersResponse, itemsResponse] = await Promise.all([
-                fetch(`${API_BASE}/api/equipment/items`, {
+                fetch(`/api/equipment/items`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                         'x-info': email, // 헤더에 email 추가
                     },
                 }),
-                fetch(`${API_BASE}/api/rosterIn`, {
+                fetch(`/api/rosterIn`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             try {
                 const accessToken = getAccessToken();
-                const response = await fetch(`${API_BASE}/api/equipment/equip`, {
+                const response = await fetch(`/api/equipment/equip`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
