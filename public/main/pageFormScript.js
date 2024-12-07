@@ -41,7 +41,7 @@ function on_tab_button_click(event) {
             html_data = '../equipItem/equippedItems.html';
             break;
         case 'gamePlay':
-            html_data = '../gameplay/gameplay.html';
+            html_data = '../gameplay/html/gameplay.html';
             break;
         case 'upgradePlayer':
             html_data = '/public/teamMember/upgradeMember.html';
