@@ -3,10 +3,12 @@
 
 body {
     font-family: 'Orbit', sans-serif;
-    background-color: #f4f4f4;
+    background-color: #f9f9f9;
+    color: #333;
     margin: 0;
     padding: 0;
     display: flex;
+    line-height: 1.6;
     flex-direction: column;
     height: 100vh;
 }
@@ -100,17 +102,6 @@ h1 {
     padding: 10px;
 }
 
-.player-card {
-    flex: 1 1 calc(25% - 20px); /* 카드 크기를 25%로 설정, 여백을 감안 */
-    box-sizing: border-box; /* 패딩과 여백을 포함한 크기 계산 */
-    border: 1px solid #ddd;
-    padding: 10px;
-    background-color: #f9f9f9;
-    text-align: center;
-    min-width: 200px; /* 최소 너비 설정 */
-    max-width: 300px; /* 최대 너비 설정 */
-}
-
 .pagination {
     display: flex;
     justify-content: center;
@@ -170,10 +161,9 @@ h1 {
 .selected-players {
     display: flex; /* Flexbox로 레이아웃 설정 */
     flex-wrap: wrap; /* 화면 크기에 맞춰 줄바꿈 허용 */
-    justify-content: center; /* 카드들을 가운데 정렬 */
+    justify-content: center; /* 카드가 가운데 정렬되도록 설정 */
     gap: 20px; /* 카드 간의 간격 */
     padding: 20px; /* 전체 컨테이너의 내부 여백 */
-    background-color: #f9f9f9; /* 배경색 */
 }
 
 #selectPlayers:hover,
@@ -182,15 +172,60 @@ h1 {
 }
 
 .player-card {
-    flex: 1 1 calc(33.33% - 40px); /* 한 줄에 3개씩 배치 */
-    max-width: 300px; /* 카드의 최대 너비 */
-    min-width: 200px; /* 카드의 최소 너비 */
-    border: 1px solid #ddd; /* 테두리 */
-    padding: 15px; /* 내부 여백 */
+    width: 300px; /* 카드의 고정 너비 */
+    height: 350px; /* 카드의 고정 높이 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* 상단과 하단을 적절히 배치 */
     background-color: white; /* 카드 배경색 */
-    text-align: center; /* 내용 가운데 정렬 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    border: 1px solid #ddd; /* 테두리 */
     border-radius: 8px; /* 모서리를 둥글게 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+    padding: 15px; /* 내부 여백 */
+    box-sizing: border-box; /* 테두리를 포함한 크기 계산 */
+}
+
+.player-card h3 {
+    font-size: 1.2rem; /* 이름 폰트 크기 */
+    margin: 10px 0; /* 이름과 내용 간격 */
+}
+
+.player-card p {
+    font-size: 1rem;
+    margin: 5px 0; /* 내용 간격 */
+    color: #555;
+}
+
+/* 드롭다운 선택 스타일 */
+.player-card select {
+    width: 90%; /* 드롭다운 너비 */
+    padding: 10px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* 버튼 스타일 */
+.equip-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button#equipItemsButton {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button#equipItemsButton:hover {
+    background-color: #555;
 }
 
 #selectPlayers,

@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             playerItems
                                 .map(
                                     (item) =>
-                                        `<option value="${item.itemId}">${item.name} (속도: ${item.stats.speed}, 희귀도: ${item.stats.rarity})</option>`
+                                        `<option value="${item.itemId}">${item.name} (속도: ${item.stats.speed}, 골결정력: ${item.stats.goalFinishing}, 수비력: ${item.stats.defense}, 체력: ${item.stats.stamina}, 희귀도: ${item.stats.rarity})</option>`
                                 )
                                 .join('') ||
                             '<option disabled>아이템 없음</option>'
