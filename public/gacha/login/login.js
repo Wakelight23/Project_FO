@@ -16,6 +16,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const email = result.email;
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('x-info', email);
+        localStorage.setItem('email', email);
         alert('로그인 성공!' + accessToken + email);
         window.location.href = '../index.html';
     } else {
