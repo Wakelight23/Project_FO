@@ -10,11 +10,13 @@ body {
     display: flex; /* Flexbox 레이아웃 */
     flex-direction: column;
     /* height: 100vh; */
+    /* height: 100vh; */
     margin: 200px;
 }
 
 .container {
     font-family: 'Orbit', sans-serif;
+    background: rgb(255, 255, 255);
     background: rgb(255, 255, 255);
     padding: 50px; /* 박스 내부 여백 */
     border-radius: 8px; /* 둥근 모서리 */
