@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // `/api/equipment/items`와 `/api/roster` 데이터 가져오기
             const [itemsResponse, playersResponse] = await Promise.all([
                 fetch(`/api/equipment/items`, {
                     method: 'GET',
@@ -40,8 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const playersData = await playersResponse.json();
 
             console.log('선수 데이터:', playersData);
-
-            // 데이터가 배열인지 확인하고 처리
             const players = Array.isArray(playersData) ? playersData : [];
             const items = itemsData?.data || [];
 
@@ -65,7 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             'selectedPlayersContainer'
         );
 
-        // 선수와 아이템 렌더링
         playerContainer.innerHTML = players
             .map((player) => {
                 const playerItems = items.filter(
@@ -103,7 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const itemIds = [];
             const teamMemberIds = [];
 
-            // 선택된 아이템과 선수 ID 수집
             const playerCards = document.querySelectorAll(
                 '.player-card select'
             );
@@ -139,21 +134,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     );
                 }
 
-                const data = await response.json();
-                messageBox.textContent = '아이템이 성공적으로 장착되었습니다!';
-                messageBox.style.color = 'green';
+                alert('아이템 장착이 성공적으로 완료되었습니다!');
+                window.location.href = 'equippedItems.html';
             } catch (err) {
-                console.error(err.message);
-                messageBox.textContent = err.message;
-                messageBox.style.color = 'red';
+                console.error('에러 발생:', err.message);
+                alert(`에러 발생: ${err.message}`);
             }
-        });
-
-    document
-        .getElementById('equipItemsButton')
-        .addEventListener('click', () => {
-            // 아이템 장착 로직 처리 후 equippedItems.html로 이동
-            window.location.href = 'equippedItems.html';
         });
 
     fetchData();
