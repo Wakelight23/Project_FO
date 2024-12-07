@@ -105,16 +105,16 @@ model Item {
 }
 
 model Inventory {
-  inventoryId  Int        @id @default(autoincrement()) @map("inventoryId")
-  itemId       Int        @map("itemId")
-  managerId    Int        @map("managerId")
-  teamMemberId Int?       @map("teamMemberId")
-  upgrade      Int        @default(0) @map("upgrade")
-  isEquipped   Boolean    @default(false) @map("isEquipped")
-  createdAt    DateTime   @default(now()) @map("createdAt")
-  updatedAt    DateTime   @updatedAt @map("updatedAt")
-  item         Item       @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
-  manager      Manager    @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+  inventoryId  Int         @id @default(autoincrement()) @map("inventoryId")
+  itemId       Int         @map("itemId")
+  managerId    Int         @map("managerId")
+  teamMemberId Int?        @map("teamMemberId")
+  upgrade      Int         @default(0) @map("upgrade")
+  isEquipped   Boolean     @default(false) @map("isEquipped")
+  createdAt    DateTime    @default(now()) @map("createdAt")
+  updatedAt    DateTime    @updatedAt @map("updatedAt")
+  item         Item        @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
+  manager      Manager     @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
   teamMember   TeamMember? @relation(fields: [teamMemberId], references: [teamMemberId])
 
   @@unique([managerId, teamMemberId, isEquipped])
