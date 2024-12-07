@@ -97,9 +97,15 @@ router.post('/cash/payment', authM, async (req, res, next) => {
                 .json({ message: '비밀번호가 일치하지 않습니다.' });
         }
         // Manager 업데이트
+
+        const buyCashNumber = +buyCash;
         await prisma.manager.update({
             where: { managerId: account.manager.managerId },
-            data: { cash: +(account.manager.cash + buyCash) }, // 문자로 나왔음
+            data: {
+                cash: {
+                    increment: buyCashNumber,
+                },
+            }, // 문자로 나왔음
         });
 
         return res
@@ -331,10 +337,14 @@ router.post('/cash/roulette', authM, async (req, res, next) => {
         }
 
         let batR = Math.floor(betingAmount * multiplyC);
-
+        //account.manager.cash - betingAmount + batR
         await prisma.manager.update({
             where: { managerId: account.manager.managerId },
-            data: { cash: account.manager.cash - betingAmount + batR },
+            data: {
+                cash: {
+                    increment: batR - betingAmount,
+                },
+            },
         });
 
         return res.status(200).json({
