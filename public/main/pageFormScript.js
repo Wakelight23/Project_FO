@@ -25,6 +25,9 @@ function on_tab_button_click(event) {
         case 'createCharacter':
             html_data = '../manager/create.html';
             break;
+        case 'cash':
+            html_data = '../cash/cash.html';
+            break;
         case 'ranking':
             html_data = '../ranking/ranking.html';
             break;
