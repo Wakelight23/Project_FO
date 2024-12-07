@@ -103,7 +103,6 @@ function setupCardInteractions() {
         // 카드 클릭 시 팝업창 열기
         container.addEventListener('click', function () {
             // 팝업 내용 업데이트
-            // 팝업 내용 업데이트
             document.getElementById('popup-title').textContent = cardInfo.name; // 카드 이름
             document.getElementById('popup-image').src =
                 cardInfo.playerImage ||
