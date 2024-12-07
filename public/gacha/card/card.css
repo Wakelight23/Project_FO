@@ -1,0 +1,30 @@
+.container {
+  width: 220px;
+  height: 310px;
+  position: relative;
+  transition: all 0.1s;
+}
+.overlay {
+  position: absolute;
+  width: 220px;
+  height: 310px;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 219, 112, 0.8) 45%,
+    rgba(132, 50, 255, 0.6) 50%,
+    transparent 54%
+  );
+  filter: brightness(1.1) opacity(0.8);
+  mix-blend-mode: color-dodge;
+  background-size: 150% 150%;
+  background-position: 100%;
+  transition: all 0.1s;
+}
+.card {
+  width: 220px;
+  height: 310px;
+  background-image: url(https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX2/EX2_EN_20.png);
+  background-size: cover;
+  transition: all 0.1s;
+}

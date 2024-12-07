@@ -110,7 +110,7 @@ router.post('/cash/payment', authM, async (req, res, next) => {
 });
 
 /**O 캐시 조회API  email, 비번 추가하기 **/
-router.get('/cash', authM, async (req, res, next) => {
+router.get('/cash/get', authM, async (req, res, next) => {
     console.log('조회');
     const { accountId } = req.account;
 
