@@ -40,6 +40,9 @@ function on_tab_button_click(event) {
         case 'equipItem':
             html_data = '../equipItem/equipItem.html';
             break;
+        case 'equippedItems':
+            html_data = '../equipItem/equippedItems.html';
+            break;
         case 'gamePlay':
             html_data = '../gameplay/gameplay.html';
             break;

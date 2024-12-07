@@ -281,6 +281,7 @@ router.get('/equipment/items', authM, async (req, res) => {
             data: inventories.map((inv) => ({
                 itemId: inv.itemId,
                 name: inv.item.name,
+                managerId: inv.managerId,
                 stats: {
                     speed: inv.item.speed,
                     goalFinishing: inv.item.goalFinishing,
@@ -291,7 +292,7 @@ router.get('/equipment/items', authM, async (req, res) => {
                 },
                 isEquipped: inv.isEquipped,
                 equippedTo: inv.teamMember?.player.name || null,
-                teamMemberId: inv.teamMember?.teamMemberId || null,
+                teamMemberId: inv.teamMember?.teamMemberId || null, // 팀 멤버 ID 추가
                 upgrade: inv.upgrade,
             })),
         });
