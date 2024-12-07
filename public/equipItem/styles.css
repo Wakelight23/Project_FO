@@ -171,40 +171,61 @@ h1 {
     background-color: #610000;
 }
 
+/* 카드 스타일 수정 */
 .player-card {
-    width: 300px; /* 카드의 고정 너비 */
-    height: 350px; /* 카드의 고정 높이 */
+    width: 300px; /* 고정된 너비 */
+    height: 450px; /* 고정된 높이 */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* 상단과 하단을 적절히 배치 */
-    background-color: white; /* 카드 배경색 */
-    border: 1px solid #ddd; /* 테두리 */
-    border-radius: 8px; /* 모서리를 둥글게 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-    text-align: center; /* 텍스트 가운데 정렬 */
-    padding: 15px; /* 내부 여백 */
-    box-sizing: border-box; /* 테두리를 포함한 크기 계산 */
+    justify-content: flex-start; /* 텍스트와 이미지 위쪽 정렬 */
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow: hidden; /* 내용이 넘치지 않도록 설정 */
 }
 
+/* 이미지 스타일 */
+.player-card img {
+    width: 90%; /* 카드 너비에 맞춤 */
+    height: auto; /* 비율 유지 */
+    max-height: 180px; /* 최대 높이 제한 */
+    object-fit: cover; /* 이미지가 카드 내에 맞도록 조정 */
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* 텍스트 스타일 */
 .player-card h3 {
-    font-size: 1.2rem; /* 이름 폰트 크기 */
-    margin: 10px 0; /* 이름과 내용 간격 */
+    font-size: 1rem; /* 텍스트 크기 */
+    margin: 5px 0;
+    white-space: normal; /* 줄바꿈 허용 */
+    overflow-wrap: break-word; /* 단어가 길 경우 자동 줄바꿈 */
+    word-wrap: break-word; /* IE 지원 */
+    word-break: break-word; /* 단어 단위로 줄바꿈 */
+    line-height: 1.4; /* 줄 간격 조정 */
+    text-align: center;
 }
 
 .player-card p {
-    font-size: 1rem;
-    margin: 5px 0; /* 내용 간격 */
+    font-size: 0.95rem;
+    margin: 5px 0;
     color: #555;
+    line-height: 1.4; /* 텍스트 간격 */
 }
 
 /* 드롭다운 선택 스타일 */
 .player-card select {
-    width: 90%; /* 드롭다운 너비 */
-    padding: 10px;
+    width: 90%;
+    padding: 8px;
     font-size: 0.9rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    margin-top: 10px;
 }
 
 /* 버튼 스타일 */

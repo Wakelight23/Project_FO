@@ -52,6 +52,7 @@ router.get('/upgrade', authM, async (req, res, next) => {
                     select: {
                         name: true,
                         club: true,
+                        playerImage: true,
                     },
                 },
             },
