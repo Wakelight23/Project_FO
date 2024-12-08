@@ -149,7 +149,8 @@ router.patch('/upgrade', authM, async (req, res, next) => {
         await prisma.$transaction(
             async (tx) => {
                 // 확률 구하기
-                const probability = (1 / (playerUpgrades[0] + 1)) * 100;
+                const probability =
+                    (1 / ((playerUpgrades[0] * 1) / 2 + 1)) * 100;
                 const randomValue = Math.floor(Math.random() * 101); // 0이상 100이하의 랜덤한 정수 뽑기
 
                 if (randomValue > probability) {
