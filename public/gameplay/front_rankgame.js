@@ -1,282 +1,276 @@
-const accessToken = localStorage.getItem('accessToken');
-
-if (!accessToken) {
-    alert('로그인 먼저 해주세요');
-    location.href = '../gacha/login/login.html';
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const game = new SoccerGame();
-    game.initializePlayers();
-    game.startGameSimulation();
-});
-
 class SoccerGame {
     constructor() {
-        this.currentScore = { home: 0, away: 0 }; // 초기화된 점수
-        this.players = this.createPlayers(); // 선수 배열 초기화
-        this.ball = new SoccerBall();
-        this.modal = document.getElementById('modal');
-        this.resultMessage = document.getElementById('result-message');
+        // DOM 요소 초기화
+        this.field = document.querySelector('.field');
+        this.ball = document.querySelector('.ball');
+        this.homePlayers = Array.from(
+            document.querySelectorAll('.player.home')
+        );
+        this.awayPlayers = Array.from(
+            document.querySelectorAll('.player.away')
+        );
+        this.homeScore = document.querySelector('.home-score');
+        this.awayScore = document.querySelector('.away-score');
+        this.modal = document.querySelector('.modal');
+        this.resultText = document.querySelector('.result-text');
+
+        // 게임 초기화
+        this.initializeGame();
+        this.setupEventListeners();
     }
 
-    createPlayers() {
-        return [
-            // 홈 팀 플레이어
-            {
-                id: 'player1',
-                name: 'Home Player 1',
-                team: 'home',
-                role: 'attacker',
-                position: { x: 20, y: 30 },
-            },
-            {
-                id: 'player2',
-                name: 'Home Player 2',
-                team: 'home',
-                role: 'defender',
-                position: { x: 20, y: 50 },
-            },
-            {
-                id: 'player3',
-                name: 'Home Player 3',
-                team: 'home',
-                role: 'midfielder',
-                position: { x: 20, y: 70 },
-            },
+    initializeGame() {
+        // 점수 초기화
+        this.homeScore.textContent = '0';
+        this.awayScore.textContent = '0';
 
-            // 어웨이 팀 플레이어
-            {
-                id: 'player4',
-                name: 'Away Player 1',
-                team: 'away',
-                role: 'attacker',
-                position: { x: 80, y: 30 },
-            },
-            {
-                id: 'player5',
-                name: 'Away Player 2',
-                team: 'away',
-                role: 'defender',
-                position: { x: 80, y: 50 },
-            },
-            {
-                id: 'player6',
-                name: 'Away Player 3',
-                team: 'away',
-                role: 'midfielder',
-                position: { x: 80, y: 70 },
-            },
-        ];
+        // 초기 트랜지션 제거
+        [...this.homePlayers, ...this.awayPlayers, this.ball].forEach(
+            (element) => {
+                element.style.transition = 'none';
+            }
+        );
+
+        // 초기 위치 설정
+        this.setInitialPositions();
+
+        // 강제 리플로우
+        this.field.offsetHeight;
+
+        // 트랜지션 복원
+        [...this.homePlayers, ...this.awayPlayers, this.ball].forEach(
+            (element) => {
+                element.style.transition = 'all 0.5s ease-out';
+            }
+        );
     }
 
-    initializePlayers() {
-        const fieldElement = document.getElementById('field');
-
-        this.players.forEach((player) => {
-            const playerElement = document.createElement('div');
-            playerElement.id = player.id;
-            playerElement.className = `player ${player.team}-player ${player.role}`;
-            playerElement.style.left = `${player.position.x}%`;
-            playerElement.style.top = `${player.position.y}%`;
-            fieldElement.appendChild(playerElement);
+    setInitialPositions() {
+        // 선수 초기 위치 설정
+        this.homePlayers.forEach((player, index) => {
+            player.style.left = '20%';
+            player.style.top = `${30 + index * 20}%`;
         });
+
+        this.awayPlayers.forEach((player, index) => {
+            player.style.left = '80%';
+            player.style.top = `${30 + index * 20}%`;
+        });
+
+        // 공 초기 위치 설정
+        this.ball.style.left = '50%';
+        this.ball.style.top = '50%';
     }
 
-    animateBallToGoal(scorer, team) {
-        const ballElement = document.getElementById('ball');
-        const fieldElement = document.getElementById('field');
-
-        // 득점자의 위치 가져오기
-        const scorerElement = document.getElementById(scorer.id); // 선수 DOM 요소
-        const scorerRect = scorerElement.getBoundingClientRect();
-        const fieldRect = fieldElement.getBoundingClientRect();
-
-        // 골대 위치 계산
-        const goalX =
-            team === 'home' ? fieldRect.right - 20 : fieldRect.left + 20;
-        const goalY = fieldRect.top + fieldRect.height / 2;
-
-        // 공 위치 애니메이션
-        ballElement.style.transition = 'all 1s ease';
-        ballElement.style.left = `${goalX}px`;
-        ballElement.style.top = `${goalY}px`;
-
-        // 애니메이션 종료 후 상태 업데이트
-        setTimeout(() => {
-            this.updateScoreUI(); // 점수 업데이트
-        }, 1000);
-    }
-
-    async startGameSimulation() {
-        const loadingElement = document.getElementById('loading');
-        console.log('Game simulation started.');
-        loadingElement.style.display = 'block';
-
-        try {
-            const accessToken = localStorage.getItem('accessToken');
-            const email = localStorage.getItem('email');
-
-            if (!accessToken || !email) {
-                alert('로그인이 필요합니다. 다시 로그인해 주세요.');
-                throw new Error('Missing access token or email.');
-            }
-
-            const playingResponse = await fetch('/api/rankmatch/playing', {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'x-info': email,
-                },
+    setupEventListeners() {
+        const modalButton = document.querySelector('.modal-button');
+        if (modalButton) {
+            modalButton.addEventListener('click', () => {
+                window.location.href = './gameplay.html';
             });
-
-            if (!playingResponse.ok) {
-                throw new Error('Error in playing phase');
-            }
-
-            const resultResponse = await fetch('/api/rankmatch/result', {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'x-info': email,
-                },
-            });
-
-            if (!resultResponse.ok) {
-                throw new Error('Error fetching results');
-            }
-
-            const resultData = await resultResponse.json();
-            this.currentScore.home =
-                parseInt(resultData.score.split(':')[0]) || 0;
-            this.currentScore.away =
-                parseInt(resultData.score.split(':')[1]) || 0;
-            this.simulateMatchLog(resultData.matchLog);
-
-            setTimeout(() => {
-                this.showResult(resultData.result, resultData.score);
-            }, resultData.matchLog.length * 2000);
-        } catch (error) {
-            console.error('Error during game simulation:', error);
-        } finally {
-            loadingElement.style.display = 'none';
         }
     }
 
-    simulateMatchLog(matchLog) {
-        matchLog.forEach((log, index) => {
-            setTimeout(() => {
-                this.addMatchLog(log);
+    async simulateMatch(matchData) {
+        // 각 골에 대해 순차적으로 시뮬레이션 실행
+        for (let i = 0; i < matchData.goals.length; i++) {
+            const goal = matchData.goals[i];
 
-                const match = log.match(/(.+?)이\(가\) 골을 넣었습니다!/);
-                if (match) {
-                    const scorerName = match[1];
-                    const scorer = this.players.find(
-                        (player) => player.name === scorerName
-                    );
+            // 각 골 시뮬레이션 전에 딜레이
+            if (i > 0) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+            }
 
-                    if (scorer) {
-                        this.movePlayerToBall(scorer); // 득점자를 공으로 이동
-                        this.animateBallToGoal(scorer, scorer.team); // 공을 골대로 이동
-                    }
+            await this.simulateGoal(goal);
+        }
+
+        // 마지막 시뮬레이션 후 결과 표시 전 딜레이
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        this.showResult(`${matchData.goalData} <br> ${matchData.finalScore}`);
+    }
+
+    async simulateGoal(goalData) {
+        const { team } = goalData;
+        const attackingPlayers =
+            team === 'home' ? this.homePlayers : this.awayPlayers;
+        const defendingPlayers =
+            team === 'home' ? this.awayPlayers : this.homePlayers;
+        const targetX = team === 'home' ? '90%' : '10%';
+
+        // 1. 공격 선수들을 공으로 이동, 수비수들도 약간 뒤쪽으로 이동
+        await Promise.all([
+            this.movePlayersAroundBall(attackingPlayers, 'attack'),
+            this.movePlayersAroundBall(defendingPlayers, 'defend', team),
+        ]);
+
+        // 2. 잠시 대기
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // 3. 공을 골대로 이동하면서 수비수들은 뒤쪽으로 물러남
+        await Promise.all([
+            this.moveBallToGoal(targetX),
+            this.moveDefendersBack(defendingPlayers, team),
+        ]);
+
+        // 4. 점수 업데이트 및 대기
+        this.updateScore(team);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // 5. 모든 요소 초기 위치로 리셋
+        await this.resetPositions();
+    }
+
+    async movePlayersAroundBall(players, type, attackingTeam = null) {
+        const promises = players.map((player, index) => {
+            return new Promise((resolve) => {
+                let offsetX, offsetY;
+                const baseRadius = 10; // 기본 반경
+
+                if (type === 'attack') {
+                    // 공격수들은 공 주변에 삼각형 형태로 배치
+                    const angle = (index * 2 * Math.PI) / players.length;
+                    offsetX = Math.cos(angle) * baseRadius;
+                    offsetY = Math.sin(angle) * baseRadius;
+                } else {
+                    // 수비수들은 공격 방향에 따라 약간 뒤쪽에 위치
+                    const angle = (index * 2 * Math.PI) / players.length;
+                    const defenseRadius = baseRadius + 5; // 수비 반경은 약간 더 크게
+                    const defenseOffsetX = attackingTeam === 'home' ? 5 : -5; // 공격 방향에 따라 수비 위치 조정
+
+                    offsetX = Math.cos(angle) * defenseRadius + defenseOffsetX;
+                    offsetY = Math.sin(angle) * defenseRadius;
                 }
-            }, index * 2000);
+
+                player.style.transition = 'all 0.5s ease-out';
+                player.style.left = `calc(50% + ${offsetX}%)`;
+                player.style.top = `calc(50% + ${offsetY}%)`;
+
+                setTimeout(resolve, 500);
+            });
+        });
+
+        await Promise.all(promises);
+    }
+
+    async moveDefendersBack(defenders, attackingTeam) {
+        const promises = defenders.map((player, index) => {
+            return new Promise((resolve) => {
+                const baseOffsetY = (index - 1) * 10; // 수직 간격
+                const offsetX = attackingTeam === 'home' ? 15 : -15; // 수평 간격
+
+                player.style.transition = 'all 0.5s ease-out';
+                player.style.left = `calc(50% + ${offsetX}%)`;
+                player.style.top = `calc(50% + ${baseOffsetY}%)`;
+
+                setTimeout(resolve, 500);
+            });
+        });
+
+        return Promise.all(promises);
+    }
+
+    async moveBallToGoal(targetX) {
+        return new Promise((resolve) => {
+            this.ball.style.transition = 'all 0.5s ease-out';
+            this.ball.style.left = targetX;
+            setTimeout(resolve, 500); // 애니메이션 완료 보장
         });
     }
 
-    addMatchLog(log) {
-        const logItem = document.createElement('p');
-        logItem.textContent = log;
-        document.getElementById('matchLogList').appendChild(logItem);
+    updateScore(team) {
+        if (team === 'home') {
+            this.homeScore.textContent =
+                parseInt(this.homeScore.textContent) + 1;
+        } else {
+            this.awayScore.textContent =
+                parseInt(this.awayScore.textContent) + 1;
+        }
     }
 
-    showResult(result, score) {
-        const resultMessage = `
-            <p>최종 스코어: ${score}</p>
-            <p>결과: ${result}</p>
-        `;
-        this.resultMessage.innerHTML = resultMessage;
-        this.modal.style.display = 'block';
-    }
+    async resetPositions() {
+        return new Promise((resolve) => {
+            // 모든 요소에 트랜지션 적용
+            [...this.homePlayers, ...this.awayPlayers, this.ball].forEach(
+                (element) => {
+                    element.style.transition = 'all 0.5s ease-out';
+                }
+            );
 
-    resetBall() {
-        const ballElement = document.getElementById('ball');
-        ballElement.style.transition = 'none'; // 기존 애니메이션 제거
-        ballElement.style.left = '50%'; // 중앙으로 이동
-        ballElement.style.top = '50%';
-    }
+            // 위치 초기화
+            this.setInitialPositions();
 
-    initializePlayers() {
-        const fieldElement = document.getElementById('field');
-        this.players.forEach((player) => {
-            const playerElement = document.createElement('div');
-            playerElement.id = player.id;
-            playerElement.className = `player ${player.team}-player`;
-            playerElement.style.left = `${player.position.x}%`;
-            playerElement.style.top = `${player.position.y}%`;
-            fieldElement.appendChild(playerElement);
+            // 애니메이션 완료 대기
+            setTimeout(resolve, 500);
         });
     }
 
-    calculateRatingChange(result) {
-        const WIN_RATING = 10;
-        const LOSE_RATING = -8;
-        const DRAW_RATING = 0;
-
-        if (result === '승리') {
-            return WIN_RATING;
-        } else if (result === '패배') {
-            return LOSE_RATING;
-        } else if (result === '무승부') {
-            return DRAW_RATING;
-        }
-        return 0;
-    }
-
-    movePlayerToBall(player) {
-        const ballElement = document.getElementById('ball');
-        const playerElement = document.getElementById(player.id);
-
-        const ballRect = ballElement.getBoundingClientRect();
-        const playerRect = playerElement.getBoundingClientRect();
-
-        // 방향 계산
-        const dx = ballRect.left - playerRect.left;
-        const dy = ballRect.top - playerRect.top;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > 5) {
-            // 이동 방향과 속도 설정
-            const stepX = (dx / distance) * player.speed;
-            const stepY = (dy / distance) * player.speed;
-
-            // 플레이어 위치 업데이트
-            playerElement.style.left = `${playerRect.left + stepX}px`;
-            playerElement.style.top = `${playerRect.top + stepY}px`;
-        }
+    showResult(finalScore) {
+        this.resultText.innerHTML = `최종 스코어: ${finalScore}`;
+        this.modal.style.display = 'flex';
     }
 }
 
-class SoccerPlayer {
-    constructor(name, role, team) {
-        this.name = name;
-        this.role = role; // 'attacker', 'defender', 'goalkeeper'
-        this.team = team; // 'home' or 'away'
-        this.position = { x: 50, y: 50 };
-        this.speed = 2; // 기본 속도
-    }
-}
+// 게임 시작
+document.addEventListener('DOMContentLoaded', async () => {
+    const game = new SoccerGame();
 
-class SoccerBall {
-    constructor() {
-        this.position = { x: 50, y: 50 };
-        this.velocity = { x: 0, y: 0 };
-        this.friction = 0.98; // 마찰 계수
-    }
-}
+    // 테스트용 매치 데이터
+    let testMatchData = {
+        goals: [
+            { team: 'home', scorer: 1 },
+            { team: 'away', scorer: 4 },
+            { team: 'home', scorer: 2 },
+        ],
+        finalScore: '2-1',
+        goalData: '',
+    };
 
-document
-    .getElementById('return-to-game')
-    .addEventListener('click', async () => {
-        window.location.href = 'gameplay.html';
+    const accessToken = localStorage.getItem('accessToken');
+    const email = localStorage.getItem('email');
+
+    if (!accessToken || !email) {
+        alert('로그인이 필요합니다. 다시 로그인해 주세요.');
+        throw new Error('Missing access token or email.');
+    }
+
+    const playingResponse = await fetch('/api/rankmatch/playing', {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'x-info': email,
+        },
     });
+
+    if (!playingResponse.ok) {
+        throw new Error('Error in playing phase');
+    }
+
+    const resultResponse = await fetch('/api/rankmatch/result', {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'x-info': email,
+        },
+    });
+
+    if (!resultResponse.ok) {
+        throw new Error('Error fetching results');
+    }
+
+    const resultData = await resultResponse.json();
+
+    console.log(resultData);
+    testMatchData.finalScore = resultData.result;
+    testMatchData.goals = [];
+    testMatchData.goalData = resultData.matchLog[0];
+    let data =
+        testMatchData.finalScore === '패배'
+            ? { team: 'away', scorer: 1 }
+            : { team: 'home', scorer: 1 };
+    testMatchData.goals.push(data);
+
+    // 시뮬레이션 시작
+    setTimeout(() => {
+        game.simulateMatch(testMatchData);
+    }, 1000);
+});

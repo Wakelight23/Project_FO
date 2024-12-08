@@ -3,37 +3,45 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>축구 매니저 게임 - 랭크 매치</title>
-        <link rel="stylesheet" href="./rankgamestyle.css" />
+        <title>축구 게임 시뮬레이션</title>
+        <link rel="stylesheet" href="rankgamestyle.css" />
     </head>
     <body>
-        <div id="loading" style="display: none">결과를 불러오는 중...</div>
-        <!-- 로딩 표시 -->
-        <div id="game-container">
-            <!-- 스코어 표시 -->
-            <div id="score">
-                <span id="homeScore">0</span> - <span id="awayScore">0</span>
+        <div class="game-container">
+            <div class="scoreboard">
+                <span class="home-score">0</span>
+                <span>:</span>
+                <span class="away-score">0</span>
             </div>
 
-            <!-- 필드 -->
-            <div id="field">
-                <div id="center-line"></div>
-                <div id="ball" class="ball"></div>
-                <!-- 선수는 JS에서 동적으로 추가됨 -->
-            </div>
+            <div class="field">
+                <!-- Goals -->
+                <div class="goal home-goal"></div>
+                <div class="goal away-goal"></div>
 
-            <!-- 매치 로그 -->
-            <div id="matchLogList"></div>
+                <!-- Ball -->
+                <div class="ball"></div>
 
-            <!-- 결과 모달 -->
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <h2>게임 결과</h2>
-                    <p id="result-message"></p>
-                    <button id="return-to-game">처음으로 돌아가기</button>
-                </div>
+                <!-- Home Team Players -->
+                <div class="player home" data-player="1"></div>
+                <div class="player home" data-player="2"></div>
+                <div class="player home" data-player="3"></div>
+
+                <!-- Away Team Players -->
+                <div class="player away" data-player="4"></div>
+                <div class="player away" data-player="5"></div>
+                <div class="player away" data-player="6"></div>
             </div>
         </div>
-        <script type="module" src="./front_rankgame.js"></script>
+
+        <!-- Result Modal -->
+        <div class="modal" style="display: none">
+            <div class="modal-content">
+                <h2>경기 결과</h2>
+                <p class="result-text"></p>
+                <button class="modal-button">확인</button>
+            </div>
+        </div>
     </body>
+    <script src="front_rankgame.js"></script>
 </html>
