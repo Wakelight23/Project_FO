@@ -204,16 +204,11 @@ router.post('/cash/gift', authM, async (req, res, next) => {
     try {
         const accountId = req.account.accountId;
         const { receiverEmail, amount, password } = req.body;
-        const parsedAmount = +amount;
+
         // 입력정보 확인
-        if (!receiverEmail || !parsedAmount || !password) {
+        if (!receiverEmail || !amount || !password) {
             return res.status(400).json({
                 error: '수신자 이메일, 금액, 비밀번호를 모두 입력해주세요.',
-            });
-        }
-        if (parsedAmount > 2100000000) {
-            return res.status(400).json({
-                message: '캐시는 21억보다 작은 정수를 입력해주세요.',
             });
         }
 
@@ -266,7 +261,7 @@ router.post('/cash/gift', authM, async (req, res, next) => {
         }
 
         // 금액 확인
-
+        const parsedAmount = Number(amount);
         if (!Number.isInteger(parsedAmount) || parsedAmount < 1) {
             return res.status(400).json({
                 // 404 -> 400으로 변경
@@ -281,11 +276,6 @@ router.post('/cash/gift', authM, async (req, res, next) => {
             });
         }
 
-        if (account.manager.cash + parsedAmount > 2147483640) {
-            return res.status(400).json({
-                message: '선물 캐시가 상대방의 캐시함의 빈자리보다 큽니다.',
-            });
-        }
         // 트랜잭션으로 캐시 이동 처리
         await prisma.$transaction([
             prisma.manager.update({
@@ -308,10 +298,8 @@ router.post('/cash/gift', authM, async (req, res, next) => {
             .json({ error: '캐시 선물 중 오류가 발생했습니다.' });
     }
 });
-
 /** 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
 router.post('/cash/roulette', authM, async (req, res, next) => {
-    console.log('여기');
     const { accountId } = req.account;
     const { betAmount, password } = req.body;
     const betingAmount = +betAmount;

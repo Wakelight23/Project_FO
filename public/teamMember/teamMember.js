@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${accessToken}`,
+                        'x-info': email, // 헤더에 email 추가
                     },
                     body: JSON.stringify({
                         teamMemberId1: parseInt(playerId1, 10),
