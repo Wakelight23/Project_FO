@@ -21,7 +21,9 @@ button {
 }
 
 #playerList,
-#playerDetails {
+#playerDetails,
+#itemList,
+#itemDetails {
     margin-top: 10px;
     background-color: #f9f9f9;
     padding: 10px;
@@ -30,13 +32,17 @@ button {
 }
 
 #playerList ul,
-#playerDetails ul {
+#playerDetails ul,
+#itemList ul,
+#itemDetails ul {
     list-style-type: none;
     padding: 0;
 }
 
 #playerList li,
-#playerDetails li {
+#playerDetails li,
+#itemList li,
+#itemDetails li {
     margin: 5px 0;
 }
 .tabs {
@@ -62,7 +68,8 @@ button {
 }
 .tabcontent,
 .tabpagecontent,
-.tabplayercontent {
+.tabplayercontent ,
+.tabitemcontent {
     display: none;
     padding: 6px 12px;
     border-top: none;

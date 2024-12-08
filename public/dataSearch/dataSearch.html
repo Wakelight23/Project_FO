@@ -57,19 +57,19 @@
                     <div class="tabs">
                         <button
                             class="tabplayerlinks"
-                            onclick="openTab(event, 'newPlayer')"
+                            onclick="openPlayerTab(event, 'newPlayer')"
                         >
                             새로운 선수 추가
                         </button>
                         <button
                             class="tabplayerlinks"
-                            onclick="openTab(event, 'updatePlayer')"
+                            onclick="openPlayerTab(event, 'updatePlayer')"
                         >
                             선수 수정
                         </button>
                         <button
                             class="tabplayerlinks"
-                            onclick="openTab(event, 'deletePlayer')"
+                            onclick="openPlayerTab(event, 'deletePlayer')"
                         >
                             선수 삭제
                         </button>
@@ -222,8 +222,171 @@
             </div>
         </div>
         <div id="itemData" class="tabpagecontent">
-            <h3>탭 2</h3>
-            <p>탭 2의 내용입니다.</p>
+            <h1>아이템 관리 시스템</h1>
+            <div>
+                <h2>아이템 목록 조회</h2>
+                <button id="fetchitemsBtn">목록 조회</button>
+                <div id="itemList"></div>
+            </div>
+            <div>
+                <h2>아이템 상세 조회</h2>
+                <input
+                    type="text"
+                    id="itemIdInput"
+                    placeholder="아이템 ID 입력"
+                />
+                <button id="fetchitemDetailsBtn">상세 조회</button>
+                <div id="itemDetails"></div>
+            </div>
+            <div class="adminFuction">
+                <div class="container">
+                    <h1>CSV 파일 업로드</h1>
+                    <form id="uploadItemForm">
+                        <input
+                            type="file"
+                            id="csvitemFileInput"
+                            accept=".csv"
+                        />
+                        <button type="submit">업로드</button>
+                    </form>
+                    <pre id="itemOutput"></pre>
+                </div>
+
+                <div>
+                    <div class="tabs">
+                        <button
+                            class="tabitemlinks"
+                            onclick="openItemTab(event, 'newitem')"
+                        >
+                            새로운 아이템 추가
+                        </button>
+                        <button
+                            class="tabitemlinks"
+                            onclick="openItemTab(event, 'updateitem')"
+                        >
+                            아이템 수정
+                        </button>
+                        <button
+                            class="tabitemlinks"
+                            onclick="openItemTab(event, 'deleteitem')"
+                        >
+                            아이템 삭제
+                        </button>
+                    </div>
+                    <div id="newitem" class="tabitemcontent">
+                        <h2>새로운 아이템 추가</h2>
+                        <form id="additemForm">
+                            <input
+                                type="text"
+                                id="additemname"
+                                placeholder="이름"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="additemspeed"
+                                placeholder="스피드"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="additemgoalFinishing"
+                                placeholder="골마무리"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="additemshootPower"
+                                placeholder="슈팅파워"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="additemdefense"
+                                placeholder="수비"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="additemstamina"
+                                placeholder="스태미너"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="additemrarity"
+                                placeholder="레어도"
+                            />
+                            <button type="submit">추가</button>
+                        </form>
+                    </div>
+                    <div id="updateitem" class="tabitemcontent">
+                        <h2>아이템 수정</h2>
+                        <form id="updateitemForm">
+                            <input
+                                type="number"
+                                id="updateitemId"
+                                placeholder="아이템 ID 입력"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="updateitemname"
+                                placeholder="이름"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updateitemspeed"
+                                placeholder="스피드"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updateitemgoalFinishing"
+                                placeholder="골마무리"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updateitemshootPower"
+                                placeholder="슈팅파워"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updateitemdefense"
+                                placeholder="수비"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updateitemstamina"
+                                placeholder="스태미너"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="updateitemrarity"
+                                placeholder="레어도"
+                            />
+                            <button type="submit">수정</button>
+                        </form>
+                    </div>
+                    <div id="deleteitem" class="tabitemcontent">
+                        <h2>선수 삭제</h2>
+                        <form id="deleteitemForm">
+                            <input
+                                type="number"
+                                id="deleteitemId"
+                                placeholder="아이템 ID 입력"
+                                required
+                            />
+                            <button type="submit">삭제</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script src="dataSearch.js"></script>

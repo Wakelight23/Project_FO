@@ -1,7 +1,7 @@
 // src/routes/items.router.js
 import express from 'express';
 import multer from 'multer';
-import simpleLogic from '../../logic/simpleLogic.js'
+import simpleLogic from '../../logic/simpleLogic.js';
 import { prisma } from '../../utils/prisma/index.js';
 import { isValidInput } from '../teammember/createRoster.router.js';
 
@@ -53,7 +53,9 @@ router.get('/items/:itemId', async (req, res, next) => {
         //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         let isExistItem;
@@ -106,13 +108,17 @@ router.get('/items/:itemId', async (req, res, next) => {
 router.post('/items', async (req, res, next) => {
     // 어드민 일때만 생성이 가능하다.
     try {
-      //어드민 체크
+        //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!await simpleLogic.checkAdmin(accountId)) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!(await simpleLogic.checkAdmin(accountId))) {
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         const {
@@ -131,7 +137,7 @@ router.post('/items', async (req, res, next) => {
             !shootPower ||
             !defense ||
             !stamina ||
-            !rarity 
+            !rarity
         )
             return res
                 .status(400)
@@ -140,12 +146,12 @@ router.post('/items', async (req, res, next) => {
         const user = await prisma.item.create({
             data: {
                 name,
-                speed,
-                goalFinishing,
-                shootPower,
-                defense,
-                stamina,
-                rarity,
+                speed: +speed,
+                goalFinishing: +goalFinishing,
+                shootPower: +shootPower,
+                defense: +defense,
+                stamina: +stamina,
+                rarity: +rarity,
             },
         });
 
@@ -163,13 +169,17 @@ router.post('/items/csv', upload.single('csv'), async (req, res, next) => {
     // 어드민 일때만 생성이 가능하다.
     // 주의! 잘못된 데이터이어도 에러를 피하기 위해 기본값을 다 넣어 놨음.
     try {
-      //어드민 체크
+        //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!await simpleLogic.checkAdmin(accountId)) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!(await simpleLogic.checkAdmin(accountId))) {
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         const csvData = req.file.buffer.toString('utf-8');
@@ -195,13 +205,17 @@ router.post('/items/:itemId', async (req, res, next) => {
     try {
         const { itemId } = req.params;
 
-      //어드민 체크
+        //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
-        if (!await simpleLogic.checkAdmin(accountId)) {
-            return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
+        if (!(await simpleLogic.checkAdmin(accountId))) {
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
         }
         const {
             name,
@@ -243,12 +257,12 @@ router.post('/items/:itemId', async (req, res, next) => {
         const user = await prisma.item.update({
             data: {
                 name,
-                speed,
-                goalFinishing,
-                shootPower,
-                defense,
-                stamina,
-                rarity,
+                speed: +speed,
+                goalFinishing: +goalFinishing,
+                shootPower: +shootPower,
+                defense: +defense,
+                stamina: +stamina,
+                rarity: +rarity,
             },
             where: { itemId: +itemId },
         });
@@ -266,14 +280,18 @@ router.delete('/items/:itemsId', async (req, res, next) => {
     try {
         const { itemsId } = req.params;
 
-      //어드민 체크
-      const { accountId } = req.account;
-      if (!accountId) {
-          return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-      }
-      if (!await simpleLogic.checkAdmin(accountId)) {
-          return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
-      }
+        //어드민 체크
+        const { accountId } = req.account;
+        if (!accountId) {
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
+        }
+        if (!(await simpleLogic.checkAdmin(accountId))) {
+            return res
+                .status(500)
+                .json({ message: '서버에 이상이 생겼습니다.' });
+        }
 
         if (!itemsId)
             return res
@@ -311,28 +329,27 @@ router.delete('/items/:itemsId', async (req, res, next) => {
 function csvParsing(csvString) {
     //item 테이블 데이터
 
-//     itemId        Int         @id @default(autoincrement())
-//     name          String
-//     speed         Int
-//     goalFinishing Int
-//     shootPower    Int
-//     defense       Int
-//     stamina       Int
-//     rarity        Int
-//     itemImage     String?
+    //     itemId        Int         @id @default(autoincrement())
+    //     name          String
+    //     speed         Int
+    //     goalFinishing Int
+    //     shootPower    Int
+    //     defense       Int
+    //     stamina       Int
+    //     rarity        Int
+    //     itemImage     String?
 
     //리턴할 변수
     let itemCreateData = [];
     // 헤더 기준으로 데이터 인덱스 저장
-    let     
-    indexName = -1,
-    indexSpeed = -1,
-    indexGoalFinishing = -1,
-    indexShootPower    = -1,
-    indexDefense       = -1,
-    indexStamina       = -1,
-    indexRarity        = -1,
-    indexItemImage     = -1;
+    let indexName = -1,
+        indexSpeed = -1,
+        indexGoalFinishing = -1,
+        indexShootPower = -1,
+        indexDefense = -1,
+        indexStamina = -1,
+        indexRarity = -1,
+        indexItemImage = -1;
     //헤더 확인
     const scvHeaderSplit = csvString[0].split(',');
     for (let i in scvHeaderSplit) {
@@ -371,26 +388,33 @@ function csvParsing(csvString) {
         const csvSingleLine = csvString[i].split(',');
         if (csvSingleLine.length <= 0) continue;
         //1이 제일 높고 10이 제일 낮음으로 계산을 위해 (11- 레어도) 적용
-        const tmpRarity = (11 - (csvSingleLine[indexRarity] ?? simpleLogic.getRandomInt(1, 11)));
+        const tmpRarity =
+            11 -
+            (csvSingleLine[indexRarity] ?? simpleLogic.getRandomInt(1, 11));
         const singleItemData = {
             name: csvSingleLine[indexName] ?? '무명',
-            speed:
-                +(csvSingleLine[indexSpeed] ??
-                simpleLogic.getRandomInt(1, 5) * tmpRarity),
-            goalFinishing:
-                +(csvSingleLine[indexGoalFinishing] ??
-                simpleLogic.getRandomInt(1, 5) * tmpRarity),
-            shootPower:
-                +(csvSingleLine[indexShootPower] ??
-                simpleLogic.getRandomInt(1, 5) * tmpRarity),
-            defense:
-                +(csvSingleLine[indexDefense] ??
-                simpleLogic.getRandomInt(1, 5) * tmpRarity),
-            stamina:
-                +(csvSingleLine[indexStamina] ??
-                simpleLogic.getRandomInt(1, 5) * tmpRarity),
-                //레어도 복구
-                rarity: +(csvSingleLine[indexRarity] ?? (11 - tmpRarity)),
+            speed: +(
+                csvSingleLine[indexSpeed] ??
+                simpleLogic.getRandomInt(1, 5) * tmpRarity
+            ),
+            goalFinishing: +(
+                csvSingleLine[indexGoalFinishing] ??
+                simpleLogic.getRandomInt(1, 5) * tmpRarity
+            ),
+            shootPower: +(
+                csvSingleLine[indexShootPower] ??
+                simpleLogic.getRandomInt(1, 5) * tmpRarity
+            ),
+            defense: +(
+                csvSingleLine[indexDefense] ??
+                simpleLogic.getRandomInt(1, 5) * tmpRarity
+            ),
+            stamina: +(
+                csvSingleLine[indexStamina] ??
+                simpleLogic.getRandomInt(1, 5) * tmpRarity
+            ),
+            //레어도 복구
+            rarity: +(csvSingleLine[indexRarity] ?? 11 - tmpRarity),
             itemImage: csvSingleLine[indexItemImage] ?? '',
         };
         itemCreateData.push(singleItemData);
@@ -398,4 +422,4 @@ function csvParsing(csvString) {
     return itemCreateData;
 }
 
- export default router;
+export default router;
