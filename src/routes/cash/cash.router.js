@@ -40,6 +40,28 @@ router.get('/cash/lucky', authM, async (req, res, next) => {
 
         const giftCash = Math.floor(Math.random() * 200) + 20;
 
+        if (account.manager.cash + giftCash > 2147483640) {
+            await prisma.manager.update({
+                where: { managerId: account.manager.managerId },
+                data: { cash: 2147483640 },
+            });
+            return res.status(200).json({
+                message: `LUCKY!!! 캐시함이 가득 채워졌습니다.`,
+                cash: giftCash,
+            });
+        } else {
+            // originalCache는 객체 형태. originalCache -> originalCache.cash
+            await prisma.manager.update({
+                where: { managerId: account.manager.managerId },
+                data: { cash: account.manager.cash + giftCash },
+            });
+
+            return res.status(200).json({
+                message: `LUCKY!!! ${giftCash}캐시를 받았습니다.`,
+                cash: giftCash,
+            });
+        }
+
         // originalCache는 객체 형태. originalCache -> originalCache.cash
         await prisma.manager.update({
             where: { managerId: account.manager.managerId },
@@ -60,12 +82,19 @@ router.get('/cash/lucky', authM, async (req, res, next) => {
 router.post('/cash/payment', authM, async (req, res, next) => {
     const { accountId } = req.account;
     const { buyCash, password } = req.body;
+    const bCash = +buyCash;
     try {
         // 구매할 캐시가 유효한지 확인
-        console.log(buyCash);
-        if (!buyCash || buyCash <= 0) {
+        console.log(bCash);
+        if (!bCash || bCash <= 0) {
             return res.status(400).json({
                 message: '구매하려는 캐시는 0 이상의 정수를 입력해주세요.',
+            });
+        }
+
+        if (+bCash > 2100000000) {
+            return res.status(400).json({
+                message: '21억보다 작은 캐시를 입력해주세요.',
             });
         }
 
@@ -96,6 +125,13 @@ router.post('/cash/payment', authM, async (req, res, next) => {
                 .status(404)
                 .json({ message: '비밀번호가 일치하지 않습니다.' });
         }
+
+        if (account.manager.cash + bCash > 2147483640) {
+            return res.status(400).json({
+                message:
+                    '매니저는 2,147,483,640보다 큰 캐시를 보유할 수 없습니다.',
+            });
+        }
         // Manager 업데이트
 
         const buyCashNumber = +buyCash;
@@ -110,7 +146,7 @@ router.post('/cash/payment', authM, async (req, res, next) => {
 
         return res
             .status(200)
-            .json({ message: `${buyCash}캐시를 결제하셧습니다.` });
+            .json({ message: `${bCash}캐시를 결제하셧습니다.` });
     } catch (error) {
         console.error('Error fetching cash data:', error);
         return res
@@ -262,10 +298,8 @@ router.post('/cash/gift', authM, async (req, res, next) => {
             .json({ error: '캐시 선물 중 오류가 발생했습니다.' });
     }
 });
-
 /** 2. 돈 불리기 ( 행운의 룰렛)API 비번!**/
 router.post('/cash/roulette', authM, async (req, res, next) => {
-    console.log('여기');
     const { accountId } = req.account;
     const { betAmount, password } = req.body;
     const betingAmount = +betAmount;
@@ -297,13 +331,6 @@ router.post('/cash/roulette', authM, async (req, res, next) => {
                 .json({ message: '비밀번호가 일치하지 않습니다.' });
         }
 
-        // 캐시 보유금액
-        if (!Number.isInteger(betingAmount)) {
-            return res
-                .status(404)
-                .json({ message: '캐시는 정수로 적어주세요.' });
-        }
-
         // 캐시 보유금액 확인
         if (!Number.isInteger(betingAmount) || betingAmount < 1) {
             return res.status(404).json({
@@ -314,6 +341,11 @@ router.post('/cash/roulette', authM, async (req, res, next) => {
         if (betingAmount > account.manager.cash) {
             return res.status(404).json({
                 message: '보유 캐시보다 적은 금액만 걸 수 있습니다.',
+            });
+        }
+        if (betingAmount > 2100000000) {
+            return res.status(400).json({
+                message: '캐시는 21억보다 작은 정수를 입력해주세요.',
             });
         }
 
@@ -337,19 +369,24 @@ router.post('/cash/roulette', authM, async (req, res, next) => {
         }
 
         let batR = Math.floor(betingAmount * multiplyC);
-        //account.manager.cash - betingAmount + batR
-        await prisma.manager.update({
-            where: { managerId: account.manager.managerId },
-            data: {
-                cash: {
-                    increment: batR - betingAmount,
-                },
-            },
-        });
 
-        return res.status(200).json({
-            message: `${multiplyC}배에 당첨되셨습니다! ${batR} 캐시를 획득하셨습니다.`,
-        });
+        if (account.manager.cash - betingAmount + batR > 2147483640) {
+            await prisma.manager.update({
+                where: { managerId: account.manager.managerId },
+                data: { cash: 2147483640 },
+            });
+            return res.status(200).json({
+                message: `${multiplyC}배에 당첨되셨습니다! 캐시함이 꽉 채워졌습니다.`,
+            });
+        } else {
+            await prisma.manager.update({
+                where: { managerId: account.manager.managerId },
+                data: { cash: account.manager.cash - betingAmount + batR },
+            });
+            return res.status(200).json({
+                message: `${multiplyC}배에 당첨되셨습니다! ${batR} 캐시를 획득하셨습니다.`,
+            });
+        }
     } catch (error) {
         console.error('Error fetching cash data:', error);
         return res
@@ -368,6 +405,11 @@ router.post('/cash/game-result', async (req, res, next) => {
             return res.status(400).json({
                 message:
                     '승자, 패자 이메일, 경기결과, 0 이상의 보상캐시을 입력해주세요.',
+            });
+        }
+        if (amount > 2100000000) {
+            return res.status(400).json({
+                message: '캐시는 21억보다 작은 정수를 입력해주세요.',
             });
         }
 

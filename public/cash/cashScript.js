@@ -1,3 +1,10 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../gacha/login/login.html';
+}
+
 // DOM 로드 후 이벤트 리스너 연결
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('viewCashBtn');
@@ -192,7 +199,6 @@ async function fetchRoulett() {
     }
     const betAmount = document.getElementById('amountRInput').value; // 입력된 buyCash 값
     const password = document.getElementById('passwordRInput').value; // 입력된 password 값
-    alert(betAmount + password);
     try {
         const response = await fetch('/api/cash/roulette', {
             method: 'POST',
@@ -202,16 +208,6 @@ async function fetchRoulett() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ betAmount, password }),
-
-            // const response = await fetch('/api/cash/roulette', {
-            //     method: 'POST',
-            //     headers: {
-            //         Authorization: `Bearer ${accessToken}`, // 저장된 토큰을 Authorization 헤더에 추가
-            //         'x-info': email, //  헤더에 이메일 추가
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({ receiverEmail, amount, password }),
-            // });
         });
 
         if (!response.ok) {

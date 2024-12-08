@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>캐시 상점</title>
         <link rel="stylesheet" href="styles.css" />
-        <script src="cashScript.js"></script>
+        <script type="module" src="./cashScript.js"></script>
     </head>
 
     <body>
@@ -42,8 +42,6 @@
                         <!--캐시선물-->
                         <h2></h2>
                         <h1>캐시선물</h1>
-                        <!-- <label for="senderEmail">My 이메일:</label>
-                    <input type="senderEmail" id="senderEmail" required /> -->
                         <label for="receiverEmail">받는 사람 이메일:</label>
                         <input
                             type="receiverEmail"
@@ -69,9 +67,7 @@
                     </div>
                 </section>
 
-                <section id="action-forms" style="display: none">
-                    <!-- Form templates will be dynamically inserted here -->
-                </section>
+                <section id="action-forms" style="display: none"></section>
             </main>
         </div>
     </body>

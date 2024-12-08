@@ -1,3 +1,10 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../gacha/login/login.html';
+}
+
 let itemsPerPage = 10; // 페이지당 항목 수
 let currentPage = 1; // 현재 페이지
 let startPage = 1; // 시작 페이지 번호

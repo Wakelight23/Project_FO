@@ -1,3 +1,10 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../gacha/login/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const getAccessToken = () => localStorage.getItem('accessToken');
     const messageBox = document.getElementById('messageBox');

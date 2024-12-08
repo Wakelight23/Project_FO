@@ -1,3 +1,10 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (accessToken) {
+    alert('이미 로그인 되어있습니다.');
+    location.href = '../index.html';
+}
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -17,7 +24,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('x-info', email);
         localStorage.setItem('email', email);
-        alert('로그인 성공!' + accessToken + email);
         window.location.href = '../index.html';
     } else {
         alert(result.message || '로그인 실패!');
