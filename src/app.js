@@ -46,7 +46,7 @@ app.use('/api', [GameRecordRouter]); // gameRecord는 권한이 필요 없음
 app.use('/api', [SignRouter, ManagerRouter, DeleteRouter, SearchRouter]); // sign-login
 app.use('/api', [CashRouter]); // cash
 app.use('/api', [GachaRouter]); // gacha
-app.use('/api', authM,[ItemRouter]); // player
+app.use('/api', authM, [ItemRouter]); // player
 app.use('/api', authM, [PlayerRouter]); // player
 app.use('/api', [
     CreateRosterRouter,
