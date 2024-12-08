@@ -1,7 +1,8 @@
-const access = localStorage.getItem('accessToken');
-if (!access) {
-    alert('로그인 먼저 해주세요.');
-    window.location.href = '../index.html';
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../login/login.html';
 }
 
 function logout() {

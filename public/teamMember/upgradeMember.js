@@ -1,3 +1,10 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../gacha/login/login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // const API_BASE = 'http://localhost:3002'; // API Base URL
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
