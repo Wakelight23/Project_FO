@@ -2,6 +2,7 @@ import express from 'express';
 import { prisma } from '../../utils/prisma/index.js';
 import {
     calculateTeamPower,
+    calculatePlayerPower,
     generateOpponentPower,
     determineWinner,
     updateGameResult,
@@ -254,29 +255,23 @@ router.get('/selectplayer', authM, async (req, res) => {
         // 전투력 계산
         const totalPower = calculateTeamPower(selectedPlayers);
 
-        // 상대방 전투력 생성 (현재 전투력의 80~120% 범위)
-        const opponentPower = generateOpponentPower(totalPower);
-
-        // 승패 결정
-        const gameResult = determineWinner(totalPower, opponentPower);
-
-        // 게임 결과 저장
-        await prisma.record.create({
-            data: {
-                managerId: manager.managerId,
-                gameResult: gameResult.result, // 1: 승리, 0: 패배
-            },
+        // 선수 개인의 능력치 합산 계산
+        const playersWithPower = selectedPlayers.map((teamMember) => {
+            const totalPower = calculatePlayerPower(
+                teamMember.player,
+                teamMember.upgrade,
+                teamMember.inventories?.item
+            );
+            return {
+                ...teamMember,
+                totalPower, // 합산된 능력치 추가
+            };
         });
 
         res.json({
             myTeam: {
-                players: selectedPlayers,
-                power: totalPower,
+                players: playersWithPower, // 총합 능력치가 포함된 선수 데이터 반환
             },
-            opponent: {
-                power: opponentPower,
-            },
-            result: gameResult,
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
