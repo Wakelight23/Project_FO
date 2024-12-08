@@ -35,7 +35,7 @@ router.get('/rankmatch/start', authM, async (req, res) => {
                 .json({ error: '선택된 선수가 3명이 아닙니다.' });
         }
 
-        // 레이팅 범위 설정 (예: ±100)
+        // 레이팅 범위 설정
         const minRating = myManager.rating - 20;
         const maxRating = myManager.rating + 20;
 

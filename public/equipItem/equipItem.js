@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
                 return `
                 <div class="player-card">
+                    <img src=${player.player.playerImage || 'https://img.freepik.com/free-photo/soccer-game-concept_23-2151043855.jpg?ga=GA1.1.822806027.1732811017&semt=ais_hybrid'} width="200" height="250">
                     <h3>${player.player?.name || 'Unknown'}</h3>
                     <p>ID: ${player.teamMemberId}</p>
                     <p>속도: ${player.player?.speed || 'N/A'}</p>
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             playerItems
                                 .map(
                                     (item) =>
-                                        `<option value="${item.itemId}">${item.name} (속도: ${item.stats.speed}, 희귀도: ${item.stats.rarity})</option>`
+                                        `<option value="${item.itemId}">${item.name} (속도: ${item.stats.speed}, 골결정력: ${item.stats.goalFinishing}, 수비력: ${item.stats.defense}, 체력: ${item.stats.stamina}, 희귀도: ${item.stats.rarity})</option>`
                                 )
                                 .join('') ||
                             '<option disabled>아이템 없음</option>'

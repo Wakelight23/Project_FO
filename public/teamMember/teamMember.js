@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(
                 (player) => `
                 <div class="player-card">
+                    <img src=${player.player.playerImage || 'https://img.freepik.com/free-photo/soccer-game-concept_23-2151043855.jpg?ga=GA1.1.822806027.1732811017&semt=ais_hybrid'} width="200" height="250">
                     <h3>${player.player.name}</h3>
                     <p>ID: ${player.teamMemberId}</p>
                     <p>구단: ${player.player.club}</p>

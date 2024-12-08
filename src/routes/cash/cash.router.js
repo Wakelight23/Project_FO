@@ -133,9 +133,15 @@ router.post('/cash/payment', authM, async (req, res, next) => {
             });
         }
         // Manager 업데이트
+
+        const buyCashNumber = +buyCash;
         await prisma.manager.update({
             where: { managerId: account.manager.managerId },
-            data: { cash: account.manager.cash + bCash }, // 문자로 나왔음
+            data: {
+                cash: {
+                    increment: buyCashNumber,
+                },
+            }, // 문자로 나왔음
         });
 
         return res

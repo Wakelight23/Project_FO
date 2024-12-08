@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>축구 매니저 게임</title>
-        <link rel="stylesheet" href="gameplaystyle.css" />
+        <link rel="stylesheet" href="./gameplaystyle.css" />
     </head>
     <body>
         <header>
@@ -25,16 +25,17 @@
                     id="captain-opponent-id"
                     placeholder="상대방 매니저 ID"
                 />
-                <div id="player-selection"></div>
                 <button id="start-captain-game">대장전 게임 시작</button>
             </div>
-            <div id="game-progress" class="hidden">
-                <div id="my-cards"></div>
-                <div id="opponent-cards"></div>
+            <div id="rank-game" class="game-start">
+                <button id="start-rank-game">랭크 매치 시작</button>
+                <button id="check-rank-playing">랭크 매치 진행 확인</button>
+                <button id="check-rank-result">랭크 매치 결과 확인</button>
             </div>
+            <div id="game-area"></div>
         </main>
 
-        <div id="modal" class="modal">
+        <div id="modal" class="modal hidden">
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <div id="modal-body"></div>
@@ -43,6 +44,6 @@
         </div>
         <div id="overlay" class="hidden"></div>
 
-        <script type="module" src="front_gameplay.js"></script>
+        <script type="module" src="./front_gameplay.js"></script>
     </body>
 </html>

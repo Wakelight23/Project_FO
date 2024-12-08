@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>대장전 게임</title>
+        <link rel="stylesheet" href="./captaingamestyle.css" />
+    </head>
+    <body>
+        <header>
+            <h1>대장전 게임</h1>
+        </header>
+
+        <div id="game-area" class="hidden"></div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+
+        <div id="overlay"></div>
+
+        <script type="module" src="./front_gameplay.js"></script>
+        <script>
+            const API_BASE = 'http://localhost:3002/api';
+
+            const getAccessToken = () => localStorage.getItem('accessToken');
+            const email = localStorage.getItem('email');
+
+            function getAuthHeaders() {
+                const accessToken = getAccessToken();
+                return {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                    'x-info': email,
+                };
+            }
+            window.onload = function () {
+                const myPlayersData = localStorage.getItem('myPlayers');
+                const opponentPlayersData =
+                    localStorage.getItem('opponentPlayers');
+
+                console.log('myPlayersData:', myPlayersData);
+                console.log('opponentPlayersData:', opponentPlayersData);
+
+                if (myPlayersData && opponentPlayersData) {
+                    try {
+                        const myPlayers = JSON.parse(myPlayersData || '[]');
+                        const opponentPlayers = JSON.parse(
+                            opponentPlayersData || '[]'
+                        );
+
+                        if (
+                            Array.isArray(myPlayers) &&
+                            Array.isArray(opponentPlayers)
+                        ) {
+                            const gameArea =
+                                document.getElementById('game-area');
+                            gameArea.classList.remove('hidden');
+                            gameArea.innerHTML = `
+                        <div class="captain-game-board">
+                            <div class="my-cards">
+                                ${myPlayers.map((player, index) => createPlayerCard(player, true, index)).join('')}
+                            </div>
+                            <div class="opponent-cards">
+                                ${opponentPlayers.map((player, index) => createPlayerCard(player, false, index)).join('')}
+                            </div>
+                        </div>
+                    `;
+
+                            let round = 0;
+                            const interval = setInterval(() => {
+                                if (round < 3) {
+                                    flipCard(
+                                        document.querySelector(
+                                            `.my-cards .player-card:nth-child(${round + 1})`
+                                        )
+                                    );
+                                    setTimeout(() => {
+                                        flipCard(
+                                            document.querySelector(
+                                                `.opponent-cards .player-card:nth-child(${round + 1})`
+                                            )
+                                        );
+                                        round++;
+                                    }, 1000);
+                                } else {
+                                    clearInterval(interval);
+                                    setTimeout(showCaptainGameResult, 2000);
+                                }
+                            }, 2000);
+                        } else {
+                            throw new Error(
+                                '유효하지 않은 플레이어 데이터 형식'
+                            );
+                        }
+                    } catch (error) {
+                        console.error('JSON 파싱 오류:', error);
+                        openModal('<p>데이터 로드 중 오류가 발생했습니다.</p>');
+                    }
+                } else {
+                    console.error('플레이어 데이터가 없습니다.');
+                    openModal('<p>플레이어 데이터를 찾을 수 없습니다.</p>');
+                }
+            };
+
+            function createPlayerCard(player, isMyPlayer, index) {
+                return `
+            <div class="player-card ${isMyPlayer ? 'my-player' : 'opponent-player'}">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <h3>${isMyPlayer ? '내 선수' : '상대 선수'} ${index + 1}</h3>
+                    </div>
+                    <div class="card-back">
+                        <h3>${player.name}</h3>
+                        <p>능력치: ${player.power}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+            }
+
+            function flipCard(card) {
+                if (card) {
+                    card.querySelector('.card-inner').style.transform =
+                        'rotateY(180deg)';
+                }
+            }
+
+            function openModal(content) {
+                const modal = document.getElementById('modal');
+                const overlay = document.getElementById('overlay');
+                const modalBody = document.getElementById('modal-body');
+
+                if (modal && overlay && modalBody) {
+                    modalBody.innerHTML = content;
+                    modal.style.display = 'block';
+                    overlay.style.display = 'block';
+
+                    // 애니메이션 효과 추가
+                    modal.style.opacity = '0';
+                    setTimeout(() => {
+                        modal.style.opacity = '1';
+                        modal.style.transition = 'opacity 0.3s ease';
+                    }, 10);
+                }
+            }
+
+            function closeModal() {
+                const modal = document.getElementById('modal');
+                const overlay = document.getElementById('overlay');
+
+                if (modal && overlay) {
+                    modal.style.opacity = '0';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        overlay.style.display = 'none';
+                    }, 300);
+                }
+            }
+
+            async function showCaptainGameResult() {
+                try {
+                    const response = await fetch(`${API_BASE}/captain/result`, {
+                        headers: getAuthHeaders(),
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        let resultHTML = `
+                <h2>대장전 결과</h2>
+                <div class="match-results">
+            `;
+
+                        data.data.matches.forEach((match) => {
+                            resultHTML += `
+                    <div class="match-round">
+                        <p class="round-number">라운드 ${match.round}</p>
+                        <p class="match-details">
+                            <span class="player-name">${match.myPlayer.name}</span>
+                            <span class="vs">VS</span>
+                            <span class="player-name">${match.opponentPlayer.name}</span>
+                        </p>
+                        <p class="match-result">${match.result}</p>
+                    </div>
+                `;
+                        });
+
+                        resultHTML += `
+                </div>
+                <p class="final-result">최종 결과: ${data.data.finalResult}</p>
+                <button id="return-to-gameplay">게임 대기화면으로 돌아가기</button>
+            `;
+
+                        openModal(resultHTML);
+
+                        document
+                            .getElementById('return-to-gameplay')
+                            .addEventListener('click', () => {
+                                closeModal();
+                                window.location.href = 'gameplay.html';
+                            });
+                    } else {
+                        openModal(`<p class="error">오류: ${data.error}</p>`);
+                    }
+                } catch (error) {
+                    openModal(`<p class="error">오류: ${error.message}</p>`);
+                }
+            }
+        </script>
+    </body>
+</html>

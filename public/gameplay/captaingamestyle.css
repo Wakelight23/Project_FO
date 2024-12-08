@@ -1,0 +1,200 @@
+/* 게임 컨테이너 스타일 */
+.captain-game-board {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* 카드 컨테이너 스타일 */
+.my-cards,
+.opponent-cards {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    perspective: 1500px;
+}
+
+/* 카드 스타일 */
+.player-card {
+    width: 250px;
+    height: 350px;
+    position: relative;
+    transition: all 0.4s ease;
+    transform-style: preserve-3d;
+}
+
+/* 카드 내부 스타일 */
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    background: linear-gradient(145deg, #1e3c72, #2a5298);
+    border: 4px solid #ffd700;
+    border-radius: 15px;
+}
+
+/* 카드 앞면과 뒷면 공통 스타일 */
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+}
+
+/* 카드 앞면 스타일 */
+.card-front {
+    background: linear-gradient(145deg, #1e3c72, #2a5298);
+    color: #fff;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* 카드 뒷면 스타일 */
+.card-back {
+    background: linear-gradient(145deg, #2a5298, #1e3c72);
+    transform: rotateY(180deg);
+    padding: 20px;
+}
+
+/* 내 선수 카드 스타일 */
+.my-player .card-back {
+    background: linear-gradient(145deg, #1e3c72, #2a5298);
+    border: 2px solid #ffd700;
+}
+
+/* 상대방 선수 카드 스타일 */
+.opponent-player .card-back {
+    background: linear-gradient(145deg, #720000, #980000);
+    border: 2px solid #ffd700;
+}
+
+/* 카드 내용 스타일 */
+.card-front h3,
+.card-back h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffd700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.card-back p {
+    font-size: 20px;
+    color: #fff;
+    margin: 8px 0;
+    font-weight: 500;
+}
+
+/* 능력치 표시 */
+.power-stat {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin: 5px 0;
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+/* 승패 표시 효과 */
+.winner::after {
+    content: 'WINNER';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 40px;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: 700;
+    letter-spacing: 2px;
+    z-index: 10;
+    animation: showResult 0.5s ease forwards;
+}
+
+@keyframes showResult {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-30deg) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(-30deg) scale(1);
+    }
+}
+
+/* 결과 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 80%;
+    width: 500px;
+}
+
+.modal h2 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.modal p {
+    font-size: 16px;
+    margin: 10px 0;
+    color: #34495e;
+    line-height: 1.5;
+}
+
+#return-to-gameplay {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s ease;
+}
+
+#return-to-gameplay:hover {
+    background: #2980b9;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}

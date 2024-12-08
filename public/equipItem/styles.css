@@ -3,10 +3,12 @@
 
 body {
     font-family: 'Orbit', sans-serif;
-    background-color: #f4f4f4;
+    background-color: #f9f9f9;
+    color: #333;
     margin: 0;
     padding: 0;
     display: flex;
+    line-height: 1.6;
     flex-direction: column;
     height: 100vh;
 }
@@ -100,17 +102,6 @@ h1 {
     padding: 10px;
 }
 
-.player-card {
-    flex: 1 1 calc(25% - 20px); /* 카드 크기를 25%로 설정, 여백을 감안 */
-    box-sizing: border-box; /* 패딩과 여백을 포함한 크기 계산 */
-    border: 1px solid #ddd;
-    padding: 10px;
-    background-color: #f9f9f9;
-    text-align: center;
-    min-width: 200px; /* 최소 너비 설정 */
-    max-width: 300px; /* 최대 너비 설정 */
-}
-
 .pagination {
     display: flex;
     justify-content: center;
@@ -170,10 +161,9 @@ h1 {
 .selected-players {
     display: flex; /* Flexbox로 레이아웃 설정 */
     flex-wrap: wrap; /* 화면 크기에 맞춰 줄바꿈 허용 */
-    justify-content: center; /* 카드들을 가운데 정렬 */
+    justify-content: center; /* 카드가 가운데 정렬되도록 설정 */
     gap: 20px; /* 카드 간의 간격 */
     padding: 20px; /* 전체 컨테이너의 내부 여백 */
-    background-color: #f9f9f9; /* 배경색 */
 }
 
 #selectPlayers:hover,
@@ -181,16 +171,82 @@ h1 {
     background-color: #610000;
 }
 
+/* 카드 스타일 수정 */
 .player-card {
-    flex: 1 1 calc(33.33% - 40px); /* 한 줄에 3개씩 배치 */
-    max-width: 300px; /* 카드의 최대 너비 */
-    min-width: 200px; /* 카드의 최소 너비 */
-    border: 1px solid #ddd; /* 테두리 */
-    padding: 15px; /* 내부 여백 */
-    background-color: white; /* 카드 배경색 */
-    text-align: center; /* 내용 가운데 정렬 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-    border-radius: 8px; /* 모서리를 둥글게 */
+    width: 300px; /* 고정된 너비 */
+    height: 450px; /* 고정된 높이 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* 텍스트와 이미지 위쪽 정렬 */
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow: hidden; /* 내용이 넘치지 않도록 설정 */
+}
+
+/* 이미지 스타일 */
+.player-card img {
+    width: 90%; /* 카드 너비에 맞춤 */
+    height: auto; /* 비율 유지 */
+    max-height: 180px; /* 최대 높이 제한 */
+    object-fit: cover; /* 이미지가 카드 내에 맞도록 조정 */
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* 텍스트 스타일 */
+.player-card h3 {
+    font-size: 1rem; /* 텍스트 크기 */
+    margin: 5px 0;
+    white-space: normal; /* 줄바꿈 허용 */
+    overflow-wrap: break-word; /* 단어가 길 경우 자동 줄바꿈 */
+    word-wrap: break-word; /* IE 지원 */
+    word-break: break-word; /* 단어 단위로 줄바꿈 */
+    line-height: 1.4; /* 줄 간격 조정 */
+    text-align: center;
+}
+
+.player-card p {
+    font-size: 0.95rem;
+    margin: 5px 0;
+    color: #555;
+    line-height: 1.4; /* 텍스트 간격 */
+}
+
+/* 드롭다운 선택 스타일 */
+.player-card select {
+    width: 90%;
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* 버튼 스타일 */
+.equip-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button#equipItemsButton {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button#equipItemsButton:hover {
+    background-color: #555;
 }
 
 #selectPlayers,
@@ -284,11 +340,11 @@ main {
     margin: 0 auto;
 }
 
-/* 카드 컨테이너 */
 .items-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    display: flex; /* Flexbox를 사용 */
+    flex-wrap: wrap; /* 화면 크기에 따라 줄바꿈 허용 */
+    justify-content: center; /* 카드가 가운데 정렬되도록 설정 */
+    gap: 1.5rem; /* 카드 간의 간격 */
     margin-top: 2rem;
 }
 

@@ -17,7 +17,7 @@ function on_tab_button_click(event) {
 
     switch (get_button_object.id) {
         case 'signup':
-            html_data = '../signup/sign.html';
+            html_data = '../signup/signup.html';
             break;
         case 'login':
             html_data = '../login/login.html';

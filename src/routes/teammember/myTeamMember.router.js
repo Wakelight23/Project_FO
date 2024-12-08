@@ -98,6 +98,7 @@ router.post('/myTeamMember', authM, async (req, res, next) => {
                             defense: true,
                             stamina: true,
                             rarity: true,
+                            playerImage: true,
                         },
                     },
                 },
