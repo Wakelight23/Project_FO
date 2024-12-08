@@ -1,0 +1,69 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1,
+h2 {
+    color: #333;
+}
+
+input {
+    margin: 5px 0;
+    padding: 8px;
+    width: 200px;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+#playerList,
+#playerDetails {
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#playerList ul,
+#playerDetails ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#playerList li,
+#playerDetails li {
+    margin: 5px 0;
+}
+.tabs {
+    overflow: hidden;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+}
+.tabs button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+.tabs button:hover {
+    background-color: #ddd;
+}
+.tabs button.active {
+    background-color: #ccc;
+}
+.tabcontent,
+.tabpagecontent,
+.tabplayercontent {
+    display: none;
+    padding: 6px 12px;
+    border-top: none;
+}

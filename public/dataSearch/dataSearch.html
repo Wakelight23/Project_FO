@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Player Management</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="tabs">
+            <button
+                class="tabPageLinks"
+                onclick="openPageTab(event, 'playerData')"
+            >
+                선수 데이터
+            </button>
+            <button
+                class="tabPageLinks"
+                onclick="openPageTab(event, 'itemData')"
+            >
+                아이템 데이터
+            </button>
+        </div>
+
+        <div id="playerData" class="tabpagecontent">
+            <h1>선수 관리 시스템</h1>
+            <div>
+                <h2>선수 목록 조회</h2>
+                <button id="fetchPlayersBtn">목록 조회</button>
+                <div id="playerList"></div>
+            </div>
+            <div>
+                <h2>선수 상세 조회</h2>
+                <input
+                    type="text"
+                    id="playerIdInput"
+                    placeholder="선수 ID 입력"
+                />
+                <button id="fetchPlayerDetailsBtn">상세 조회</button>
+                <div id="playerDetails"></div>
+            </div>
+            <div class="adminFuction">
+                <div class="container">
+                    <h1>CSV 파일 업로드</h1>
+                    <form id="uploadForm">
+                        <input
+                            type="file"
+                            id="csvPlayerFileInput"
+                            accept=".csv"
+                        />
+                        <button type="submit">업로드</button>
+                    </form>
+                    <pre id="playerOutput"></pre>
+                </div>
+
+                <div>
+                    <div class="tabs">
+                        <button
+                            class="tabplayerlinks"
+                            onclick="openTab(event, 'newPlayer')"
+                        >
+                            새로운 선수 추가
+                        </button>
+                        <button
+                            class="tabplayerlinks"
+                            onclick="openTab(event, 'updatePlayer')"
+                        >
+                            선수 수정
+                        </button>
+                        <button
+                            class="tabplayerlinks"
+                            onclick="openTab(event, 'deletePlayer')"
+                        >
+                            선수 삭제
+                        </button>
+                    </div>
+                    <div id="newPlayer" class="tabplayercontent">
+                        <h2>새로운 선수 추가</h2>
+                        <form id="addPlayerForm">
+                            <input
+                                type="text"
+                                id="addname"
+                                placeholder="이름"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="addclub"
+                                placeholder="클럽"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="addspeed"
+                                placeholder="스피드"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="addgoalFinishing"
+                                placeholder="골마무리"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="addshootPower"
+                                placeholder="슈팅파워"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="adddefense"
+                                placeholder="수비"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="addstamina"
+                                placeholder="스태미너"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="addrarity"
+                                placeholder="레어도"
+                            />
+                            <input
+                                type="text"
+                                id="addtype"
+                                placeholder="타입"
+                            />
+                            <input
+                                type="text"
+                                id="addimage"
+                                placeholder="이미지"
+                            />
+                            <button type="submit">추가</button>
+                        </form>
+                    </div>
+                    <div id="updatePlayer" class="tabplayercontent">
+                        <h2>선수 수정</h2>
+                        <form id="updatePlayerForm">
+                            <input
+                                type="number"
+                                id="updateplayerId"
+                                placeholder="선수 ID 입력"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="updatename"
+                                placeholder="이름"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="updateclub"
+                                placeholder="클럽"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updatespeed"
+                                placeholder="스피드"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updategoalFinishing"
+                                placeholder="골마무리"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updateshootPower"
+                                placeholder="슈팅파워"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updatedefense"
+                                placeholder="수비"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="updatestamina"
+                                placeholder="스태미너"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="updaterarity"
+                                placeholder="레어도"
+                            />
+                            <input
+                                type="text"
+                                id="updatetype"
+                                placeholder="타입"
+                            />
+                            <input
+                                type="text"
+                                id="updateimage"
+                                placeholder="이미지"
+                            />
+                            <button type="submit">수정</button>
+                        </form>
+                    </div>
+                    <div id="deletePlayer" class="tabplayercontent">
+                        <h2>선수 삭제</h2>
+                        <form id="deletePlayerForm">
+                            <input
+                                type="number"
+                                id="deleteplayerId"
+                                placeholder="선수 ID 입력"
+                                required
+                            />
+                            <button type="submit">삭제</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="itemData" class="tabpagecontent">
+            <h3>탭 2</h3>
+            <p>탭 2의 내용입니다.</p>
+        </div>
+
+        <script src="dataSearch.js"></script>
+    </body>
+</html>

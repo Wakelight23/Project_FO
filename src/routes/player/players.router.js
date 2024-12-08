@@ -6,6 +6,21 @@ import { prisma } from '../../utils/prisma/index.js';
 import { isValidInput } from '../teammember/createRoster.router.js';
 
 const router = express.Router();
+/** 어드민 확인 **/
+router.get('/players/admin', async (req, res, next) => {
+    // id, 이름, 레어도를 조회한다.
+    try {
+        //어드민 체크
+        const { accountId } = req.account;
+        if (!accountId) {
+            return res.status(200).json({admin : `${await simpleLogic.checkAdmin(accountId)}`});
+        }
+        return res.status(200).json({admin : `${await simpleLogic.checkAdmin(accountId)}`});
+
+    } catch (err) {
+        next(err);
+    }
+});
 
 /** 선수 목록 조회 API **/
 router.get('/players', async (req, res, next) => {
@@ -34,13 +49,13 @@ router.get('/players/:playerId', async (req, res, next) => {
             return res
                 .status(400)
                 .json({ message: 'playerId가 입력되지 않았습니다.' });
-        //어드민 체크
         const { accountId } = req.account;
         if (!accountId) {
             return res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
         }
 
         let isExistPlayer;
+        //어드민 체크
         if (await simpleLogic.checkAdmin(accountId)) {
             isExistPlayer = await prisma.player.findFirst({
                 select: {
@@ -54,6 +69,7 @@ router.get('/players/:playerId', async (req, res, next) => {
                     stamina: true,
                     rarity: true,
                     type: true,
+                    playerImage: true,
                 },
                 where: {
                     playerId: +playerId,
@@ -71,6 +87,7 @@ router.get('/players/:playerId', async (req, res, next) => {
                     stamina: true,
                     rarity: true,
                     type: true,
+                    playerImage: true,
                 },
                 where: {
                     playerId: +playerId,
@@ -111,6 +128,7 @@ router.post('/players', async (req, res, next) => {
             stamina,
             rarity,
             type,
+            playerImage,
         } = req.body;
         if (
             !name ||
@@ -121,7 +139,8 @@ router.post('/players', async (req, res, next) => {
             !defense ||
             !stamina ||
             !rarity ||
-            !type
+            !type||
+            !playerImage
         )
             return res
                 .status(400)
@@ -131,13 +150,14 @@ router.post('/players', async (req, res, next) => {
             data: {
                 name,
                 club,
-                speed,
-                goalFinishing,
-                shootPower,
-                defense,
-                stamina,
-                rarity,
-                type,
+                speed : +speed,
+                goalFinishing : +goalFinishing,
+                shootPower : +shootPower,
+                defense : +defense,
+                stamina : +stamina,
+                rarity : +rarity,
+                type : +type,
+                playerImage
             },
         });
 
@@ -205,6 +225,7 @@ router.post('/players/:playerId', async (req, res, next) => {
             stamina,
             rarity,
             type,
+            playerImage,
         } = req.body;
         if (
             !playerId ||
@@ -216,7 +237,8 @@ router.post('/players/:playerId', async (req, res, next) => {
             !defense ||
             !stamina ||
             !rarity ||
-            !type
+            !type||
+            !playerImage
         )
             return res
                 .status(400)
@@ -240,13 +262,14 @@ router.post('/players/:playerId', async (req, res, next) => {
             data: {
                 name,
                 club,
-                speed,
-                goalFinishing,
-                shootPower,
-                defense,
-                stamina,
-                rarity,
-                type,
+                speed : +speed,
+                goalFinishing : +goalFinishing,
+                shootPower : +shootPower,
+                defense : +defense,
+                stamina : +stamina,
+                rarity : +rarity,
+                type : +type,
+                playerImage
             },
             where: { playerId: +playerId },
         });
