@@ -39,6 +39,11 @@ document.addEventListener('DOMContentLoaded', function () {
             html_data: '../teamMember/createRoster.html',
         },
         {
+            id: 'itemGacha',
+            text: '아이템 가챠',
+            html_data: '../gacha/itemGacha/itemGacha.html',
+        },
+        {
             id: 'equipItem',
             text: '아이템 장착하기',
             html_data: '../equipItem/equipItem.html',
