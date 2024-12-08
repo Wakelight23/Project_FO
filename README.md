@@ -26,7 +26,74 @@
 
 ## 결제 시스템 (윤예원)
 
-## 선수 데이터 관리 (김종하)
+## 데이터 관리 (김종하)
+- 페이지 로드시 로그인 및 어드민 확인
+    - get /players/admin
+    - 페이지가 로드될때 데이터 변경하는 다음의 UI를 보여줄지 결정한다.
+        - csv 파일 업로드
+        - 새로운 선수 추가
+        - 선수 수정
+        - 선수 삭제
+        - 새로운 아이템 추가
+        - 아이템 수정
+        - 아이템 삭제
+### 선수 데이터 관리
+![](attachment/playerdatafront.png)</br>
+- 선수 목록 조회
+    - get ./api/players
+    - 로그인 여부 상관없이 전체 선수 목록 조회
+- 선수 상세 조회
+    - get ./api/players/playerId
+    - 입력된 선수 id에 따라서 데이터 조회
+- csv 파일 업로드
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/players/csv
+    - 파일 선택을 눌러 csv 파일을 선택하고 업로드를 눌러 데이터베이스에 추가
+    - 예시 파일 [player](attachment/CSVfiles/england-premier-league-players-2018-to-2019-stats.csv)
+- 새로운 선수 추가
+    - ![](attachment/createPlayer.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/players
+    - 데이터를 입력후 추가를 눌러 추가
+- 선수 수정
+    - ![](attachment/alterPlayer.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/players/playerId
+    - 데이터를 입력후 수정을 눌러 수정
+- 선수 삭제
+    - ![](attachment/deletePlayer.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - delete ./api/players/playerId
+    - 선수 ID를 입력하고 삭제를 눌러 삭제
+
+### 아이템 데이터 관리
+![](attachment/itemdatafront.png)</br>
+- 아이템 목록 조회
+    - get ./api/items
+    - 로그인 여부 상관없이 전체 아이템 목록 조회
+- 아이템 상세 조회
+    - get ./api/items/itemId
+    - 입력된 아이템 id에 따라서 데이터 조회
+- csv 파일 업로드
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/items/csv
+    - 파일 선택을 눌러 csv 파일을 선택하고 업로드를 눌러 데이터베이스에 추가
+    - 예시 파일 [item](attachment/CSVfiles/item.csv)
+- 새로운 아이템 추가
+    - ![](attachment/createItem.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/items
+    - 데이터를 입력후 추가를 눌러 추가
+- 아이템 수정
+    - ![](attachment/alterItem.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/items/itemId
+    - 데이터를 입력후 수정을 눌러 수정
+- 아이템 삭제
+    - ![](attachment/deleteItem.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - delete ./api/items/itemId
+    - 아이템 ID를 입력하고 삭제를 눌러 삭제
 
 ## 선수 영입 (김정태)
 
@@ -56,7 +123,7 @@
 ### 아이템 관련
 
 - **아이템 가챠**: 프론트 제작이 완료되었습니다. 사용자들이 아이템을 획득할 수 있도록 인터페이스를 구성하였습니다.
-- **아이템 리스트 확인**: 현재 프론트가 구현되어 있지 않습니다. 향후 개발 계획에 포함될 예정입니다.
+- **아이템 확인**: 현재 프론트가 구현되어, 어드민이 생성, 수정, 삭제, 조회가 가능 하도록 하였습니다.
 - **선수 가챠**: 프론트 제작이 완료되었습니다. 선수 아이템을 획득할 수 있는 기능이 추가되었습니다.
 - **단일 선수 정보 조회**: 프론트 제작이 완료되어, 사용자가 특정 선수의 정보를 쉽게 조회할 수 있도록 하였습니다.
 
