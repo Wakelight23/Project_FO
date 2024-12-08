@@ -1,3 +1,10 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../login/login.html';
+}
+
 // 카드 데이터 배열 (서버에서 불러온 데이터를 시뮬레이션)
 let cardData = [
     { name: '첫 번째 카드', playerImage: '#FFD700' },

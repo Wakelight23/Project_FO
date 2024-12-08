@@ -1,3 +1,9 @@
+const accessToken = localStorage.getItem('accessToken');
+
+if (!accessToken) {
+    alert('로그인 먼저 해주세요');
+    location.href = '../gacha/login/login.html';
+}
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('accessToken');
     console.log('Access Token:', token); // 토큰 확인
