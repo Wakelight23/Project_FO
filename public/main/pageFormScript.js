@@ -52,7 +52,6 @@ function on_tab_button_click(event) {
         case 'upgradePlayer':
             html_data = '../teamMember/upgradeMember.html';
             break;
-
         default:
     }
     const newHtmlString = `<object
