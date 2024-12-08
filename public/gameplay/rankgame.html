@@ -7,26 +7,31 @@
         <link rel="stylesheet" href="./rankgamestyle.css" />
     </head>
     <body>
+        <div id="loading" style="display: none">결과를 불러오는 중...</div>
+        <!-- 로딩 표시 -->
         <div id="game-container">
+            <!-- 스코어 표시 -->
             <div id="score">
                 <span id="homeScore">0</span> - <span id="awayScore">0</span>
             </div>
+
+            <!-- 필드 -->
             <div id="field">
-                <div id="player-0" class="player home-player"></div>
-                <div id="player-1" class="player home-player"></div>
-                <div id="player-2" class="player home-player"></div>
-                <div id="player-3" class="player away-player"></div>
-                <div id="player-4" class="player away-player"></div>
-                <div id="player-5" class="player away-player"></div>
-                <div id="ball"></div>
+                <div id="center-line"></div>
+                <div id="ball" class="ball"></div>
+                <!-- 선수는 JS에서 동적으로 추가됨 -->
             </div>
+
+            <!-- 매치 로그 -->
             <div id="matchLogList"></div>
-        </div>
-        <div id="modal" class="modal">
-            <div class="modal-content">
-                <h2>게임 결과</h2>
-                <p id="result-message"></p>
-                <button id="return-to-game">처음으로 돌아가기</button>
+
+            <!-- 결과 모달 -->
+            <div id="modal" class="modal">
+                <div class="modal-content">
+                    <h2>게임 결과</h2>
+                    <p id="result-message"></p>
+                    <button id="return-to-game">처음으로 돌아가기</button>
+                </div>
             </div>
         </div>
         <script type="module" src="./front_rankgame.js"></script>
