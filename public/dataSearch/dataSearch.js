@@ -29,6 +29,7 @@ async function adminCheck() {
         },
     });
     const admincheck = await response.json();
+    console.log(admincheck);
     isadmin = admincheck.admin;
 }
 
@@ -36,10 +37,10 @@ async function adminCheck() {
 document.addEventListener('DOMContentLoaded', async function () {
     await adminCheck();
     console.log(isadmin);
-    if (!isadmin) {
+    if (isadmin === 'true') {
         const admincontent = document.getElementsByClassName('adminFuction');
         for (let i = 0; i < admincontent.length; i++) {
-            admincontent[i].style.display = 'none';
+            admincontent[i].style.display = 'block';
         }
     }
     document.querySelector('.tabPageLinks').click();

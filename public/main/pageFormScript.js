@@ -49,11 +49,16 @@ function on_tab_button_click(event) {
         case 'gamePlay':
             html_data = '../gameplay/gameplay.html';
             break;
-        case 'upgradePlayer':
-            html_data = '../teamMember/upgradeMember.html';
-            break;
+            case 'upgradePlayer':
+                html_data = '../teamMember/upgradeMember.html';
+                break;
+                case 'dataSearch':
+                    html_data = '../dataSearch/dataSearch.html';
+                    break;
         default:
     }
+
+    
     const newHtmlString = `<object
         id="${get_button_object.id + '_tab'}"
         type="text/html"
