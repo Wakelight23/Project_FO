@@ -20,6 +20,7 @@ document
             if (response.ok) {
                 // 로그인 성공 시 액세스 토큰 저장
                 localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('x-info', email);
                 document.getElementById('message').innerText = '로그인 성공!';
 
                 // 리디렉션 URL이 있는 경우

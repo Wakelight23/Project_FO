@@ -96,7 +96,7 @@ router.post('/sign-in', async (req, res) => {
             .status(401)
             .json({ message: '비밀번호가 일치하지 않습니다.' });
 
-    // 로그인에 성공하면, 사용자의 userId를 바탕으로 토큰을 생성합니다.
+    // 로그인에 성공하면, 사용자의 accountId를 바탕으로 토큰을 생성합니다.
     const accesstoken = jwt.sign(
         {
             accountId: accountData.accountId,
@@ -105,7 +105,7 @@ router.post('/sign-in', async (req, res) => {
         // JWT를 서명하는 데 사용되는 비밀 키
         // 서버가 비밀 키를 사용하여 토큰 변조 여부를 알 수 있다
         process.env.SERVER_ACCESS_KEY,
-        { expiresIn: '5m' }
+        { expiresIn: '1m' }
     );
 
     // 기존 리프레시 토큰 삭제
@@ -130,13 +130,26 @@ router.post('/sign-in', async (req, res) => {
         },
     });
 
+    // 매니저 정보 조회
+    const managerData = await prisma.manager.findFirst({
+        where: { accountId: accountData.accountId },
+    });
+
+    // 매니저 정보가 없을 경우 기본값 설정
+    const managerNickname = managerData ? managerData.nickname : null; // 매니저 닉네임
+    const managerCash = managerData ? managerData.cash : 0; // 매니저 보유 캐시
+
     res.setHeader('Authorization', `Bearer ${accesstoken}`);
 
     res.setHeader('x-info', accountData.email);
 
-    return res
-        .status(200)
-        .json({ message: '로그인 성공', accessToken: accesstoken });
+    return res.status(200).json({
+        message: '로그인 성공',
+        accessToken: accesstoken,
+        email: accountData.email,
+        managerNickname: managerNickname,
+        managerCash: managerCash,
+    });
 });
 
 export default router;

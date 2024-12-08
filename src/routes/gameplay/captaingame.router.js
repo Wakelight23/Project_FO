@@ -47,37 +47,49 @@ router.post('/captain/start', authM, async (req, res) => {
             });
         }
 
-        // 상대방 매니저 정보 조회
-        const opponentManager = await prisma.manager.findUnique({
-            where: { managerId: Number(opponentManagerId) },
-        });
-
-        if (!opponentManager) {
-            return res
-                .status(404)
-                .json({ error: '상대방 매니저를 찾을 수 없습니다.' });
+        const uniquePlayerIds = [...new Set(selectedPlayerIds)];
+        if (uniquePlayerIds.length !== 3) {
+            return res.status(400).json({
+                error: '중복되지 않은 3명의 선수를 선택해야 합니다.',
+            });
         }
 
+        // 내 선택된 선수들 조회
         const mySelectedPlayers = await Promise.all(
-            selectedPlayerIds.map(async (playerId) => {
+            uniquePlayerIds.map(async (playerId) => {
                 return await prisma.teamMember.findFirst({
                     where: {
                         managerId: myManager.managerId,
                         playerId: Number(playerId),
                         isSelected: true,
                     },
-                    include: { player: true },
+                    include: {
+                        player: true,
+                        inventories: {
+                            include: {
+                                item: true,
+                            },
+                        },
+                    },
                 });
             })
         );
 
+        // 선수 유효성 검사
         if (mySelectedPlayers.some((player) => !player)) {
             const availablePlayers = await prisma.teamMember.findMany({
                 where: {
                     managerId: myManager.managerId,
                     isSelected: true,
                 },
-                include: { player: true },
+                include: {
+                    player: true,
+                    inventories: {
+                        include: {
+                            item: true,
+                        },
+                    },
+                },
             });
 
             return res.status(400).json({
@@ -86,6 +98,119 @@ router.post('/captain/start', authM, async (req, res) => {
                     playerId: member.playerId,
                     name: member.player.name,
                     isSelected: member.isSelected,
+                    power: calculatePlayerPower(
+                        member.player,
+                        member.upgrade,
+                        member.inventories?.item
+                    ),
+                })),
+            });
+        }
+
+        // 상대방 매니저 정보 조회
+        const opponentManager = await prisma.manager.findUnique({
+            where: { managerId: Number(opponentManagerId) },
+        });
+
+        if (!opponentManager) {
+            // isSelected가 true인 선수를 보유한 매니저 목록 조회
+            const availableManagers = await prisma.manager.findMany({
+                where: {
+                    teamMembers: {
+                        some: {
+                            isSelected: true,
+                        },
+                    },
+                },
+                select: {
+                    managerId: true,
+                    nickname: true,
+                    rating: true,
+                    teamMembers: {
+                        where: {
+                            isSelected: true,
+                        },
+                        include: {
+                            player: true,
+                        },
+                    },
+                },
+            });
+
+            return res.status(404).json({
+                error: '상대방 매니저를 찾을 수 없습니다.',
+                availableOpponents: availableManagers.map((manager) => ({
+                    managerId: manager.managerId,
+                    nickname: manager.nickname,
+                    rating: manager.rating,
+                    selectedPlayers: manager.teamMembers.map((tm) => ({
+                        name: tm.player.name,
+                        power: calculatePlayerPower(tm.player, tm.upgrade),
+                    })),
+                })),
+            });
+        }
+
+        // 상대방의 선택된 선수 확인
+        const opponentSelectedPlayers = await prisma.teamMember.findMany({
+            where: {
+                managerId: opponentManager.managerId,
+                isSelected: true,
+            },
+            include: {
+                player: true,
+            },
+        });
+
+        if (opponentSelectedPlayers.length === 0) {
+            // isSelected가 true인 선수를 보유한 매니저 목록 조회
+            const availableManagers = await prisma.manager.findMany({
+                where: {
+                    AND: [
+                        {
+                            teamMembers: {
+                                some: {
+                                    isSelected: true,
+                                },
+                            },
+                        },
+                        {
+                            managerId: {
+                                not: myManager.managerId, // 자신 제외
+                            },
+                        },
+                    ],
+                },
+                select: {
+                    managerId: true,
+                    nickname: true,
+                    rating: true,
+                    teamMembers: {
+                        where: {
+                            isSelected: true,
+                        },
+                        include: {
+                            player: true,
+                            inventories: {
+                                include: {
+                                    item: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            return res.status(400).json({
+                error: '상대방의 선택된 선수가 없습니다.',
+                availableOpponents: availableManagers.map((manager) => ({
+                    managerId: manager.managerId,
+                    nickname: manager.nickname,
+                    rating: manager.rating,
+                    selectedPlayers: manager.teamMembers.map((tm) => ({
+                        name: tm.player.name,
+                        power: calculatePlayerPower(tm.player, tm.upgrade),
+                    })),
                 })),
             });
         }
@@ -106,12 +231,25 @@ router.post('/captain/start', authM, async (req, res) => {
         res.status(201).json({
             data: {
                 message: '게임(대장전)이 시작되었습니다.',
-                selectedPlayers: mySelectedPlayers.map(
-                    (player) => player.player.name
-                ),
+                selectedPlayers: mySelectedPlayers.map((player) => ({
+                    name: player.player.name,
+                    power: calculatePlayerPower(
+                        player.player,
+                        player.upgrade,
+                        player.inventories?.item
+                    ),
+                })),
                 opponent: {
                     nickname: opponentManager.nickname,
                     rating: opponentManager.rating,
+                    selectedPlayers: opponentSelectedPlayers.map((player) => ({
+                        name: player.player.name,
+                        power: calculatePlayerPower(
+                            player.player,
+                            player.upgrade,
+                            player.inventories?.item
+                        ),
+                    })),
                 },
             },
         });

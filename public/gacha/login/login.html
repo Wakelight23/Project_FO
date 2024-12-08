@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>로그인</title>
+        <link rel="stylesheet" href="login.css" />
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>로그인</h1>
+            <form id="loginForm">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="이메일"
+                    required
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="비밀번호"
+                    required
+                />
+                <button type="submit">로그인</button>
+            </form>
+
+            <p>
+                아직 가입하지 않으셨나요?
+                <a href="../register/register.html">회원가입</a>
+            </p>
+        </div>
+
+        <script src="login.js"></script>
+    </body>
+</html>

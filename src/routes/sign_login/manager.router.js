@@ -10,14 +10,11 @@ const router = express.Router();
 router.post('/create-manager', authM, async (req, res) => {
     // 요청 본문에서 nickname 추출
     const { nickname } = req.body;
+
     // authM 미들웨어에서 인증을 거친 accounts 정보를 가져오고
     // accounts에서 account_id를 추출한다
+
     const { accountId } = req.account;
-    // const { name } = req.account;
-    // const { age } = req.account;
-    // const { email } = req.account;
-    // const { password } = req.account;
-    // console.log(accountid, name, age, email, password);
 
     // 닉네임 중복 검증
     const isExistnickname = await prisma.manager.findFirst({
@@ -26,12 +23,6 @@ router.post('/create-manager', authM, async (req, res) => {
 
     if (isExistnickname) {
         return res.status(409).json({ message: '이미 존재하는 닉네임입니다.' });
-    }
-
-    if (!/^.{1,8}$/.test(nickname)) {
-        return res
-            .status(409)
-            .json({ message: 'nickname은 8자리 이하로만 설정할 수 있습니다' });
     }
 
     // 매니저 존재 검증

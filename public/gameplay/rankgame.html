@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>축구 매니저 게임 - 랭크 매치</title>
+        <link rel="stylesheet" href="./rankgamestyle.css" />
+    </head>
+    <body>
+        <div id="loading" style="display: none">결과를 불러오는 중...</div>
+        <!-- 로딩 표시 -->
+        <div id="game-container">
+            <!-- 스코어 표시 -->
+            <div id="score">
+                <span id="homeScore">0</span> - <span id="awayScore">0</span>
+            </div>
+
+            <!-- 필드 -->
+            <div id="field">
+                <div id="center-line"></div>
+                <div id="ball" class="ball"></div>
+                <!-- 선수는 JS에서 동적으로 추가됨 -->
+            </div>
+
+            <!-- 매치 로그 -->
+            <div id="matchLogList"></div>
+
+            <!-- 결과 모달 -->
+            <div id="modal" class="modal">
+                <div class="modal-content">
+                    <h2>게임 결과</h2>
+                    <p id="result-message"></p>
+                    <button id="return-to-game">처음으로 돌아가기</button>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="./front_rankgame.js"></script>
+    </body>
+</html>

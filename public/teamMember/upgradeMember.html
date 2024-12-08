@@ -1,37 +1,36 @@
 <!doctype html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>선수 강화</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <nav class="sidebar">
-            <button id="signup"><a href="/public/signup/signup.html">회원가입</a></button>
-            <button id="login"><a href="/public/login/login.html">로그인</a></button>
-            <button id="createCharacter"><a href="/public/manager/create.html">매니저 생성</a></button>
-            <button id="recruitPlayer">선수 영입</button>
-            <button id="viewRoster"><a href="/public/teamMember/teamMember.html">선수 명단 보기</a></button>
-            <button id="selectRoster"><a href="/public/teamMember/createRoster.html">출전 선수 변경</a></button>
-            <button id="upgradePlayer"><a href="/public/teamMember/upgradeMember.html">선수 강화</a></button>
-        </nav>
-        <main class="content">
-            <h1>선수 강화</h1>
-            <div id="upgradeable-players" class="list">
-                <!-- 강화 가능한 선수 목록 -->
-            </div>
-            <div class="upgrade-form">
-                <label for="memberIdToUpg">강화할 선수 ID:</label>
-                <input id="memberIdToUpg" type="text" placeholder="숫자만 입력" />
-                <label for="memberIdToSac">재료로 사용할 선수 ID:</label>
-                <input id="memberIdToSac" type="text" placeholder="숫자만 입력" />
-                <button id="upgradeButton">강화 시도</button>
-            </div>
-            <div id="message" class="message"></div>
-        </main>
-    </div>
-    <script src="upgradeMember.js"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>선수 강화</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <main class="content">
+                <h1>선수 강화</h1>
+                <div class="upgrade-form">
+                    <label for="memberIdToUpg">강화할 선수 ID:</label>
+                    <input
+                        id="memberIdToUpg"
+                        type="text"
+                        placeholder="숫자만 입력"
+                    />
+                    <label for="memberIdToSac">재료로 사용할 선수 ID:</label>
+                    <input
+                        id="memberIdToSac"
+                        type="text"
+                        placeholder="숫자만 입력"
+                    />
+                    <button id="upgradeButton">강화 시도</button>
+                </div>
+                <div id="message" class="message"></div>
+                <div id="upgradeable-players" class="list">
+                    <!-- 강화 가능한 선수 목록 -->
+                </div>
+            </main>
+        </div>
+        <script src="upgradeMember.js"></script>
+    </body>
 </html>

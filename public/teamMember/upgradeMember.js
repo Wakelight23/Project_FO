@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE = 'http://localhost:3002'; // API Base URL
+    // const API_BASE = 'http://localhost:3002'; // API Base URL
     const getAccessToken = () => localStorage.getItem('accessToken'); // 토큰 가져오기
     const email = localStorage.getItem('email');
+    console.log('email: ', email);
 
     // 강화 가능한 선수 조회
     const fetchUpgradeablePlayers = async () => {
@@ -12,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const response = await fetch(`${API_BASE}/api/upgrade`, {
+            const response = await fetch(`/api/upgrade`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${accessToken}`, // 인증 토큰
@@ -44,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(
                 (player) => `
           <div class="player-card">
+              <img src=${player.player.playerImage || 'https://img.freepik.com/free-photo/soccer-game-concept_23-2151043855.jpg?ga=GA1.1.822806027.1732811017&semt=ais_hybrid'} width="200" height="250">
               <h3>${player.player.name}</h3>
               <p>ID: ${player.teamMemberId}</p>
               <p>구단: ${player.player.club}</p>
@@ -75,11 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                const response = await fetch(`${API_BASE}/api/upgrade`, {
+                const response = await fetch(`/api/upgrade`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${accessToken}`, // 인증 토큰
+                        'x-info': email, // 헤더에 email 추가
                     },
                     body: JSON.stringify({
                         memberIdToUpg: parseInt(memberIdToUpg, 10),

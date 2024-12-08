@@ -48,17 +48,6 @@ router.patch('/rosterIn', authM, async (req, res, next) => {
     }
 
     try {
-        // id가 없는 선수를 선발했을 때(id에 1억을 입력한다거나...) 예외 처리
-        const isValidPlayer = await prisma.teamMember.findMany({
-            where: {
-                teamMemberId: {
-                    in: teamMemberIds,
-                },
-            },
-        });
-        if (isValidPlayer.length !== 3) {
-            return res.status(401).json({ error: '잘못된 요청입니다.' });
-        }
         // accoutId를 통해 managerId 가져오기
         const managerId = await prisma.manager.findFirst({
             where: {
@@ -68,6 +57,18 @@ router.patch('/rosterIn', authM, async (req, res, next) => {
                 managerId: true,
             },
         });
+        // id가 없는 선수를 선발했을 때(id에 1억을 입력한다거나...) 예외 처리
+        const isValidPlayer = await prisma.teamMember.findMany({
+            where: {
+                managerId: managerId.managerId,
+                teamMemberId: {
+                    in: teamMemberIds,
+                },
+            },
+        });
+        if (isValidPlayer.length !== 3) {
+            return res.status(401).json({ error: '잘못된 요청입니다.' });
+        }
 
         // 선수들의 데이터를 배열로 가져오기
         const result = await prisma.$transaction(
@@ -116,7 +117,7 @@ router.patch('/rosterIn', authM, async (req, res, next) => {
                                 defense: true,
                                 stamina: true,
                                 rarity: true,
-                                type: true,
+                                playerImage: true,
                             },
                         },
                     },
@@ -133,6 +134,43 @@ router.patch('/rosterIn', authM, async (req, res, next) => {
         return res.status(201).json({ players: result, teamPower });
     } catch (err) {
         next(err); // 에러를 다음 미들웨어로 전달
+    }
+});
+
+/** 출전 선수를 확인하는 API */
+router.get('/roster', authM, async (req, res, next) => {
+    try {
+        const { accountId } = req.account;
+
+        // accoutId를 통해 managerId 가져오기
+        const managerId = await prisma.manager.findFirst({
+            where: {
+                accountId: +accountId,
+            },
+            select: {
+                managerId: true,
+            },
+        });
+
+        if (!managerId) {
+            return res.status(400).json({
+                error: '계정을 찾을 수 없습니다.',
+            });
+        }
+
+        const roster = await prisma.teamMember.findMany({
+            where: {
+                managerId: managerId.managerId,
+                isSelected: true,
+            },
+            include: {
+                player: true,
+            },
+        });
+
+        return res.status(200).json(roster);
+    } catch (err) {
+        next(err);
     }
 });
 
@@ -183,6 +221,8 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
             });
         }
 
+        // 다른 사람의 멤버를 선택했을
+
         // 예외처리 (teamtest 테이블에서 조회했을 때 outMemberId를 조회했을 때 isSelected가 true인가?)
         const isValidOutMember = await prisma.teamMember.findUnique({
             where: {
@@ -209,7 +249,6 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
                 isSelected: true,
             },
         });
-
         if (isValidInMember.isSelected) {
             return res.status(400).json({
                 error: '잘못된 요청입니다. inMemberId에는 현재 선발 중인 선수의 id를 입력할 수 없습니다.',
@@ -260,7 +299,7 @@ router.patch('/rosterOut', authM, async (req, res, next) => {
                         defense: true,
                         stamina: true,
                         rarity: true,
-                        type: true,
+                        playerImage: true,
                     },
                 },
             },

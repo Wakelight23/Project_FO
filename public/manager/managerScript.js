@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const email = localStorage.getItem('email');
+
     // 매니저 생성 폼 제출 이벤트 리스너 추가
     document
         .getElementById('managerForm')
@@ -23,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: {
                             'Content-Type': 'application/json',
                             Authorization: `Bearer ${token}`, // 토큰을 Authorization 헤더에 추가
+                            'x-info': email, // 헤더에 email 추가
                         },
                         body: JSON.stringify({ nickname }),
                     }

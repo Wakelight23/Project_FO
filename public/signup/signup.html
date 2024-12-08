@@ -7,6 +7,55 @@
     <title>회원가입</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        .title {
+            margin: 0;
+            /* 기본 마진 제거 */
+            font-size: 24px;
+            /* 제목 크기 */
+        }
+
+        .nav ul {
+            list-style: none;
+            /* 기본 리스트 스타일 제거 */
+            padding: 0;
+            /* 패딩 제거 */
+            margin: 0;
+            /* 마진 제거 */
+            display: flex;
+            /* Flexbox 사용 */
+        }
+
+        .nav li {
+            margin: 0 15px;
+            /* 리스트 아이템 간의 간격 */
+        }
+
+        .nav a {
+            color: white;
+            /* 링크 색상 */
+            text-decoration: none;
+            /* 밑줄 제거 */
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+            /* 마우스 오버 시 밑줄 추가 */
+        }
+
+        .auth-links {
+            display: flex;
+            /* Flexbox 사용 */
+        }
+
+        .auth-links a {
+            color: white;
+            /* 링크 색상 */
+            text-decoration: none;
+            /* 밑줄 제거 */
+            margin-left: 10px;
+            /* 링크 간의 간격 */
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -15,7 +64,7 @@
         }
 
         .container {
-            max-width: 400px;
+            max-width: 422px;
             margin: 50px auto;
             padding: 20px;
             background: white;
@@ -39,7 +88,7 @@
 
         input,
         select {
-            width: 100%;
+            width: 400px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -65,10 +114,10 @@
             color: red;
         }
     </style>
-
 </head>
 
 <body>
+
     <div class="container">
         <h1>회원가입</h1>
         <form id="signup-form">
