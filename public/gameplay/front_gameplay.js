@@ -14,10 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const returnToGameBtn = document.getElementById('return-to-game');
     const startGameBtn = document.getElementById('start-game');
     const startCaptainGameBtn = document.getElementById('start-captain-game');
-
     const startRankGameBtn = document.getElementById('start-rank-game');
-    const checkRankPlayingBtn = document.getElementById('check-rank-playing');
-    const checkRankResultBtn = document.getElementById('check-rank-result');
 
     const getAccessToken = () => localStorage.getItem('accessToken');
     const email = localStorage.getItem('email');

@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
         {
             id: 'signup',
             text: '회원가입',
-            html_data: '../gacha/register/register.html',
+            html_data: 'signup/signup.html',
         },
         { id: 'login', text: '로그인', html_data: '../gacha/login/login.html' },
         {
