@@ -10,5 +10,6 @@ function logout() {
 
     localStorage.setItem('accessToken', '');
     localStorage.setItem('x-info', '');
+    localStorage.setItem('email', '');
     window.location.href = '../index.html';
 }
