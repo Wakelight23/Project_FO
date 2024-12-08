@@ -86,7 +86,7 @@ class SoccerGame {
 
         // 마지막 시뮬레이션 후 결과 표시 전 딜레이
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        this.showResult(matchData.finalScore);
+        this.showResult(`${matchData.goalData} <br> ${matchData.finalScore}`);
     }
 
     async simulateGoal(goalData) {
@@ -205,7 +205,7 @@ class SoccerGame {
     }
 
     showResult(finalScore) {
-        this.resultText.textContent = `최종 스코어: ${finalScore}`;
+        this.resultText.innerHTML = `최종 스코어: ${finalScore}`;
         this.modal.style.display = 'flex';
     }
 }
@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             { team: 'home', scorer: 2 },
         ],
         finalScore: '2-1',
+        goalData: '',
     };
 
     const accessToken = localStorage.getItem('accessToken');
@@ -231,21 +232,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('로그인이 필요합니다. 다시 로그인해 주세요.');
         throw new Error('Missing access token or email.');
     }
-
-    //초반전 중반전 후반전
-    // for (let i = 0; i < 3; i++) {
-    //     const playingResponse = await fetch('/api/rankmatch/playing', {
-    //         method: 'GET',
-    //         headers: {
-    //             Authorization: `Bearer ${accessToken}`,
-    //             'x-info': email,
-    //         },
-    //     });
-
-    //     if (!playingResponse.ok) {
-    //         throw new Error('Error in playing phase');
-    //     }
-    // }
 
     const playingResponse = await fetch('/api/rankmatch/playing', {
         method: 'GET',
@@ -276,6 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(resultData);
     testMatchData.finalScore = resultData.result;
     testMatchData.goals = [];
+    testMatchData.goalData = resultData.matchLog[0];
     let data =
         testMatchData.finalScore === '패배'
             ? { team: 'away', scorer: 1 }
