@@ -1,4 +1,3 @@
-// src > routers > sign.routers.js
 import express from 'express';
 import { prisma } from '../../utils/prisma/index.js';
 import bcrypt from 'bcrypt';
@@ -11,7 +10,17 @@ const router = express.Router();
 /** 사용자 회원가입 API **/
 // localhost:c/api/sign-up POST
 router.post('/sign-up', async (req, res) => {
-    const { email, password, password2, name, age, gender } = req.body;
+    console.log('회원가입 요청:', req.body);
+    const { email, password, confirmPassword, name, age, gender } = req.body;
+    console.log({
+        email,
+        password,
+        confirmPassword,
+        name,
+        age,
+        gender,
+    });
+    const parsedAge = parseInt(age, 10);
 
     // 이메일 중복 체크
     const isExistEmail = await prisma.account.findUnique({
@@ -23,25 +32,37 @@ router.post('/sign-up', async (req, res) => {
     }
 
     // 이메일 형식 체크
-    const emailForm = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    if (!emailForm.test(email)) {
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
         return res
             .status(409)
             .json({ message: '이메일 형식이 적절하지 않습니다.' });
     }
 
     // 비밀번호 형식 체크
-    const passwordForm = /^.{1,6}$/;
-    if (!passwordForm.test(password)) {
+    if (!/^.{1,6}$/.test(password)) {
         return res
             .status(409)
             .json({ message: 'password는 6자리 이하로만 설정할 수 있습니다' });
     }
 
     // 비밀번호 확인
-    if (password !== password2) {
+    if (password !== confirmPassword) {
         return res.status(409).json({ message: 'password를 다시 확인하세요.' });
+    }
+
+    // 나이 유효성 체크
+    if (!/^[1-9][0-9]*$/.test(parsedAge)) {
+        return res
+            .status(409)
+            .json({ message: '나이는 1 이상의 정수여야 합니다.' });
+    }
+
+    // 성별 유효성 체크
+    const validGenders = ['male', 'female'];
+    if (!validGenders.includes(gender)) {
+        return res
+            .status(409)
+            .json({ message: 'male 또는 female이어야 합니다.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,7 +73,7 @@ router.post('/sign-up', async (req, res) => {
             email,
             password: hashedPassword,
             name,
-            age,
+            age: parsedAge,
             gender,
         },
     });
@@ -75,15 +96,16 @@ router.post('/sign-in', async (req, res) => {
             .status(401)
             .json({ message: '비밀번호가 일치하지 않습니다.' });
 
-    // 로그인에 성공하면, 사용자의 userId를 바탕으로 토큰을 생성합니다.
+    // 로그인에 성공하면, 사용자의 accountId를 바탕으로 토큰을 생성합니다.
     const accesstoken = jwt.sign(
         {
-          accountId: accountData.accountId,
+            accountId: accountData.accountId,
+            isAdmin: accountData.isAdmin,
         },
         // JWT를 서명하는 데 사용되는 비밀 키
         // 서버가 비밀 키를 사용하여 토큰 변조 여부를 알 수 있다
         process.env.SERVER_ACCESS_KEY,
-        { expiresIn: '5m' }
+        { expiresIn: '1m' }
     );
 
     // 기존 리프레시 토큰 삭제
@@ -94,7 +116,7 @@ router.post('/sign-in', async (req, res) => {
     // 리프레시 토큰 생성
     const refreshtoken = jwt.sign(
         {
-          accountId: accountData.accountId,
+            accountId: accountData.accountId,
         },
         process.env.SERVER_REFRESH_KEY, // 리프레시 토큰을 위한 비밀 키
         { expiresIn: '7d' } // 예: 7일 동안 유효
@@ -108,11 +130,26 @@ router.post('/sign-in', async (req, res) => {
         },
     });
 
+    // 매니저 정보 조회
+    const managerData = await prisma.manager.findFirst({
+        where: { accountId: accountData.accountId },
+    });
+
+    // 매니저 정보가 없을 경우 기본값 설정
+    const managerNickname = managerData ? managerData.nickname : null; // 매니저 닉네임
+    const managerCash = managerData ? managerData.cash : 0; // 매니저 보유 캐시
+
     res.setHeader('Authorization', `Bearer ${accesstoken}`);
 
     res.setHeader('x-info', accountData.email);
 
-    return res.status(200).json({ message: '로그인 성공', accesstoken });
+    return res.status(200).json({
+        message: '로그인 성공',
+        accessToken: accesstoken,
+        email: accountData.email,
+        managerNickname: managerNickname,
+        managerCash: managerCash,
+    });
 });
 
 export default router;

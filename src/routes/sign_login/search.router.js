@@ -9,7 +9,13 @@ router.get('/search', async (req, res, next) => {
         select: {
             nickname: true,
             rating: true,
-            cash: true,
+            rankings: {
+                select: {
+                    win: true,
+                    lose: true,
+                    draw: true,
+                },
+            },
         },
         orderBy: {
             rating: 'desc',

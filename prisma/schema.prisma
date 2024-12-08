@@ -18,6 +18,16 @@ model Account {
   createdAt    DateTime       @default(now()) @map("createdAt")
   updatedAt    DateTime       @updatedAt @map("updatedAt")
   manager      Manager?
+  accountId    Int            @id @default(autoincrement()) @map("accountId")
+  email        String         @unique @map("email")
+  password     String         @map("password")
+  name         String         @map("name")
+  age          Int            @map("age")
+  gender       String         @map("gender")
+  isAdmin      Boolean        @default(false) @map("isAdmin")
+  createdAt    DateTime       @default(now()) @map("createdAt")
+  updatedAt    DateTime       @updatedAt @map("updatedAt")
+  manager      Manager?
   refreshToken RefreshToken[]
 
   @@map("Account")
@@ -28,7 +38,12 @@ model RefreshToken {
   token     String   @unique @map("token")
   createdAt DateTime @default(now()) @map("created_at")
   account   Account  @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+  accountId Int      @map("accountId")
+  token     String   @unique @map("token")
+  createdAt DateTime @default(now()) @map("created_at")
+  account   Account  @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
 
+  @@index([accountId], map: "RefreshToken_accountId_fkey")
   @@index([accountId], map: "RefreshToken_accountId_fkey")
   @@map("RefreshToken")
 }
@@ -47,11 +62,38 @@ model Manager {
   rankings    Ranking[]
   records     Record[]
   teamMembers TeamMember[]
+  managerId   Int          @id @default(autoincrement()) @map("managerId")
+  accountId   Int          @unique @map("accountId")
+  nickname    String       @map("nickname")
+  cash        Int          @map("cash")
+  gachaCount  Int          @default(0) @map("gachaCount")
+  rating      Int          @map("rating")
+  createdAt   DateTime     @default(now()) @map("createdAt")
+  updatedAt   DateTime     @updatedAt @map("updatedAt")
+  Inventorys  Inventory[]
+  account     Account      @relation(fields: [accountId], references: [accountId], onDelete: Cascade)
+  rankings    Ranking[]
+  records     Record[]
+  teamMembers TeamMember[]
 
   @@map("Manager")
 }
 
 model Player {
+  playerId      Int          @id @default(autoincrement()) @map("playerId")
+  name          String       @map("name")
+  club          String       @map("club")
+  speed         Int          @map("speed")
+  goalFinishing Int          @map("goalFinishing")
+  shootPower    Int          @map("shootPower")
+  defense       Int          @map("defense")
+  stamina       Int          @map("stamina")
+  rarity        Int          @map("rarity")
+  type          Int?         @map("type")
+  playerImage   String?      @map("playerImage")
+  createdAt     DateTime     @default(now()) @map("createdAt")
+  updatedAt     DateTime     @updatedAt @map("updatedAt")
+  teamMembers   TeamMember[]
   playerId      Int          @id @default(autoincrement()) @map("playerId")
   name          String       @map("name")
   club          String       @map("club")
@@ -125,10 +167,17 @@ model Ranking {
   win       Int      @default(0) @map("win")
   lose      Int      @default(0) @map("lose")
   draw      Int      @default(0) @map("draw")
+  rankingId Int      @id @default(autoincrement()) @map("rankingId")
+  managerId Int      @map("managerId")
+  win       Int      @default(0) @map("win")
+  lose      Int      @default(0) @map("lose")
+  draw      Int      @default(0) @map("draw")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
   manager   Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
+  manager   Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
 
+  @@index([managerId], map: "Ranking_managerId_fkey")
   @@index([managerId], map: "Ranking_managerId_fkey")
   @@map("Ranking")
 }
@@ -139,8 +188,14 @@ model Record {
   gameResult Int      @map("gameResult")
   createdAt  DateTime @default(now()) @map("createdAt")
   updatedAt  DateTime @updatedAt @map("updatedAt")
+  recordId   Int      @id @default(autoincrement()) @map("recordId")
+  managerId  Int      @map("managerId")
+  gameResult Int      @map("gameResult")
+  createdAt  DateTime @default(now()) @map("createdAt")
+  updatedAt  DateTime @updatedAt @map("updatedAt")
   manager    Manager  @relation(fields: [managerId], references: [managerId], onDelete: Cascade)
 
+  @@index([managerId], map: "Record_managerId_fkey")
   @@index([managerId], map: "Record_managerId_fkey")
   @@map("Record")
 }

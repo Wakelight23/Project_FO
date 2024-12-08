@@ -1,7 +1,4 @@
-
-
 import { prisma } from '../utils/prisma/index.js';
-
 
 //두 값 사이의 난수 생성
 function getRandomInt(min, max) {
@@ -21,15 +18,14 @@ async function checkAdmin(accountId) {
             accountId: +accountId,
         },
     });
-    if (!isAdmin || isAdmin.isAdmin!=1) {
-      return false;
+    if (!isAdmin || isAdmin.isAdmin === false) {
+        return false;
         //res.status(500).json({ message: '서버에 이상이 생겼습니다.' });
     }
     return true;
 }
 
-
-export default  {
+export default {
     getRandomInt,
-    checkAdmin
-}
+    checkAdmin,
+};

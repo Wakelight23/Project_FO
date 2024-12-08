@@ -1,0 +1,76 @@
+body {
+  display: flex; /* Flexbox 사용 */
+  flex-direction: column; /* 수직 방향으로 배치 */
+  height: 100vh; /* 뷰포트 높이 100% */
+  margin: 0; /* 기본 여백 제거 */
+  background-color: #376d64; /* 배경색 설정 (선택 사항) */
+}
+
+nav {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline;
+  margin-right: 20px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+.container {
+  background-color: white; /* 배경색 설정 */
+  padding: 20px; /* 패딩 추가 */
+  border-radius: 8px; /* 모서리 둥글게 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+  width: 300px; /* 너비 설정 (필요에 따라 조정) */
+  height: 300px; /* 높이를 너비와 동일하게 설정 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  margin: auto; /* 수평 중앙 정렬을 위한 자동 마진 */
+  display: flex; /* Flexbox 사용 */
+  flex-direction: column; /* 수직 방향으로 배치 */
+  justify-content: center; /* 수직 중앙 정렬 */
+}
+h1 {
+  text-align: center;
+  color: #333;
+}
+form {
+  display: flex;
+  flex-direction: column;
+}
+input {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+button {
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #218838;
+}
+p {
+  text-align: center;
+}
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}

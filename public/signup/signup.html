@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .title {
+            margin: 0;
+            /* 기본 마진 제거 */
+            font-size: 24px;
+            /* 제목 크기 */
+        }
+
+        .nav ul {
+            list-style: none;
+            /* 기본 리스트 스타일 제거 */
+            padding: 0;
+            /* 패딩 제거 */
+            margin: 0;
+            /* 마진 제거 */
+            display: flex;
+            /* Flexbox 사용 */
+        }
+
+        .nav li {
+            margin: 0 15px;
+            /* 리스트 아이템 간의 간격 */
+        }
+
+        .nav a {
+            color: white;
+            /* 링크 색상 */
+            text-decoration: none;
+            /* 밑줄 제거 */
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+            /* 마우스 오버 시 밑줄 추가 */
+        }
+
+        .auth-links {
+            display: flex;
+            /* Flexbox 사용 */
+        }
+
+        .auth-links a {
+            color: white;
+            /* 링크 색상 */
+            text-decoration: none;
+            /* 밑줄 제거 */
+            margin-left: 10px;
+            /* 링크 간의 간격 */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 422px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 400px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>회원가입</h1>
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="email">이메일:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">비밀번호:</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">비밀번호 확인:</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="name">이름:</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="age">나이:</label>
+                <input type="number" id="age" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">성별:</label>
+                <select id="gender" required>
+                    <option value="">선택하세요</option>
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                </select>
+            </div>
+            <button type="submit">회원가입</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value; // 'male' 또는 'female' 값
+
+            try {
+                const response = await fetch('http://localhost:3002/api/sign-up', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        confirmPassword,
+                        name,
+                        age,
+                        gender,
+                    }),
+                });
+
+                const data = await response.json();
+                const messageDiv = document.getElementById('message');
+
+                if (response.ok) {
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = data.message;
+                } else {
+                    messageDiv.style.color = 'red';
+                    messageDiv.textContent = data.message;
+                }
+            } catch (error) {
+                const messageDiv = document.getElementById('message');
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = '서버와의 연결에 문제가 발생했습니다.';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

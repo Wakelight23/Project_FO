@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Soccer Simulation</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background-color: #2c3e50;
+            }
+            .soccer-field {
+                position: relative;
+                width: 600px;
+                height: 400px;
+                background: green;
+                border: 2px solid white;
+                overflow: hidden;
+            }
+            .ball {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                background: white;
+                border-radius: 50%;
+            }
+            .player {
+                position: absolute;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                font-size: 12px;
+            }
+            .team-a {
+                background-color: blue;
+            }
+            .team-b {
+                background-color: red;
+            }
+            .scoreboard {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-family: Arial, sans-serif;
+            }
+            .events-log {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                background: white;
+                padding: 10px;
+                max-height: 100px;
+                overflow-y: auto;
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="soccer-field">
+            <div class="scoreboard">Team A: 0 - 0 Team B</div>
+            <div class="events-log"></div>
+            <div class="ball"></div>
+            <div class="player team-a" style="top: 50px; left: 100px">1</div>
+            <div class="player team-a" style="top: 150px; left: 100px">2</div>
+            <div class="player team-a" style="top: 250px; left: 100px">3</div>
+            <div class="player team-b" style="top: 50px; left: 400px">1</div>
+            <div class="player team-b" style="top: 150px; left: 400px">2</div>
+            <div class="player team-b" style="top: 250px; left: 400px">3</div>
+        </div>
+        <script src="test.js"></script>
+    </body>
+</html>
