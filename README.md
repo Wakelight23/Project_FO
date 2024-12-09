@@ -2,13 +2,13 @@
 
 ## WireFrame & ERD
 
-- [WireFrame]() : 사용 도구 - EraserLabs
+- [WireFrame](https://app.eraser.io/workspace/cdioGb7CKtexTN17OBz2?origin=share) : 사용 도구 - EraserLabs
 - [ERD](https://drawsql.app/teams/wakelight/diagrams/project-football) : 사용 도구 - DrawSQL
 
 ## 프로젝트 결과
 
 - [프로젝트 시연 영상](https://youtu.be/7OGUQYB3zlk)
-- [포트폴리오]()
+- [포트폴리오](https://docs.google.com/presentation/d/129RTr2qMWiEQcqZIr0hylciTT6P4LcL0cGj_1nbLKXA/edit?usp=sharing)
 
 ## 기능 요약
 
@@ -23,6 +23,57 @@
 5. 팀 편성, 강화 : 선수 관리, 선발, 선발 변경, 강화 / 아이템 장착, 관리
 
 6. 게임 플레이 : 일반 게임, 대장전, 랭크 매치
+
+## File Directory
+
+```
+src/
+|   app.js
+|
++---logic
+|       gameplay.js
+|       simpleLogic.js
+|
++---middlewares
+|       auth.js
+|       error-handling.middleware.js
+|
++---routes
+|   +---cash
+|   |       cash.router.js
+|   |
+|   +---gacha
+|   |       gacha.router.js
+|   |
+|   +---gameplay
+|   |       captaingame.router.js
+|   |       playgame.router.js
+|   |       rankmatch.router.js
+|   |       record.router.js
+|   |
+|   +---item
+|   |       items.router.js
+|   |
+|   +---player
+|   |       players.router.js
+|   |
+|   +---sign_login
+|   |       checkManager.router.js
+|   |       delete.router.js
+|   |       manager.router.js
+|   |       search.router.js
+|   |       sign.router.js
+|   |
+|   \---teammember
+|           createRoster.router.js
+|           equipment.router.js
+|           myTeamMember.router.js
+|           upgradeMember.router.js
+|
+\---utils
+    \---prisma
+            index.js
+```
 
 # API 상세 설명
 
@@ -687,3 +738,16 @@ matchLog: ["A이(가) 골을 넣었습니다!"]
 </details>
 
 </details>
+
+## 기술 스택
+
+### Back-end
+
+<img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+<img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white">
+<img src="https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white">
+<img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
+<img src="https://img.shields.io/badge/prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white">
+<img src="https://img.shields.io/badge/yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white">
+<img src="https://img.shields.io/badge/.env-0D47A1?style=for-the-badge&logo=.env&logoColor=white">
