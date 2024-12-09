@@ -8,7 +8,6 @@
 ## 프로젝트 결과
 
 - [프로젝트 시연 영상](https://youtu.be/7OGUQYB3zlk)
-- [포트폴리오](https://docs.google.com/presentation/d/129RTr2qMWiEQcqZIr0hylciTT6P4LcL0cGj_1nbLKXA/edit?usp=sharing)
 
 ## 기능 요약
 
