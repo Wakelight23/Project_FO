@@ -298,7 +298,106 @@ isSelected의 값이 제대로 변경된 모습을 DB를 통해서도 확인할 
 - 이 두 장의 카드는 같은 playerId를 가지고 있어야 하며(같은 종류), 같은 등급이어야 합니다. </br>
 - 성공하면 upgrade 수치가 상승하여, 팀의 예상점수 계산 시 해당 값이 반영됩니다. </br>
 - 그러나 실패하게 되면 (1)번 카드의 등급이 현재 등급 미만의 랜덤한 등급으로 하락합니다.</br>
+
+- 강화 로직
   → 강화 확률 = 1 / ((선수 등급) / 2 + 1) \* 100 (%)</br></br>
+
+```javascript
+await prisma.$transaction(
+    async (tx) => {
+        // (1) 강화 확률 구하기 위해 랜덤 밸류를 생성하고 비교합니다.
+        const probability = (1 / ((playerUpgrades[0] * 1) / 2 + 1)) * 100;
+        const randomValue = Math.floor(Math.random() * 101); // 0이상 100이하의 랜덤한 정수 뽑기
+
+        // (2) 강화가 실패했을 때
+        if (randomValue > probability) {
+            // 등급 하락
+            const randomGrade = Math.floor(Math.random() * playerUpgrades[0]); // 0 이상 기존 등급 미만의 랜덤한 등급
+            await tx.teamMember.update({
+                where: {
+                    managerId: managerId.managerId,
+                    teamMemberId: memberIds[0],
+                },
+                data: {
+                    upgrade: randomGrade,
+                },
+            });
+            // 재료 카드 파괴
+            await tx.teamMember.delete({
+                where: {
+                    managerId: managerId.managerId,
+                    teamMemberId: memberIds[1],
+                },
+            });
+            const degradedMember = await tx.player.findFirst({
+                where: {
+                    playerId: playerIds[0],
+                },
+                select: {
+                    name: true,
+                    club: true,
+                },
+            });
+            const degradedNumber = await tx.teamMember.findFirst({
+                where: {
+                    teamMemberId: memberIds[0],
+                },
+                select: {
+                    upgrade: true,
+                },
+            });
+
+            return res.status(200).json({
+                message: '강화에 실패하였습니다. 재료 카드가 파괴되었습니다.',
+                degradedMember,
+                degradedNumber,
+            });
+        }
+
+        // (2) 강화가 성공했을 때
+        await tx.teamMember.update({
+            where: {
+                teamMemberId: memberIds[0],
+            },
+            data: {
+                upgrade: { increment: 1 },
+            },
+        });
+        // 재료 카드 소모
+        await tx.teamMember.delete({
+            where: {
+                teamMemberId: memberIds[1],
+            },
+        });
+        const upgradedMember = await tx.player.findFirst({
+            where: {
+                playerId: playerIds[0],
+            },
+            select: {
+                name: true,
+                club: true,
+            },
+        });
+        const upgradedNumber = await tx.teamMember.findFirst({
+            where: {
+                teamMemberId: memberIds[0],
+            },
+            select: {
+                upgrade: true,
+            },
+        });
+
+        return res.status(200).json({
+            message: '강화에 성공하였습니다. 재료 카드가 소모되었습니다.',
+            upgradedMember,
+            upgradedNumber,
+        });
+    },
+    {
+        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+    }
+);
+```
 
 → API 테스트 예시 - 강화 성공</br>
 ![](attachment/1ec29a645ee76befe55cc6224cc2109e.png)</br>
