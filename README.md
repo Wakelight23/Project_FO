@@ -7,6 +7,9 @@
 
 ## 프로젝트 결과
 
+- [프로젝트 시연 영상](https://youtu.be/7OGUQYB3zlk)
+- [포트폴리오]()
+
 ## 기능 요약
 
 1. 로그인/회원가입 : 계정 생성, 로그인 인증 토큰 생성, 보안 관리, 매니저 관리
@@ -27,9 +30,140 @@
 
 ## 인증 시스템 (유대원)
 
+- 로그인 성공 시 생성되는 엑세스 토큰은 사용자의 로컬스토리지에, 리프레시 토큰은 db에 저장합니다.
+
+<details>
+<summary>핵심기능</summary>
+
+- 사용자 회원가입 및 로그인 로그인 시 발행되는 토큰을 통해 인증 및 인가 진행 db에 저장된 리프레시 토큰을 통한 엑세스 토큰 재발행 사용자 개인 계정에 귀속되는 매니저 생성, 조회기능
+
+</details>
+
+<details>
+<summary>인증 미들웨어</summary>
+
+1. 엑세스 토큰이 유효할 때
+
+    - jwt.verify를 통해 엑세스 토큰의 유효성을 검사합니다.
+    - 유효한 경우 accountid를 조건으로, prisma.findFirst()를 통해 사용자 정보를 조회합니다.
+    - 계정정보를 req.account에 저장하여 이후 API에서 사용할 수 있습니다.
+
+2. 엑세스 토큰이 만료되었을 때
+
+    - 만료된 토큰이 아닌 이메일 정보 헤더의 이메일을 통해 accountid를 도출합니다. 도출한 accountid로 db의 리프레시 토큰을 검증합니다.
+
+3. 리프레시 토큰이 유효한 경우
+
+    - 검증 후 새로운 엑세스 토큰을 생성합니다 계정정보를 req.account에 저장하여 이후 API에서 사용하고, 클라이언트 로컬저장소에 새로운 엑세스 토큰을 전달합니다.
+    - 사용자 입장에서는 로그인 없이 요청-전달 과정이 진행됩니다.
+
+4. 리프레시 토큰이 만료된 경우
+
+    - 사용자가 다시 로그인하여 리프레시 토큰을 새로 생성해야합니다.
+
+</details>
+
+<details>
+<summary>API</summary>
+
+- 회원가입, 로그인 API
+
+    - 회원가입 요청 시 서버로 전달된 정보에 대한 유효성을 검증하여 상태에 맞는 메시지를 클라이언트에 전달합니다.
+    - (이메일(id) 형식, 비밀번호 길이 등등) 검증 완료 시 db에 accountid를 순서대로 할당하여 저장합니다.
+    - 로그인 요청 시 서버로 전달된 이메일, 비밀번호를 통해 db의 정보와 비교합니다. 로그인에 성공하면 엑세스토큰을 클라이언트에 전달하고, 리프레시 토큰을 db에 저장합니다.
+
+- 매니저 생성 API
+
+    - 매니저 생성 요청 시 서버로 전달된 닉네임의 중복 여부를 검증하고 인증 미들웨어에서 인증을 성공하여 전달받은 req.account에서 계정정보를 가져옵니다.
+    - 계정정보를 통해 매니저의 존재 유무를 확인하고, 없다면 입력한 닉네임, 기본 캐쉬, 기본 레이팅을 적용한 매니저를 생성합니다.(매니저는 계정당 1개만 생성할 수 있습니다)
+
+- 랭킹 조회 API
+    - db에 존재하는 모든 매니저를 레이팅 내림차순으로 정렬합니다.
+
+</details>
+
 ## 결제 시스템 (윤예원)
 
-## 선수 데이터 관리 (김종하)
+## 데이터 관리 (김종하)
+
+- 페이지 로드시 로그인 및 어드민 확인
+    - get /players/admin
+    - 페이지가 로드될때 데이터 변경하는 다음의 UI를 보여줄지 결정한다.
+        - csv 파일 업로드
+        - 새로운 선수 추가
+        - 선수 수정
+        - 선수 삭제
+        - 새로운 아이템 추가
+        - 아이템 수정
+        - 아이템 삭제
+
+<details>
+<summary>선수 데이터 관리</summary>
+
+![](attachment/playerdatafront.png)</br>
+
+- 선수 목록 조회
+    - get ./api/players
+    - 로그인 여부 상관없이 전체 선수 목록 조회
+- 선수 상세 조회
+    - get ./api/players/playerId
+    - 입력된 선수 id에 따라서 데이터 조회
+- csv 파일 업로드
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/players/csv
+    - 파일 선택을 눌러 csv 파일을 선택하고 업로드를 눌러 데이터베이스에 추가
+    - 예시 파일 [player](attachment/CSVfiles/england-premier-league-players-2018-to-2019-stats.csv)
+- 새로운 선수 추가
+    - ![](attachment/createPlayer.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/players
+    - 데이터를 입력후 추가를 눌러 추가
+- 선수 수정
+    - ![](attachment/alterPlayer.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/players/playerId
+    - 데이터를 입력후 수정을 눌러 수정
+- 선수 삭제
+    - ![](attachment/deletePlayer.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - delete ./api/players/playerId
+    - 선수 ID를 입력하고 삭제를 눌러 삭제
+
+</details>
+
+<details>
+<summary>아이템 데이터 관리</summary>
+
+![](attachment/itemdatafront.png)</br>
+
+- 아이템 목록 조회
+    - get ./api/items
+    - 로그인 여부 상관없이 전체 아이템 목록 조회
+- 아이템 상세 조회
+    - get ./api/items/itemId
+    - 입력된 아이템 id에 따라서 데이터 조회
+- csv 파일 업로드
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/items/csv
+    - 파일 선택을 눌러 csv 파일을 선택하고 업로드를 눌러 데이터베이스에 추가
+    - 예시 파일 [item](attachment/CSVfiles/item.csv)
+- 새로운 아이템 추가
+    - ![](attachment/createItem.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/items
+    - 데이터를 입력후 추가를 눌러 추가
+- 아이템 수정
+    - ![](attachment/alterItem.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - post ./api/items/itemId
+    - 데이터를 입력후 수정을 눌러 수정
+- 아이템 삭제
+    - ![](attachment/deleteItem.png)</br>
+    - 어드민 계정 로그인시에만 표시
+    - delete ./api/items/itemId
+    - 아이템 ID를 입력하고 삭제를 눌러 삭제
+
+</details>
 
 ## 선수 영입 (김정태)
 
@@ -116,10 +250,7 @@
 
 → API 테스트 예시(서로 다른 테스트 테이블에서 진행)</br>
 ![](attachment/966dce4f3fc4195dcdfe96995d74d301.png)</br>
-![](attachment/f2b40649e081b7320bfe9c8537d88af1.png)</br></br>
-
-→ 프론트엔드 구현</br>
-![image](https://github.com/user-attachments/assets/f39382a8-2baf-451a-84d8-d2ab8ef09900)
+![](attachment/f2b40649e081b7320bfe9c8537d88af1.png)</br>
 
 </details>
 
@@ -131,10 +262,7 @@
 
 → API 테스트 예시(서로 다른 테스트 테이블에서 진행)</br>
 ![](attachment/376ff047843bb27ef64f444157dd7c4b.png)</br>
-![](attachment/738f274af3fb13fb08c469a17f6de6fb.png)</br></br>
-
-→ 프론트엔드 구현</br>
-![image](https://github.com/user-attachments/assets/0c102a8a-b78f-4aff-a75f-97c9416179ea)
+![](attachment/738f274af3fb13fb08c469a17f6de6fb.png)</br>
 
 </details>
 
@@ -149,10 +277,7 @@
 ![](attachment/b6820ac2e735fb0b361154d32af4658f.png)</br>
 1번 선수를 3번 선수로 변경하면 다음과 같은 결과를 반환받을 수 있습니다.</br>
 ![](attachment/f57bfec6ab0d5762d0389d4f51912bdc.png)</br>
-isSelected의 값이 제대로 변경된 모습을 DB를 통해서도 확인할 수 있습니다.</br>
-
-→ 프론트엔드 구현</br>
-![image](https://github.com/user-attachments/assets/e512074b-c25e-4425-96d2-f11e062f6b65)
+isSelected의 값이 제대로 변경된 모습을 DB를 통해서도 확인할 수 있습니다.
 
 </details>
 
@@ -187,19 +312,6 @@ Insomnia로 API를 실행한 결과, 강화에 실패한 모습</br>
 
 ![](attachment/Pasted%20image%2020241204123822.png)</br>
 예상한 것처럼 선수 카드가 강등되고 사라진 모습을 확인할 수 있었습니다.</br>
-
-→ 프론트엔드 구현</br>
-![image](https://github.com/user-attachments/assets/e84677d3-2501-480a-a12b-375ad010428f)
-
-</details>
-
-<details>
-<summary>아이템 장착 API</summary>
-사용자의 아이템을 조회하는 API와 아이템을 장착하는 API를 이용하여 선수별로 아이템을 장착할 수 있는 프론트엔드를 구현했습니다.</br></br>
-
-→ 프론트엔드 구현</br>
-![image](https://github.com/user-attachments/assets/a7544514-564c-47d3-abfa-864dbc3b235f)
-![image](https://github.com/user-attachments/assets/746ea4ef-dd16-44fd-9fda-94a5e76326cb)
 
 </details>
 
@@ -242,23 +354,25 @@ Insomnia로 API를 실행한 결과, 강화에 실패한 모습</br>
 <details>
 <summary>1. 일반 매치 게임</summary>
 
-1. calculateTeamPower(selectedPlayers)
-    - 선택된 선수들의 전체 전투력을 계산
-    - 각 선수의 능력치, 강화 수준, 장비를 고려하여 개별 전투력을 계산한 후 합산
-2. generateOpponentPower(playerPower)
-    - 상대방의 전투력을 생성
-    - 플레이어 전투력의 80%에서 120% 사이의 랜덤한 값을 반환
-3. determineWinner(myPower, opponentPower)
-    - 승패를 결정
-    - 전투력 차이에 따른 기본 승률을 계산하고, 랜덤 요소를 추가하여 최종 결과를 결정
-4. calculatePlayerPower(player, upgrade, equipment)
-    - 개별 선수의 전투력을 계산
-    - 선수의 기본 능력치, 강화 수준, 장비 보너스를 고려함
-5. updateGameResult(managerId, gameResult)
-    - 게임 결과를 데이터베이스에 저장
-    - 매니저의 레이팅, 랭킹 정보, 전적을 업데이트
+### 로직 설명
 
-게임 진행 예시
+1. calculateTeamPower(selectedPlayers)
+    - 선택된 선수들의 전체 전투력을 계산합니다.
+    - 각 선수의 능력치, 강화 수준, 장비를 고려하여 개별 전투력을 계산한 후 합산합니다.
+2. generateOpponentPower(playerPower)
+    - 상대방의 전투력을 생성합니다.
+    - 플레이어 전투력의 80%에서 120% 사이의 랜덤한 값을 반환합니다.
+3. determineWinner(myPower, opponentPower)
+    - 승패를 결정합니다.
+    - 전투력 차이에 따른 기본 승률을 계산하고, 랜덤 요소를 추가하여 최종 결과를 .결정합니다
+4. calculatePlayerPower(player, upgrade, equipment)
+    - 개별 선수의 전투력을 계산합니다.
+    - 선수의 기본 능력치, 강화 수준, 장비 보너스를 고려합니다.
+5. updateGameResult(managerId, gameResult)
+    - 게임 결과를 데이터베이스에 저장합니다.
+    - 매니저의 레이팅, 랭킹 정보, 전적을 업데이트를 진행합니다.
+
+### 게임 진행 예시
 
 1. 팀 전투력 계산:
 
@@ -297,6 +411,138 @@ Insomnia로 API를 실행한 결과, 강화에 실패한 모습</br>
 - 랭킹 테이블의 패배 횟수 1 증가
 - 전적 테이블에 패배 기록 추가
 ```
+
+</details>
+
+<details>
+<summary>2. 대장전</summary>
+
+### 로직 설명
+
+1. 라운드마다 각 선수가 배열에 입력된 순서대로 상대방 선수와 능력치 비교합니다.
+2. 'calculatePlayerPower' 함수를 사용하여 상대방 선수의 능력치를 계산합니다.
+3. 사용자 선수와 상대방 선수의 능력치를 비교하여 승패를 결정합니다.
+
+### 작동 예시
+
+```javascript
+gameSession.selectedPlayers = [
+    { playerId: 1, power: 100, name: 'A', upgrade: 1 },
+    { playerId: 2, power: 90, name: 'B', upgrade: 0 },
+    { playerId: 3, power: 110, name: 'C', upgrade: 2 },
+];
+
+opponentPlayers = [
+    { player: { playerId: 4, name: 'X' }, upgrade: 1 },
+    { player: { playerId: 5, name: 'Y' }, upgrade: 2 },
+    { player: { playerId: 6, name: 'Z' }, upgrade: 0 },
+];
+
+// 가정: calculatePlayerPower 함수가 다음과 같이 결과를 반환한다고 가정
+// calculatePlayerPower(opponentPlayers[0].player, 1) => 95
+// calculatePlayerPower(opponentPlayers[1].player, 2) => 105
+// calculatePlayerPower(opponentPlayers[2].player, 0) => 100
+```
+
+- 사용자 1번째 선수와 상대방 1번째 선수 비교 - 승리
+- 사용자 2번째 선수와 상대방 2번째 선수 비교 - 패배
+- 사용자 3번째 선수와 상대방 3번째 선수 비교 - 승리
+- 3 round 중 2 round 승리로 승리를 기록합니다
+
+```javascript
+matches = [
+    {
+        round: 1,
+        myPlayer: { playerId: 1, power: 100, name: 'A', upgrade: 1 },
+        opponentPlayer: { playerId: 4, power: 95, name: 'X', upgrade: 1 },
+        result: '승리',
+    },
+    {
+        round: 2,
+        myPlayer: { playerId: 2, power: 90, name: 'B', upgrade: 0 },
+        opponentPlayer: { playerId: 5, power: 105, name: 'Y', upgrade: 2 },
+        result: '패배',
+    },
+    {
+        round: 3,
+        myPlayer: { playerId: 3, power: 110, name: 'C', upgrade: 2 },
+        opponentPlayer: { playerId: 6, power: 100, name: 'Z', upgrade: 0 },
+        result: '승리',
+    },
+];
+```
+
+</details>
+
+<details>
+<summary>3. 랭크 매치 게임</summary>
+
+### 로직 설명
+
+1. 초기 설정
+
+- myScore와 opponentScore는 각 팀의 득점을 추적합니다.
+- matchLog 배열은 경기 진행 상황을 기록합니다.
+
+2. playRound 함수
+
+- 이 함수는 한 라운드의 경기를 시뮬레이션합니다.
+- 모든 선수(myPlayers와 opponentPlayers)를 능력치(power) 기준으로 내림차순 정렬합니다.
+- 정렬된 선수들을 순회하며 각 선수의 득점 가능성을 계산합니다.
+  득점 확률 계산
+
+3. goalProbability = player.power / 1000로 계산됩니다.
+
+- 예를 들어, 선수의 power가 500이면 득점 확률은 50%입니다.
+
+4. 득점 시뮬레이션
+
+- Math.random() < goalProbability를 통해 실제 득점 여부를 결정합니다.
+- 득점 시 해당 팀의 점수를 증가시키고 로그에 기록합니다.
+
+5. 경기 종료 조건
+
+- 한 팀이 득점하여 동점이 깨지면 해당 라운드를 종료합니다.
+
+### 작동 예시
+
+```javascript
+const myPlayers = [
+    { name: 'A', power: 600 },
+    { name: 'B', power: 450 },
+    { name: 'C', power: 300 },
+];
+
+const opponentPlayers = [
+    { name: 'X', power: 550 },
+    { name: 'Y', power: 500 },
+    { name: 'Z', power: 400 },
+];
+```
+
+1. 선수 정렬
+
+- 정렬 후 순서: A(600), X(550), Y(500), B(450), Z(400), C(300)
+
+2. 첫 라운드 시뮬레이션
+
+- A의 득점 확률: 60%, X의 득점 확률: 55%, Y의 득점 확률: 50% ...
+- 가정: A가 득점에 성공했다면
+
+```
+myScore: 1
+opponentScore: 0
+matchLog: ["A이(가) 골을 넣었습니다!"]
+```
+
+3. 추가 라운드
+
+- 동점이 될 때까지 라운드를 반복합니다.
+- 예를 들어, 다음 라운드에서 X가 득점하면 동점이 되어 계속 진행됩니다.
+
+4. 경기 종료
+
+- 최종적으로 한 팀이 앞서게 되면 경기가 종료됩니다.
 
 </details>
 
