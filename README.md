@@ -250,7 +250,10 @@
 
 → API 테스트 예시(서로 다른 테스트 테이블에서 진행)</br>
 ![](attachment/966dce4f3fc4195dcdfe96995d74d301.png)</br>
-![](attachment/f2b40649e081b7320bfe9c8537d88af1.png)</br>
+![](attachment/f2b40649e081b7320bfe9c8537d88af1.png)</br></br>
+
+→ 프론트엔드 구현</br>
+![image](https://github.com/user-attachments/assets/f39382a8-2baf-451a-84d8-d2ab8ef09900)
 
 </details>
 
@@ -262,7 +265,10 @@
 
 → API 테스트 예시(서로 다른 테스트 테이블에서 진행)</br>
 ![](attachment/376ff047843bb27ef64f444157dd7c4b.png)</br>
-![](attachment/738f274af3fb13fb08c469a17f6de6fb.png)</br>
+![](attachment/738f274af3fb13fb08c469a17f6de6fb.png)</br></br>
+
+→ 프론트엔드 구현</br>
+![image](https://github.com/user-attachments/assets/0c102a8a-b78f-4aff-a75f-97c9416179ea)
 
 </details>
 
@@ -277,7 +283,10 @@
 ![](attachment/b6820ac2e735fb0b361154d32af4658f.png)</br>
 1번 선수를 3번 선수로 변경하면 다음과 같은 결과를 반환받을 수 있습니다.</br>
 ![](attachment/f57bfec6ab0d5762d0389d4f51912bdc.png)</br>
-isSelected의 값이 제대로 변경된 모습을 DB를 통해서도 확인할 수 있습니다.
+isSelected의 값이 제대로 변경된 모습을 DB를 통해서도 확인할 수 있습니다.</br>
+
+→ 프론트엔드 구현</br>
+![image](https://github.com/user-attachments/assets/e512074b-c25e-4425-96d2-f11e062f6b65)
 
 </details>
 
@@ -312,6 +321,19 @@ Insomnia로 API를 실행한 결과, 강화에 실패한 모습</br>
 
 ![](attachment/Pasted%20image%2020241204123822.png)</br>
 예상한 것처럼 선수 카드가 강등되고 사라진 모습을 확인할 수 있었습니다.</br>
+
+→ 프론트엔드 구현</br>
+![image](https://github.com/user-attachments/assets/e84677d3-2501-480a-a12b-375ad010428f)
+
+</details>
+
+<details>
+<summary>아이템 장착 API</summary>
+사용자의 아이템을 조회하는 API와 아이템을 장착하는 API를 이용하여 선수별로 아이템을 장착할 수 있는 프론트엔드를 구현했습니다.</br></br>
+
+→ 프론트엔드 구현</br>
+![image](https://github.com/user-attachments/assets/a7544514-564c-47d3-abfa-864dbc3b235f)
+![image](https://github.com/user-attachments/assets/746ea4ef-dd16-44fd-9fda-94a5e76326cb)
 
 </details>
 
